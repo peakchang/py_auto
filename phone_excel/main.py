@@ -3,7 +3,8 @@ from ongo import *
 
 
 def th():
-    getDict = {}
+    getDict = {'getTong': tongVal.current(), 'getLine' : entry.get()}
+    
     onth = threading.Thread(target=lambda: goScript(getDict))
     onth.daemon = True
     onth.start()
@@ -13,7 +14,7 @@ def th():
 # 윈도우 창 생성 및 버튼 화면 조절
 root = Tk()
 root.title("이미지 생성하기")
-root.geometry("300x360+500+300")
+root.geometry("300x130+500+300")
 root.resizable(False, FALSE)
 
 frame1 = LabelFrame(root, text='가즈아', padx=40, pady=10)  # padx / pady 내부여백
@@ -23,6 +24,13 @@ frame1.pack(padx=10, pady=5)  # padx / pady 외부여백
 # 시작 버튼 생성
 btn1 = Button(frame1, text='GOGOGO~~!!', command=th, padx=50)
 btn1.pack()
+
+tongVal = ttk.Combobox(frame1, values=['SK','KT','LG'])
+tongVal.current(0)
+tongVal.pack()
+
+entry = Entry(frame1)
+entry.pack()
 
 # btn2 = Button(frame1, text='쇼핑 순위 체크', command=th2, padx=50)
 # btn2.pack()
