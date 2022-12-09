@@ -132,7 +132,7 @@ def goScript(getDict):
                         
                         ws.Range(ws.Cells(5,2),ws.Cells(13,9)).Copy()  
                         img = ImageGrab.grabclipboard()
-                        imgFile = os.path.join(f'{os.getcwd()}/result_image',f'{setTong} {deviceName} {capa} 번호이동 공시지원금 요금제표.png')
+                        imgFile = os.path.join(f'{os.getcwd()}/result_image',f'{setTong}_{pre_val}_{capa}_mnp_gongsi.png')
                         img.save(imgFile)
                         
                         ws.cells(5,14).Value = "번호이동 선택약정 요금제표"
@@ -145,7 +145,7 @@ def goScript(getDict):
                         
                         ws.Range(ws.Cells(5,12),ws.Cells(13,19)).Copy()  
                         img = ImageGrab.grabclipboard()
-                        imgFile = os.path.join(f'{os.getcwd()}/result_image',f'{setTong} {deviceName} {capa} 번호이동 선택약정 요금제표.png')
+                        imgFile = os.path.join(f'{os.getcwd()}/result_image',f'{setTong}_{pre_val}_{capa}_mnp_sunyak.png')
                         img.save(imgFile)
                         
                         
@@ -161,7 +161,7 @@ def goScript(getDict):
                         
                         ws.Range(ws.Cells(5,2),ws.Cells(13,9)).Copy()  
                         img = ImageGrab.grabclipboard()
-                        imgFile = os.path.join(f'{os.getcwd()}/result_image',f'{setTong} {deviceName} {capa} 기기변경 공시지원금 요금제표.png')
+                        imgFile = os.path.join(f'{os.getcwd()}/result_image',f'{setTong}_{pre_val}_{capa}_gib_gongsi.png')
                         img.save(imgFile)
                         
                         ws.cells(5,14).Value = "기기변경 선택약정 요금제표"
@@ -174,7 +174,7 @@ def goScript(getDict):
                         
                         ws.Range(ws.Cells(5,12),ws.Cells(13,19)).Copy()  
                         img = ImageGrab.grabclipboard()
-                        imgFile = os.path.join(f'{os.getcwd()}/result_image',f'{setTong} {deviceName} {capa} 기기변경 선택약정 요금제표.png')
+                        imgFile = os.path.join(f'{os.getcwd()}/result_image',f'{setTong}_{pre_val}_{capa}_gib_sunyak.png')
                         img.save(imgFile)
                         
                     
@@ -198,6 +198,7 @@ def goScript(getDict):
                     
                     # if getNowCapa is None:
                     #     break
+        pre_val = tempVal
         
 
     
