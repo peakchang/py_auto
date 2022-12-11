@@ -42,7 +42,8 @@ def goScript(getDict):
     else:
         setTong = 'LG'
         
-    
+    # with open("./result_image/0result.txt", "w") as f:
+    #     f.write("start~~~~\n")
     
     
     # 스프레드 시트 열기
@@ -148,7 +149,6 @@ def goScript(getDict):
                         imgFile = os.path.join(f'{os.getcwd()}/result_image',f'{setTong}_{pre_val}_{capa}_mnp_sunyak.png')
                         img.save(imgFile)
                         
-                        
                     for idg, basicFee in enumerate(yogFeeList):
                         ws.cells(5,4).Value = "기기변경 공시지원금 요금제표"
                         ws.cells(setCount+idg,5).Value = gongsi_list[idg]
@@ -163,6 +163,7 @@ def goScript(getDict):
                         img = ImageGrab.grabclipboard()
                         imgFile = os.path.join(f'{os.getcwd()}/result_image',f'{setTong}_{pre_val}_{capa}_gib_gongsi.png')
                         img.save(imgFile)
+
                         
                         ws.cells(5,14).Value = "기기변경 선택약정 요금제표"
                         setsHalwon = fPrice_list[idx] - gib_shal_list[idg]
@@ -177,7 +178,12 @@ def goScript(getDict):
                         imgFile = os.path.join(f'{os.getcwd()}/result_image',f'{setTong}_{pre_val}_{capa}_gib_sunyak.png')
                         img.save(imgFile)
                         
-                    
+                    with open("./result_image/0result.txt", "a") as f:
+                        f.write(f'{setTong}_{pre_val}_{capa}_gib_gongsi.png\n')
+                        f.write(f'{setTong}_{pre_val}_{capa}_gib_sunyak.png\n')
+                        f.write(f'{setTong}_{pre_val}_{capa}_mnp_gongsi.png\n')
+                        f.write(f'{setTong}_{pre_val}_{capa}_mnp_sunyak.png\n\n')
+                        
                     
                     
                     
@@ -216,6 +222,52 @@ def goScript(getDict):
     
     
     # excel.Quit()
+    
+    
+def make_link():
+    # 엑셀파일 열기
+    excel = win32com.client.Dispatch("Excel.Application", pythoncom.CoInitialize())
+    excel.visible = False
+    
+    wb = excel.Workbooks.Open(f'{os.getcwd()}/create_link.xlsx')
+    ws = wb.Worksheets['Sheet1']
+    
+    with open("./create_link.txt", "w") as f:
+        f.write('생성시작\n\n')
+    
+    
+    plusCount = 0
+    while True:
+        
+        bc = 2+plusCount
+        if ws.cells(bc,1).Value is None:
+            break
+        
+        linkText = "http://ts-phone.com/test/update_get.php"
+        it_id = f"?it_id={math.ceil(ws.cells(2+plusCount,2).Value)}"
+        linkText = linkText + it_id
+        
+        set_tong = f"&it_shop_memo={ws.cells(2+plusCount,3).Value}"
+        linkText = linkText + set_tong
+        # sk_item_list = f"?sk_item_list={ws.cells(2+plusCount,2)}"
+        
+        sc = 4
+        for k in range(3):
+            for i in range(9):
+                nc = sc + i
+                if ws.cells(bc,nc).Value is not None:
+                    linkText = linkText + f"&{ws.cells(1,nc).Value}={ws.cells(bc,nc).Value}"
+            sc = sc + 9
+        pg.alert(linkText)
+        
+        with open("./create_link.txt", "a") as f:
+            f.write(f'{linkText}\n\n')
+        plusCount += 1
+    
+    
+            
+    pg.alert('종료합니다!!')
+    excel.Quit()
     
     
 def getArr(setList, setNum, ok=''):
