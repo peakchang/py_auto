@@ -116,8 +116,8 @@ def goScript(getDict):
                 
                 
                 for idx, capa in enumerate(capa_list):
-                    ws.cells(5,2).Value = f'SK {deviceName} {capa}'
-                    ws.cells(5,12).Value = f'SK {deviceName} {capa}'
+                    ws.cells(5,2).Value = f'{setTong} {deviceName} {capa}'
+                    ws.cells(5,12).Value = f'{setTong} {deviceName} {capa}'
                     ws.cells(7,4).Value = fPrice_list[idx]
                     ws.cells(7,15).Value = fPrice_list[idx]
                     setCount = 7
@@ -179,6 +179,8 @@ def goScript(getDict):
                         img.save(imgFile)
                         
                     with open("./result_image/0result.txt", "a") as f:
+                        f.write(f'{setTong}_{pre_val}_{capa}_gib_gongsi.png,{setTong}_{pre_val}_{capa}_gib_sunyak.png,{setTong}_{pre_val}_{capa}_mnp_gongsi.png,{setTong}_{pre_val}_{capa}_mnp_sunyak.png\n')
+                        
                         f.write(f'{setTong}_{pre_val}_{capa}_gib_gongsi.png\n')
                         f.write(f'{setTong}_{pre_val}_{capa}_gib_sunyak.png\n')
                         f.write(f'{setTong}_{pre_val}_{capa}_mnp_gongsi.png\n')
