@@ -19,6 +19,7 @@ from tkinter import *
 from tkinter import ttk
 import pythoncom
 import gspread
+import openpyxl
 
 """
 주요 변수
@@ -56,9 +57,13 @@ def goScript(getDict):
     # 엑셀파일 열기
     excel = win32com.client.Dispatch("Excel.Application", pythoncom.CoInitialize())
     excel.visible = False
-    
+
     wb = excel.Workbooks.Open(f'{os.getcwd()}/test_ex.xlsx')
     ws = wb.Worksheets['onSheet']
+    
+    workCreate = openpyxl.load_workbook('create_link.xlsx')
+    sheet = workCreate.get_sheet_by_name('Sheet1')
+    
     
     if not getDict['getLine']:
         basicCount = 0
@@ -80,6 +85,12 @@ def goScript(getDict):
     setBasicTable(ws, yogDataList, 16, 6)
     setBasicTable(ws, yogShalList, 14)
     
+    if setTong == 'SK':
+        createCount = 6
+    elif setTong == 'KT':
+        createCount = 15
+    else:
+        createCount = 24
     while True:
         basicCount += 1
         tempVal = workSheet.acell(f'A{basicCount}').value
@@ -102,6 +113,7 @@ def goScript(getDict):
                     
                     gib_ghal_list = getArr(all_list, 56)
                     gib_shal_list = getArr(all_list, 63)
+                    
                 else:
                     all_list = workSheet.range(f'B{basicCount}:H{basicCount+8}')
                     capa_list = getArr(all_list, 0, 'ok')
@@ -116,6 +128,7 @@ def goScript(getDict):
                 
                 
                 for idx, capa in enumerate(capa_list):
+                    
                     ws.cells(5,2).Value = f'{setTong} {deviceName} {capa}'
                     ws.cells(5,12).Value = f'{setTong} {deviceName} {capa}'
                     ws.cells(7,4).Value = fPrice_list[idx]
@@ -185,9 +198,14 @@ def goScript(getDict):
                         img = ImageGrab.grabclipboard()
                         imgFile = os.path.join(f'{os.getcwd()}/result_image',f'{setTong}_{pre_val}_{capa}_gib_sunyak.png')
                         img.save(imgFile)
-                        
+                    
+                    createCount += 1
                     with open("./result_image/0result.txt", "a") as f:
                         f.write(f'{setTong}_{pre_val}_{capa}_gib_gongsi.png,{setTong}_{pre_val}_{capa}_gib_sunyak.png,{setTong}_{pre_val}_{capa}_mnp_gongsi.png,{setTong}_{pre_val}_{capa}_mnp_sunyak.png\n')
+                        
+                        sheet.cell(2,createCount).value = f'{setTong}_{pre_val}_{capa}_gib_gongsi.png,{setTong}_{pre_val}_{capa}_gib_sunyak.png,{setTong}_{pre_val}_{capa}_mnp_gongsi.png,{setTong}_{pre_val}_{capa}_mnp_sunyak.png'
+                        workCreate.save('create_link.xlsx')
+                        
                         
                         f.write(f'{setTong}_{pre_val}_{capa}_gib_gongsi.png\n')
                         f.write(f'{setTong}_{pre_val}_{capa}_gib_sunyak.png\n')
