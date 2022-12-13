@@ -19,6 +19,7 @@ from tkinter import *
 from tkinter import ttk
 import pythoncom
 import gspread
+import openpyxl
 
 """
 주요 변수
@@ -56,9 +57,13 @@ def goScript(getDict):
     # 엑셀파일 열기
     excel = win32com.client.Dispatch("Excel.Application", pythoncom.CoInitialize())
     excel.visible = False
-    
+
     wb = excel.Workbooks.Open(f'{os.getcwd()}/test_ex.xlsx')
     ws = wb.Worksheets['onSheet']
+    
+    workCreate = openpyxl.load_workbook('create_link.xlsx')
+    sheet = workCreate.get_sheet_by_name('Sheet1')
+    
     
     if not getDict['getLine']:
         basicCount = 0
@@ -80,6 +85,12 @@ def goScript(getDict):
     setBasicTable(ws, yogDataList, 16, 6)
     setBasicTable(ws, yogShalList, 14)
     
+    if setTong == 'SK':
+        createCount = 6
+    elif setTong == 'KT':
+        createCount = 15
+    else:
+        createCount = 24
     while True:
         basicCount += 1
         tempVal = workSheet.acell(f'A{basicCount}').value
@@ -102,6 +113,7 @@ def goScript(getDict):
                     
                     gib_ghal_list = getArr(all_list, 56)
                     gib_shal_list = getArr(all_list, 63)
+                    
                 else:
                     all_list = workSheet.range(f'B{basicCount}:H{basicCount+8}')
                     capa_list = getArr(all_list, 0, 'ok')
@@ -116,6 +128,7 @@ def goScript(getDict):
                 
                 
                 for idx, capa in enumerate(capa_list):
+                    
                     ws.cells(5,2).Value = f'{setTong} {deviceName} {capa}'
                     ws.cells(5,12).Value = f'{setTong} {deviceName} {capa}'
                     ws.cells(7,4).Value = fPrice_list[idx]
@@ -185,9 +198,14 @@ def goScript(getDict):
                         img = ImageGrab.grabclipboard()
                         imgFile = os.path.join(f'{os.getcwd()}/result_image',f'{setTong}_{pre_val}_{capa}_gib_sunyak.png')
                         img.save(imgFile)
-                        
+                    
+                    createCount += 1
                     with open("./result_image/0result.txt", "a") as f:
                         f.write(f'{setTong}_{pre_val}_{capa}_gib_gongsi.png,{setTong}_{pre_val}_{capa}_gib_sunyak.png,{setTong}_{pre_val}_{capa}_mnp_gongsi.png,{setTong}_{pre_val}_{capa}_mnp_sunyak.png\n')
+                        
+                        sheet.cell(2,createCount).value = f'{setTong}_{pre_val}_{capa}_gib_gongsi.png,{setTong}_{pre_val}_{capa}_gib_sunyak.png,{setTong}_{pre_val}_{capa}_mnp_gongsi.png,{setTong}_{pre_val}_{capa}_mnp_sunyak.png'
+                        workCreate.save('create_link.xlsx')
+                        
                         
                         f.write(f'{setTong}_{pre_val}_{capa}_gib_gongsi.png\n')
                         f.write(f'{setTong}_{pre_val}_{capa}_gib_sunyak.png\n')
@@ -282,6 +300,91 @@ def make_link():
     pg.alert('종료합니다!!')
     excel.Quit()
     
+    
+def gogoScript(getDict):
+    
+    
+    a = ["a/b/c","d","e"]
+    string = ''.join(a)
+    print(string)
+    pg.alert(string)
+    
+    
+    
+    
+    pg.alert('여기 맞지??')
+    
+    if getDict['getTong'] == 0:
+        setTong = 'SK'
+    elif getDict['getTong'] == 1:
+        setTong = 'KT'
+    else:
+        setTong = 'LG'
+        
+    # with open("./result_image/0result.txt", "w") as f:
+    #     f.write("start~~~~\n")
+    
+    
+    # 스프레드 시트 열기
+    json_file_name = 'ecstatic-magpie-310310-5c58a2ab08ef.json'
+    gc = gspread.service_account(filename=json_file_name)
+    
+    doc = gc.open_by_url('https://docs.google.com/spreadsheets/d/1gWxGWnVPMBN6qDrHglE75Qn5j2Fq9sixEX14mW8qsMo/edit?usp=sharing')
+    workSheet = doc.worksheet(setTong)
+    
+    if not getDict['getLine']:
+        basicCount = 0
+    else:
+        basicCount = int(getDict['getLine'])
+    
+    # yogInfoList = workSheet.range(f'B1:H3')
+    # yogNameList = getArr(yogInfoList, 0)
+    # yogFeeList = getArr(yogInfoList, 7)
+    # yogDataList = getArr(yogInfoList, 14)
+    
+    # yogShalList = []
+    # for i, val in enumerate(yogFeeList):
+    #     sHalVal = math.ceil(val * 0.25) * -1
+    #     yogShalList.append(sHalVal)
+
+    
+    while True:
+        basicCount += 1
+        tempVal = workSheet.acell(f'A{basicCount}').value
+        if tempVal == 'STOP':
+            pg.alert('작업이 완료 되었습니다!')
+            break
+        if tempVal is not None:
+            if '갤럭시' in tempVal or '아이폰' in tempVal:
+                deviceName = tempVal
+                
+                all_list = workSheet.range(f'B{basicCount}:H{basicCount+9}')
+                capa_list = getArr(all_list, 0, 'ok')
+                fPrice_list = getArr(all_list, 7, 'ok')
+                gongsi_list = getArr(all_list, 14)        
+                mnp_ghal_list = getArr(all_list, 42)
+                mnp_shal_list = getArr(all_list, 49)
+                gib_ghal_list = getArr(all_list, 56)
+                gib_shal_list = getArr(all_list, 63)
+                
+                for val in fPrice_list:
+                    pg.alert(
+                        f"{val}|{','.join(str(_) for _ in gongsi_list)}|{','.join(str(_) for _ in gib_ghal_list)}|{','.join(str(_) for _ in gib_shal_list)}|{','.join(str(_) for _ in mnp_ghal_list)}|{','.join(str(_) for _ in mnp_shal_list)}"
+                    )
+                
+                pg.alert(capa_list)
+                pg.alert(fPrice_list)
+                pg.alert(gongsi_list)
+                pg.alert(mnp_ghal_list)
+                pg.alert(mnp_shal_list)
+                pg.alert(gib_ghal_list)
+                pg.alert(gib_shal_list)
+                
+
+
+
+
+
     
 def getArr(setList, setNum, ok=''):
     temp_list = setList[setNum:setNum+7]

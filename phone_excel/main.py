@@ -15,7 +15,13 @@ def th2():
     onth = threading.Thread(target=lambda: make_link())
     onth.daemon = True
     onth.start()
-
+    
+def th3():
+    getDict = {'getTong': tongVal.current(), 'getLine' : entry.get()}
+    
+    onth = threading.Thread(target=lambda: gogoScript(getDict))
+    onth.daemon = True
+    onth.start()
 
 # 윈도우 창 생성 및 버튼 화면 조절
 root = Tk()
@@ -33,6 +39,9 @@ btn1.pack()
 
 btn2 = Button(frame1, text='링크생성~!!', command=th2, padx=50)
 btn2.pack()
+
+btn3 = Button(frame1, text='GOGOGO~~!!', command=th3, padx=50)
+btn3.pack()
 
 tongVal = ttk.Combobox(frame1, values=['SK','KT','LG'])
 tongVal.current(0)
