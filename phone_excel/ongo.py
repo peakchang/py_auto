@@ -122,9 +122,11 @@ def goScript(getDict):
                     ws.cells(7,15).Value = fPrice_list[idx]
                     setCount = 7
                     for idg, basicFee in enumerate(yogFeeList):
-                        ws.cells(5,4).Value = "번호이동 공시지원금 요금제표"
+                        ws.cells(5,5).Value = "번호이동 공시지원금 요금제표"
                         ws.cells(setCount+idg,5).Value = gongsi_list[idg]
                         setMnpgHalwon = fPrice_list[idx] - gongsi_list[idg] - mnp_ghal_list[idg]
+                        if setMnpgHalwon < 0:
+                            setMnpgHalwon = 0
                         setMnpgMonthHal = math.ceil(setMnpgHalwon / 24)
                         ws.cells(setCount+idg,7).Value = setMnpgHalwon
                         ws.cells(setCount+idg,8).Value = setMnpgMonthHal
@@ -136,8 +138,10 @@ def goScript(getDict):
                         imgFile = os.path.join(f'{os.getcwd()}/result_image',f'{setTong}_{pre_val}_{capa}_mnp_gongsi.png')
                         img.save(imgFile)
                         
-                        ws.cells(5,14).Value = "번호이동 선택약정 요금제표"
+                        ws.cells(5,15).Value = "번호이동 선택약정 요금제표"
                         setMnpsHalwon = fPrice_list[idx] - mnp_shal_list[idg]
+                        if setMnpsHalwon < 0:
+                            setMnpsHalwon = 0
                         setMnpsMonthHal = math.ceil(setMnpsHalwon / 24)
                         
                         ws.cells(setCount+idg,17).Value = setMnpsHalwon
@@ -150,9 +154,11 @@ def goScript(getDict):
                         img.save(imgFile)
                         
                     for idg, basicFee in enumerate(yogFeeList):
-                        ws.cells(5,4).Value = "기기변경 공시지원금 요금제표"
+                        ws.cells(5,5).Value = "기기변경 공시지원금 요금제표"
                         ws.cells(setCount+idg,5).Value = gongsi_list[idg]
                         setgHalwon = fPrice_list[idx] - gongsi_list[idg] - gib_ghal_list[idg]
+                        if setgHalwon < 0:
+                            setgHalwon = 0
                         setgMonthHal = math.ceil(setgHalwon / 24)
                         ws.cells(setCount+idg,7).Value = setgHalwon
                         ws.cells(setCount+idg,8).Value = setgMonthHal
@@ -165,8 +171,10 @@ def goScript(getDict):
                         img.save(imgFile)
 
                         
-                        ws.cells(5,14).Value = "기기변경 선택약정 요금제표"
+                        ws.cells(5,15).Value = "기기변경 선택약정 요금제표"
                         setsHalwon = fPrice_list[idx] - gib_shal_list[idg]
+                        if setsHalwon < 0:
+                            setsHalwon = 0
                         setsMonthHal = math.ceil(setsHalwon / 24)
                         
                         ws.cells(setCount+idg,17).Value = setsHalwon
@@ -246,14 +254,17 @@ def make_link():
             break
         
         linkText = "http://ts-phone.com/test/update_get.php"
-        it_id = f"?it_id={math.ceil(ws.cells(2+plusCount,2).Value)}"
+        it_id = f"?it_id={ws.cells(2+plusCount,2).Value}"
         linkText = linkText + it_id
         
         set_tong = f"&it_shop_memo={ws.cells(2+plusCount,3).Value}"
         linkText = linkText + set_tong
+        
+        set_theme = f"&it_skin={ws.cells(2+plusCount,4).Value}"
+        linkText = linkText + set_theme
         # sk_item_list = f"?sk_item_list={ws.cells(2+plusCount,2)}"
         
-        sc = 4
+        sc = 5
         for k in range(3):
             for i in range(9):
                 nc = sc + i
