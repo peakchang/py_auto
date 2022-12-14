@@ -326,7 +326,7 @@ def goScript(getDict):
                 print('에러 예상 111111')
                 searchKeyword = link_excel.cell(workVal, 2).value
                 
-                #검색기록 삭제 만들기!!!!!! recentHistory_list_word__EJZeH // recentHistory_btn_del__greg5
+                #검색기록 삭제 만들기!!!!!! .recentHistory_list_word__EJZeH // .recentHistory_btn_del__greg5
                 searchJisho(searchKeyword, driver)
                 
                 print('에러 예상 222222')
