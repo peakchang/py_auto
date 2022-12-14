@@ -131,136 +131,177 @@ def goScript(getDict):
     linkCount = linkCount - 1
 
     while True:
+        startTime = time.time()
+        # 1/3 확률로 네이버 아이디 비번 저장 (로그인 준비)
+
+        if getDict['loginVal'] == 1:
+            chk_login = random.randrange(1, 8)
+        else:
+            chk_login = 1
+            load_id = ""
         
-        try:
-            startTime = time.time()
-            # 1/3 확률로 네이버 아이디 비번 저장 (로그인 준비)
-
-            if getDict['loginVal'] == 1:
-                chk_login = random.randrange(1, 8)
-            else:
-                chk_login = 1
-                load_id = ""
-            
-            if chk_login != 1:
-                while True:
-                    wait_float(0.2, 0.5)
-                    load_connect_info = id_excel.cell(allCount, 1).value
-                    if load_connect_info is None:
-                        load_connect_info = getUaNum()
-                        link_excel.cell(allCount, 1).value = load_connect_info
-                        link_excel.save('./etc/naver_id.xlsx')
-                        
-                        
-                    load_id = id_excel.cell(allCount, 2).value
-                    load_pass = id_excel.cell(allCount, 3).value
-
-                    if load_connect_info != '' and load_id != '' and load_pass != '':
-                        break
-
-            # 로그인 준비 끝
-
-            # 아이피 체크 (기존 아이피와 같으면 다시, 아니면 break)
-            if getDict['ipval'] == 1:
-                
-                service = Service(ChromeDriverManager().install())
-                driver = webdriver.Chrome(service=service)
-                while True:
-                    getIP = changeIpSpeed()
-                    print(getIP)
-                    if not preIp == getIP:
-                        preIp = getIP
-                        break
-            
-            # 아이피 체크 끝
-
-            """
-            작업 할 지식쇼핑 링크 구하기
-            (총 링크가 5개 이하면 전부다, 6~10 개면 4개, 10개 이상이면 8개씩)
-            1. 전체 항목 목표 클릭수와 현재 클릭수 비교 (비동기 항목으로 보냄)
-            2. 현재 클릭수가 목표 클릭수보다 크거나 같으면 일단 탈락
-            3. 남은것들이 총 링크와 같으면 위 조건으로, 총 링크보다 작은데 미달이면 미달인 갯수만큼 아무거나 채우기, 총 링크보다 크면 그만큼 빼기
-            4. 그래서 해서 행 번호만 뽑아서 배열로 저장
-            """
-
-            workArr = []
-            tempWorkArr = []
-            if linkCount <= 5:
-                searchCount = linkCount
-            elif linkCount >= 6 and linkCount < 10:
-                searchCount = 6
-            else:
-                searchCount = 8
-            asyncio.run(playAsync_getArr(workArr, link_excel, linkCount, 'Y'))
-            random.shuffle(workArr)
-
-            if len(workArr) > searchCount:
-                workArr = workArr[0:searchCount]
-            else:
-                asyncio.run(playAsync_getArr(tempWorkArr, link_excel, linkCount, 'N'))
-                random.shuffle(tempWorkArr)
-                getCountLen = searchCount - len(workArr)
-                tempWorkArr = tempWorkArr[0:getCountLen]
-                workArr = workArr + tempWorkArr
-                # workArr = workArr[0:searchCount]
-                random.shuffle(workArr)
-                
-                
-                
-
-            asyncio.run(playAsync_plusArr(workArr, link_excel))
-            jisho_wb.save('./etc/jisho_link.xlsx')
-            
-            # 작업할 배열 구하기 끝~~~~~
-
-            # 접속할 USER AGENT 설정
-            if chk_login != 1:
-                # connect_info = load_connect_info.split(',')
-                # with open(f'./etc/useragent/useragent_{connect_info[0]}.txt') as f:
-                #     ua_data = f.readlines()[int(connect_info[1]) - 1]
-                with open(f'./etc/useragent/useragent_all.txt') as f:
-                    ua_data = f.readlines()[load_connect_info]
-                    ua_data = ua_data.replace('\n', '')
+        if chk_login != 1:
+            while True:
+                wait_float(0.2, 0.5)
+                load_connect_info = id_excel.cell(allCount, 1).value
+                if load_connect_info is None:
+                    load_connect_info = getUaNum()
+                    link_excel.cell(allCount, 1).value = load_connect_info
+                    link_excel.save('./etc/naver_id.xlsx')
                     
-            else:
-                ua_data = linecache.getline(
-                    './etc/useragent/useragent_all.txt', random.randrange(1, 14)).strip()
-            # 설정 끝~ 접속하기
+                    
+                load_id = id_excel.cell(allCount, 2).value
+                load_pass = id_excel.cell(allCount, 3).value
 
-            options = Options()
-            user_agent = ua_data
-            options.add_argument('user-agent=' + user_agent)
+                if load_connect_info != '' and load_id != '' and load_pass != '':
+                    break
 
+        # 로그인 준비 끝
+
+        # 아이피 체크 (기존 아이피와 같으면 다시, 아니면 break)
+        if getDict['ipval'] == 1:
+            
             service = Service(ChromeDriverManager().install())
-            driver = webdriver.Chrome(chrome_options=options, service=service)
+            driver = webdriver.Chrome(service=service)
+            while True:
+                getIP = changeIpSpeed()
+                print(getIP)
+                if not preIp == getIP:
+                    preIp = getIP
+                    break
+        
+        # 아이피 체크 끝
 
-            driver.get('https://www.naver.com')
+        """
+        작업 할 지식쇼핑 링크 구하기
+        (총 링크가 5개 이하면 전부다, 6~10 개면 4개, 10개 이상이면 8개씩)
+        1. 전체 항목 목표 클릭수와 현재 클릭수 비교 (비동기 항목으로 보냄)
+        2. 현재 클릭수가 목표 클릭수보다 크거나 같으면 일단 탈락
+        3. 남은것들이 총 링크와 같으면 위 조건으로, 총 링크보다 작은데 미달이면 미달인 갯수만큼 아무거나 채우기, 총 링크보다 크면 그만큼 빼기
+        4. 그래서 해서 행 번호만 뽑아서 배열로 저장
+        """
 
-            time.sleep(2)
-            focus_window('NAVER')
+        workArr = []
+        tempWorkArr = []
+        if linkCount <= 5:
+            searchCount = linkCount
+        elif linkCount >= 6 and linkCount < 10:
+            searchCount = 6
+        else:
+            searchCount = 8
+        asyncio.run(playAsync_getArr(workArr, link_excel, linkCount, 'Y'))
+        random.shuffle(workArr)
 
-            # 네이버 로그인
-            if chk_login != 1:
-                errchk = naverLogin(load_id, load_pass)
-                if errchk is not None:
-                    id_excel.cell(allCount, 4).value = errchk
-                    idp_wb.save('./etc/naver_id.xlsx')
-                    allCount += 1
-                    continue
-                main_menus = searchElement(".shs_link")
-                for main_menu in main_menus:
-                    if 'mail' in main_menu.get_attribute('href'):
-                        main_menu.click()
-                        break
-                wait_float(2.5, 3.5)
+        if len(workArr) > searchCount:
+            workArr = workArr[0:searchCount]
+        else:
+            asyncio.run(playAsync_getArr(tempWorkArr, link_excel, linkCount, 'N'))
+            random.shuffle(tempWorkArr)
+            getCountLen = searchCount - len(workArr)
+            tempWorkArr = tempWorkArr[0:getCountLen]
+            workArr = workArr + tempWorkArr
+            # workArr = workArr[0:searchCount]
+            random.shuffle(workArr)
+            
+            
+            
+
+        asyncio.run(playAsync_plusArr(workArr, link_excel))
+        jisho_wb.save('./etc/jisho_link.xlsx')
+        
+        pg.alert(workArr)
+        
+        # 작업할 배열 구하기 끝~~~~~
+
+        # 접속할 USER AGENT 설정
+        if chk_login != 1:
+            # connect_info = load_connect_info.split(',')
+            # with open(f'./etc/useragent/useragent_{connect_info[0]}.txt') as f:
+            #     ua_data = f.readlines()[int(connect_info[1]) - 1]
+            with open(f'./etc/useragent/useragent_all.txt') as f:
+                ua_data = f.readlines()[load_connect_info]
+                ua_data = ua_data.replace('\n', '')
                 
-                while True:
-                    wait_float(0.3, 0.5)
-                    try:
-                        driver.find_element(by=By.CSS_SELECTOR, value='#MM_SEARCH_FAKE')
-                        break
-                    except:
-                        driver.back()
+        else:
+            ua_data = linecache.getline(
+                './etc/useragent/useragent_all.txt', random.randrange(1, 14)).strip()
+        # 설정 끝~ 접속하기
+
+        options = Options()
+        user_agent = ua_data
+        options.add_argument('user-agent=' + user_agent)
+
+        service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(chrome_options=options, service=service)
+
+        driver.get('https://www.naver.com')
+
+        time.sleep(2)
+        focus_window('NAVER')
+
+        # 네이버 로그인
+        if chk_login != 1:
+            errchk = naverLogin(load_id, load_pass)
+            if errchk is not None:
+                id_excel.cell(allCount, 4).value = errchk
+                idp_wb.save('./etc/naver_id.xlsx')
+                allCount += 1
+                continue
+            main_menus = searchElement(".shs_link")
+            for main_menu in main_menus:
+                if 'mail' in main_menu.get_attribute('href'):
+                    main_menu.click()
+                    break
+            wait_float(2.5, 3.5)
+            
+            while True:
+                wait_float(0.3, 0.5)
+                try:
+                    driver.find_element(by=By.CSS_SELECTOR, value='#MM_SEARCH_FAKE')
+                    break
+                except:
+                    driver.back()
+                    
+        # 로그인 끝! 작업 시작!!!
+        workType = random.randrange(0,2)
+        
+        
+        
+        if workType == 0:
+            mainSearch = searchElement("#MM_SEARCH_FAKE")
+            mainSearch[0].click()
+            subSearch = searchElement("#query")
+            focus_window('NAVER')
+            
+            # subSearch[0].send_keys('네이버쇼핑')
+            subSearch[0].click()
+            keyboard.write(text="검색할 키워드", delay=0.3)
+            
+            """
+            검색기록 삭제 만들기 (메인 / 지식쇼핑 내)
+            
+            nshop_list_more2 - 쇼핑 더보기
+            
+            .api_flicking_wrap .flick_bx flick_width _item eg-flick-panel (1-4,5,6,7.... / 1 제외 구해지는 값에 2를 더해야함 클래스는 저중 하나) ._product
+            
+            있으면 클릭 / 없으면 더보기
+            
+            
+            
+            
+            """
+            
+            
+            
+            
+            pass
+        
+        
+        
+        
+        
+        else:
+            # 지식쇼핑 안에 들어가서 작업하기!!!!
             mainSearch = searchElement("#MM_SEARCH_FAKE")
             mainSearch[0].click()
 
@@ -284,6 +325,8 @@ def goScript(getDict):
                 
                 print('에러 예상 111111')
                 searchKeyword = link_excel.cell(workVal, 2).value
+                
+                #검색기록 삭제 만들기!!!!!! recentHistory_list_word__EJZeH // recentHistory_btn_del__greg5
                 searchJisho(searchKeyword, driver)
                 
                 print('에러 예상 222222')
@@ -294,9 +337,6 @@ def goScript(getDict):
                     UseLessBtn.click()
                 except:
                     pass
-                
-                
-                print('에러 예상 333333')
                 setTong = link_excel.cell(workVal, 1).value
                 if setTong is not None:
                     chkin_tong = ""
@@ -416,22 +456,20 @@ def goScript(getDict):
                                 btn.click()
                                 break
 
-            # 끝내고 allCount 값 ++
-            driver.quit()
-            if chk_login != 1:
-                id_excel.cell(allCount, 4).value = "지식쇼핑 작업 완료"
-                idp_wb.save('./etc/naver_id.xlsx')
-                allCount += 1
-                
-            # 아래 내용 웹훅 넣기
-            endTime = time.time() - startTime
+        # 끝내고 allCount 값 ++
+        driver.quit()
+        if chk_login != 1:
+            id_excel.cell(allCount, 4).value = "지식쇼핑 작업 완료"
+            idp_wb.save('./etc/naver_id.xlsx')
+            allCount += 1
             
-            webhook_url = "https://adpeak.kr/chk_jisho/"
-            data = {'on_time' : endTime}
-            requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
-            r = requests.post(webhook_url, data=json.dumps(data), headers={'Content-Type' : 'application/json'}, verify=False)
-        except:
-            continue
+        # 아래 내용 웹훅 넣기
+        endTime = time.time() - startTime
+        
+        webhook_url = "https://adpeak.kr/chk_jisho/"
+        data = {'on_time' : endTime}
+        requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+        r = requests.post(webhook_url, data=json.dumps(data), headers={'Content-Type' : 'application/json'}, verify=False)
         
         
         
