@@ -23,15 +23,25 @@ def th3():
     onth.daemon = True
     onth.start()
 
+def th4():
+    getDict = {'goTong': goTong.get(), 'getLine' : getLine.get()}
+    
+    onth = threading.Thread(target=lambda: calculScript(getDict))
+    onth.daemon = True
+    onth.start()
+
 # 윈도우 창 생성 및 버튼 화면 조절
 root = Tk()
 root.title("이미지 생성하기")
-root.geometry("300x180+500+300")
+root.geometry("300x300+500+300")
 root.resizable(False, FALSE)
 
 frame1 = LabelFrame(root, text='가즈아', padx=40, pady=10)  # padx / pady 내부여백
 frame1.pack(padx=10, pady=5)  # padx / pady 외부여백
 
+
+frame2 = LabelFrame(root, text='계산기', padx=40, pady=10)  # padx / pady 내부여백
+frame2.pack(padx=10, pady=5)  # padx / pady 외부여백
 
 # 시작 버튼 생성
 btn1 = Button(frame1, text='GOGOGO~~!!', command=th, padx=50)
@@ -40,7 +50,7 @@ btn1.pack()
 btn2 = Button(frame1, text='링크생성~!!', command=th2, padx=50)
 btn2.pack()
 
-btn3 = Button(frame1, text='GOGOGO~~!!', command=th3, padx=50)
+btn3 = Button(frame1, text='프로그래밍 요금제!!', command=th3, padx=50)
 btn3.pack()
 
 tongVal = ttk.Combobox(frame1, values=['SK','KT','LG'])
@@ -49,6 +59,19 @@ tongVal.pack()
 
 entry = Entry(frame1)
 entry.pack()
+
+
+goTong = Entry(frame2)
+goTong.insert(0, 'SK,KT,LG')
+goTong.pack()
+
+
+getLine = Entry(frame2)
+getLine.insert(0, '라인 리스트')
+getLine.pack()
+
+btn4 = Button(frame2, text='GOGOGO', command=th4, padx=50)
+btn4.pack()
 
 # btn2 = Button(frame1, text='쇼핑 순위 체크', command=th2, padx=50)
 # btn2.pack()

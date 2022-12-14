@@ -379,7 +379,77 @@ def gogoScript(getDict):
                 pg.alert(mnp_shal_list)
                 pg.alert(gib_ghal_list)
                 pg.alert(gib_shal_list)
-                
+
+
+
+def calculScript(getDict):
+    
+    pg.alert('여기 맞지??')
+
+        
+    goTongArr = getDict['goTong'].split(',')
+    pg.alert(goTongArr)
+    
+    getLineArr = getDict['getLine'].split(',')
+    pg.alert(getLineArr)
+    try:
+        int(getLineArr[0])
+    except:
+        pg.alert('라인을 입력해주세요! 종료합니다!')
+        return
+    
+    
+    # 스프레드 시트 열기
+    json_file_name = 'ecstatic-magpie-310310-5c58a2ab08ef.json'
+    gc = gspread.service_account(filename=json_file_name)
+    
+    doc = gc.open_by_url('https://docs.google.com/spreadsheets/d/1gWxGWnVPMBN6qDrHglE75Qn5j2Fq9sixEX14mW8qsMo/edit?usp=sharing')
+    
+    for idx, nowTong in enumerate(goTongArr):
+        workSheet = doc.worksheet(nowTong)
+        basicCount = int(getLineArr[idx])
+        while True:
+            basicCount += 1
+            tempVal = workSheet.acell(f'A{basicCount}').value
+            if tempVal is not None:
+                if '갤럭시' in tempVal or '아이폰' in tempVal:
+                    deviceName = tempVal
+                    
+                    if nowTong == 'SK':
+                        all_list = workSheet.range(f'B{basicCount}:H{basicCount+9}')
+                        capa_list = getArr(all_list, 0, 'ok')
+                        fPrice_list = getArr(all_list, 7, 'ok')
+                        gongsi_list = getArr(all_list, 14)
+                        mnp_ghal_list = getArr(all_list, 42)
+                        mnp_shal_list = getArr(all_list, 49)        
+                        gib_ghal_list = getArr(all_list, 56)
+                        gib_shal_list = getArr(all_list, 63)
+                    else:
+                        all_list = workSheet.range(f'B{basicCount}:H{basicCount+8}')
+                        capa_list = getArr(all_list, 0, 'ok')
+                        fPrice_list = getArr(all_list, 7, 'ok')
+                        gongsi_list = getArr(all_list, 14)
+                        
+                        mnp_ghal_list = getArr(all_list, 35)
+                        mnp_shal_list = getArr(all_list, 42)
+                        
+                        gib_ghal_list = getArr(all_list, 49)
+                        gib_shal_list = getArr(all_list, 56)
+                    
+                    pg.alert(deviceName)
+                    pg.alert(capa_list)
+                    pg.alert(fPrice_list)
+                    pg.alert(gongsi_list)
+                    pg.alert(mnp_ghal_list)
+                    pg.alert(mnp_shal_list)
+                    pg.alert(gib_ghal_list)
+                    pg.alert(gib_shal_list)
+                    
+                    break
+    pg.alert('완료 되었습니다!')
+    
+    
+    
 
 
 
@@ -402,6 +472,25 @@ def getArr(setList, setNum, ok=''):
                 setVal = val.value
             temp_arr.append(setVal)
     return temp_arr
+
+def getArrToStr(setList, setNum, ok=''):
+    temp_list = setList[setNum:setNum+7]
+    temp_arr = []
+    for val in temp_list:
+        if not val.value:
+            if ok:
+                continue
+            else:
+                temp_arr.append(0)
+        else:
+            try:
+                setVal = int(val.value)
+            except:
+                setVal = val.value
+            temp_arr.append(setVal)
+    
+    temp_str = ','.join(str(_) for _ in temp_arr)
+    return temp_str
         
 def setBasicTable(ex, list, scount, gcount = ''):
     startCount = 7
