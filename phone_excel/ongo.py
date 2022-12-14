@@ -382,22 +382,31 @@ def gogoScript(getDict):
 
 
 
+# ************************************** 계산기 기준!!!!!
+
+
 def calculScript(getDict):
     
-    pg.alert('여기 맞지??')
-
-        
     goTongArr = getDict['goTong'].split(',')
-    pg.alert(goTongArr)
-    
     getLineArr = getDict['getLine'].split(',')
-    pg.alert(getLineArr)
+    
+    with open("./min_price.txt", "w") as f:
+        f.write("start~~~~\n")
+    
     try:
         int(getLineArr[0])
     except:
         pg.alert('라인을 입력해주세요! 종료합니다!')
         return
     
+    # 추후 중저가폰 할때 정하기
+    highendDevice = ",0,4,5,5"
+    # LogDevice = 
+    # kidsDevice = 
+    
+    # 엑셀 열기
+    workCreate = openpyxl.load_workbook('create_calcul_link.xlsx')
+    sheet = workCreate.get_sheet_by_name('Sheet1')
     
     # 스프레드 시트 열기
     json_file_name = 'ecstatic-magpie-310310-5c58a2ab08ef.json'
@@ -408,6 +417,8 @@ def calculScript(getDict):
     for idx, nowTong in enumerate(goTongArr):
         workSheet = doc.worksheet(nowTong)
         basicCount = int(getLineArr[idx])
+        
+        
         while True:
             basicCount += 1
             tempVal = workSheet.acell(f'A{basicCount}').value
@@ -416,40 +427,126 @@ def calculScript(getDict):
                     deviceName = tempVal
                     
                     if nowTong == 'SK':
-                        all_list = workSheet.range(f'B{basicCount}:H{basicCount+9}')
-                        capa_list = getArr(all_list, 0, 'ok')
-                        fPrice_list = getArr(all_list, 7, 'ok')
-                        gongsi_list = getArr(all_list, 14)
-                        mnp_ghal_list = getArr(all_list, 42)
-                        mnp_shal_list = getArr(all_list, 49)        
-                        gib_ghal_list = getArr(all_list, 56)
-                        gib_shal_list = getArr(all_list, 63)
+                        all_list = workSheet.range(f'B{basicCount}:H{basicCount+13}')
+                        capa_list = getArrToStr(all_list, 0, 'ok')
+                        fPrice_list = getArrToStr(all_list, 7, 'ok')
+                        gongsi_list = getArrToStr(all_list, 14)
+                        mnp_ghal_list = getArrToStr(all_list, 42)
+                        mnp_shal_list = getArrToStr(all_list, 49)        
+                        gib_ghal_list = getArrToStr(all_list, 56)
+                        gib_shal_list = getArrToStr(all_list, 63)
+                        
+                        sheet.cell(2,5).value = fPrice_list
+                        sheet.cell(2,6).value = capa_list
+                        sheet.cell(2,7).value = gongsi_list
+                        sheet.cell(2,8).value = mnp_ghal_list
+                        sheet.cell(2,9).value = mnp_shal_list
+                        sheet.cell(2,10).value = gib_ghal_list
+                        sheet.cell(2,11).value = gib_shal_list
+                        workCreate.save('create_calcul_link.xlsx')
+                        priceList1 = getArr(all_list, 70)
+                        priceList2 = getArr(all_list, 77)
+                        priceList3 = getArr(all_list, 84)
+                        priceList4 = getArr(all_list, 91)
+                        
+                        price_list = priceList1 + priceList2 + priceList3 + priceList4
+                        minPrice = min(price_list)
+                        with open("./min_price.txt", "a") as f:
+                            f.write(f"SK 최저가 : \n{minPrice}\n")
+                    elif nowTong == 'KT':
+                        all_list = workSheet.range(f'B{basicCount}:H{basicCount+12}')
+                        capa_list = getArrToStr(all_list, 0, 'ok')
+                        fPrice_list = getArrToStr(all_list, 7, 'ok')
+                        gongsi_list = getArrToStr(all_list, 14)
+                        mnp_ghal_list = getArrToStr(all_list, 35)
+                        mnp_shal_list = getArrToStr(all_list, 42)
+                        gib_ghal_list = getArrToStr(all_list, 49)
+                        gib_shal_list = getArrToStr(all_list, 56)
+                        
+                        sheet.cell(2,12).value = fPrice_list
+                        sheet.cell(2,13).value = capa_list
+                        sheet.cell(2,14).value = gongsi_list
+                        sheet.cell(2,15).value = mnp_ghal_list
+                        sheet.cell(2,16).value = mnp_shal_list
+                        sheet.cell(2,17).value = gib_ghal_list
+                        sheet.cell(2,18).value = gib_shal_list
+                        workCreate.save('create_calcul_link.xlsx')
+                        priceList1 = getArr(all_list, 63)
+                        priceList2 = getArr(all_list, 70)
+                        priceList3 = getArr(all_list, 77)
+                        priceList4 = getArr(all_list, 84)
+                        
+                        price_list = priceList1 + priceList2 + priceList3 + priceList4
+                        
+                        minPrice = min(price_list)
+                        with open("./min_price.txt", "a") as f:
+                            f.write(f"KT 최저가 : \n{minPrice}\n")
+                                
                     else:
-                        all_list = workSheet.range(f'B{basicCount}:H{basicCount+8}')
-                        capa_list = getArr(all_list, 0, 'ok')
-                        fPrice_list = getArr(all_list, 7, 'ok')
-                        gongsi_list = getArr(all_list, 14)
+                        all_list = workSheet.range(f'B{basicCount}:H{basicCount+12}')
+                        capa_list = getArrToStr(all_list, 0, 'ok')
+                        fPrice_list = getArrToStr(all_list, 7, 'ok')
+                        gongsi_list = getArrToStr(all_list, 14)
                         
-                        mnp_ghal_list = getArr(all_list, 35)
-                        mnp_shal_list = getArr(all_list, 42)
+                        mnp_ghal_list = getArrToStr(all_list, 35)
+                        mnp_shal_list = getArrToStr(all_list, 42)
                         
-                        gib_ghal_list = getArr(all_list, 49)
-                        gib_shal_list = getArr(all_list, 56)
-                    
-                    pg.alert(deviceName)
-                    pg.alert(capa_list)
-                    pg.alert(fPrice_list)
-                    pg.alert(gongsi_list)
-                    pg.alert(mnp_ghal_list)
-                    pg.alert(mnp_shal_list)
-                    pg.alert(gib_ghal_list)
-                    pg.alert(gib_shal_list)
+                        gib_ghal_list = getArrToStr(all_list, 49)
+                        gib_shal_list = getArrToStr(all_list, 56)
+                        
+                        priceList1 = getArr(all_list, 63)
+                        priceList2 = getArr(all_list, 70)
+                        priceList3 = getArr(all_list, 77)
+                        priceList4 = getArr(all_list, 84)
+                        
+                        sheet.cell(2,19).value = fPrice_list
+                        sheet.cell(2,20).value = capa_list
+                        sheet.cell(2,21).value = gongsi_list
+                        sheet.cell(2,22).value = mnp_ghal_list
+                        sheet.cell(2,23).value = mnp_shal_list
+                        sheet.cell(2,24).value = gib_ghal_list
+                        sheet.cell(2,25).value = gib_shal_list
+                        workCreate.save('create_calcul_link.xlsx')
+                        price_list = priceList1 + priceList2 + priceList3 + priceList4
+                        
+                        minPrice = min(price_list)
+                        with open("./min_price.txt", "a") as f:
+                            f.write(f"LG 최저가 : \n{minPrice}\n")
+                        
+                                
                     
                     break
+    
     pg.alert('완료 되었습니다!')
     
     
+def make_link_calcul():
+    # 엑셀파일 열기
+
+    workCreate = openpyxl.load_workbook('create_calcul_link.xlsx')
+    sheet = workCreate.get_sheet_by_name('Sheet1')
+    with open("./create_calcul_link.txt", "w") as f:
+        f.write('생성시작\n\n')
     
+    linkText = "http://ts-phone.com/test/update_calcul.php"
+    onCount = 0
+    while True:
+        onCount += 1
+        nameValue = sheet.cell(1,onCount).value
+        valValue = sheet.cell(2,onCount).value
+        if nameValue is None:
+            break
+        
+        if onCount == 1:
+            addLink = f"?{nameValue}={valValue}"
+        else:
+            addLink = f"&{nameValue}={valValue}"
+        linkText = linkText + addLink
+        
+    with open("./create_calcul_link.txt", "w") as f:
+        f.write(f'{linkText}')
+    
+    pg.alert('종료합니다!!')
 
 
 

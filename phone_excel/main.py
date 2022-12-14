@@ -29,6 +29,11 @@ def th4():
     onth = threading.Thread(target=lambda: calculScript(getDict))
     onth.daemon = True
     onth.start()
+    
+def th5():
+    onth = threading.Thread(target=lambda: make_link_calcul())
+    onth.daemon = True
+    onth.start()
 
 # 윈도우 창 생성 및 버튼 화면 조절
 root = Tk()
@@ -61,6 +66,12 @@ entry = Entry(frame1)
 entry.pack()
 
 
+
+
+
+
+
+
 goTong = Entry(frame2)
 goTong.insert(0, 'SK,KT,LG')
 goTong.pack()
@@ -72,6 +83,9 @@ getLine.pack()
 
 btn4 = Button(frame2, text='GOGOGO', command=th4, padx=50)
 btn4.pack()
+
+btn5 = Button(frame2, text='링크생성', command=th5, padx=50)
+btn5.pack()
 
 # btn2 = Button(frame1, text='쇼핑 순위 체크', command=th2, padx=50)
 # btn2.pack()
