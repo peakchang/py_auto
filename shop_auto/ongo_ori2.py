@@ -16,7 +16,7 @@ import pyperclip
 import pywinauto
 import pygetwindow as gw
 import clipboard as cb
-import openpyxl
+from openpyxl import load_workbook
 from selenium import webdriver
 from selenium.webdriver import Keys
 from selenium.webdriver import ActionChains
@@ -46,27 +46,15 @@ def goScript(getDict):
     
     if getDict['backVal'] == 1:
         
-
-        
-        workCreate = openpyxl.load_workbook('./etc/backlinks.xlsx')
-        bw_excel = workCreate.get_sheet_by_name('keyword')
-        bw_link_ex = workCreate.get_sheet_by_name('link_list')
+        backLinkEx = load_workbook('./etc/naver_id.xlsx')
+        bl_excel = backLinkEx.active
         
         blAllCount = 1
         while True:
-            bw_excel.cell(blAllCount,1).value
-            if bw_excel.cell(blAllCount,1).value is None:
-                blAllCount -= 1
+            bl_excel.cell(blAllCount,1).value
+            if bl_excel.cell(blAllCount,1).value is None:
                 break
             blAllCount += 1
-            
-        blLinkAllCount = 1
-        while True:
-            bw_link_ex.cell(blLinkAllCount,1).value
-            if bw_link_ex.cell(blLinkAllCount,1).value is None:
-                blLinkAllCount -= 1
-                break
-            blLinkAllCount += 1
         
 
         
@@ -79,7 +67,7 @@ def goScript(getDict):
     preIp = ""
 
     # 전체 반복 시작 전 전체 카운트값 초기화 (작업할 즉, 비어있는)
-    idp_wb = openpyxl.load_workbook('./etc/naver_id.xlsx')
+    idp_wb = load_workbook('./etc/naver_id.xlsx')
     id_excel = idp_wb.active
     allCount = 0
     chk_login_val = "wait"
@@ -89,7 +77,7 @@ def goScript(getDict):
     allCount = allCount
 
     # 전체 반복 시작 전 지쇼 링크 열고 전체 행 갯수 체크
-    jisho_wb = openpyxl.load_workbook('./etc/jisho_link.xlsx')
+    jisho_wb = load_workbook('./etc/jisho_link.xlsx')
     link_excel = jisho_wb.active
     
     
@@ -194,8 +182,13 @@ def goScript(getDict):
             # workArr = workArr[0:searchCount]
             random.shuffle(workArr)
             
+            
+            
+
         asyncio.run(playAsync_plusArr(workArr, link_excel))
         jisho_wb.save('./etc/jisho_link.xlsx')
+        
+        pg.alert(workArr)
         
         # 작업할 배열 구하기 끝~~~~~
 
@@ -252,57 +245,6 @@ def goScript(getDict):
         
         # 백링크 작업 먼저 시작!!!!!
         if getDict['backVal'] == 1:
-            
-            
-            use_bw_link = []
-            
-            
-            
-            for target in alist:
-                
-                targetKeyword = bw_excel.cell(target,1).value
-                
-                while True:
-                    set_bw_rand = random.randrange(1,blLinkAllCount+1)
-                    if set_bw_rand in use_bw_link:
-                        continue
-                    if targetKeyword in bw_link_ex.cell(set_bw_rand,2).value:
-                        use_bw_link.append(set_bw_rand)
-                        targetCount = set_bw_rand
-                        break
-                        
-                mainSearch = searchElement("#MM_SEARCH_FAKE")
-                mainSearch[0].click()
-                subSearch = searchElement("#query")
-                focus_window('NAVER')
-                subSearch[0].click()
-                keyboard.write(text=targetKeyword, delay=0.3)
-                searchSubmit = searchElement(".MM_SEARCH_SUBMIT")
-                searchSubmit[0].click()
-                pg.press('enter')
-                
-                get_bw_link = bw_link_ex.cell(targetCount,1).value
-                pg.alert(get_bw_link)
-                pg.alert(targetKeyword)
-                
-                nameSearchMain = searchElement("#ct")
-                
-                pg.alert(nameSearchMain[0])
-                
-                driver.execute_script("""
-                                    var node = document.createElement("a");
-                                    node.href = 'https://naver.com';
-                                    node.className = 'createLink';
-                                    var textnode = document.createTextNode("JS");
-                                    node.prepend(textnode);
-                                    document.querySelector('.sp_nreview').appendChild(node);
-                                    """)
-                
-                
-                
-                
-                pg.alert('대기~~~~~!!!!')
-            
             pass
         
         
@@ -568,7 +510,7 @@ def ongo_searchItem():
     headers = {"X-Naver-Client-Id": get_secret(
         'NAVER_API_ID'), "X-Naver-Client-Secret": get_secret('NAVER_API_SECRET')}
     # 전체 반복 시작 전 지쇼 링크 열고 전체 행 갯수 체크
-    jisho_wb = openpyxl.load_workbook('./etc/jisho_link.xlsx')
+    jisho_wb = load_workbook('./etc/jisho_link.xlsx')
     link_excel = jisho_wb.active
     setVal = "wait"
     linkCount = 1

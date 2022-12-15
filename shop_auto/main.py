@@ -44,16 +44,18 @@ btn3.pack()
 
 ipVal = IntVar()
 ipChk1 = Radiobutton(frame2, text="아이피 변경", value=1, variable=ipVal)
-ipChk1.select()
 ipChk2 = Radiobutton(frame2, text="아이피 미변경", value=0, variable=ipVal)
+
+ipChk2.select()
 ipChk1.pack()
 ipChk2.pack()
 
 
 loginVal = IntVar()
 loginChk1 = Radiobutton(frame3, text="랜덤 로그인", value=1, variable=loginVal)
-loginChk1.select()
 loginChk2 = Radiobutton(frame3, text="로그인 안함", value=0, variable=loginVal)
+
+loginChk2.select()
 loginChk1.pack()
 loginChk2.pack()
 

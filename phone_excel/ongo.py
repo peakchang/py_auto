@@ -21,6 +21,17 @@ import pythoncom
 import gspread
 import openpyxl
 
+from selenium import webdriver
+from selenium.webdriver import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.support.select import Select
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
 """
 주요 변수
 nowAction ( write / reply ) / 글쓰는지 댓글인지 체크
@@ -58,10 +69,10 @@ def goScript(getDict):
     excel = win32com.client.Dispatch("Excel.Application", pythoncom.CoInitialize())
     excel.visible = False
 
-    wb = excel.Workbooks.Open(f'{os.getcwd()}/test_ex.xlsx')
+    wb = excel.Workbooks.Open(f'{os.getcwd()}/etc/test_ex.xlsx')
     ws = wb.Worksheets['onSheet']
     
-    workCreate = openpyxl.load_workbook('create_link.xlsx')
+    workCreate = openpyxl.load_workbook('./etc/create_link.xlsx')
     sheet = workCreate.get_sheet_by_name('Sheet1')
     
     
@@ -204,52 +215,15 @@ def goScript(getDict):
                         f.write(f'{setTong}_{pre_val}_{capa}_gib_gongsi.png,{setTong}_{pre_val}_{capa}_gib_sunyak.png,{setTong}_{pre_val}_{capa}_mnp_gongsi.png,{setTong}_{pre_val}_{capa}_mnp_sunyak.png\n')
                         
                         sheet.cell(2,createCount).value = f'{setTong}_{pre_val}_{capa}_gib_gongsi.png,{setTong}_{pre_val}_{capa}_gib_sunyak.png,{setTong}_{pre_val}_{capa}_mnp_gongsi.png,{setTong}_{pre_val}_{capa}_mnp_sunyak.png'
-                        workCreate.save('create_link.xlsx')
+                        workCreate.save('./etc/create_link.xlsx')
                         
                         
                         f.write(f'{setTong}_{pre_val}_{capa}_gib_gongsi.png\n')
                         f.write(f'{setTong}_{pre_val}_{capa}_gib_sunyak.png\n')
                         f.write(f'{setTong}_{pre_val}_{capa}_mnp_gongsi.png\n')
                         f.write(f'{setTong}_{pre_val}_{capa}_mnp_sunyak.png\n\n')
-                        
-                    
-                    
-                    
-                    
-
-
-                    
-                    
-                    # basicCount = basicCount + 10
-                    # break
-                    
-                    # getNowCapa = workSheet.acell(f'{chr(capaAsc)}{basicCount}').value
-                    # getNowfPrice = workSheet.acell(f'{chr(capaAsc)}{basicCount+1}').value
-                    
-                    # for i in range(5):
-                    #     for k in range(7):
-                    #         getGongsi = workSheet.acell(f'{chr(capaAsc)}{basicCount+1}').value
-                    
-                    # if getNowCapa is None:
-                    #     break
         pre_val = tempVal
-        
 
-    
-   
-
-    # wb = excel.Workbooks.Open(f'{os.getcwd()}/test_ex.xlsx')
-    # ws = wb.Worksheets['sk_sheet']
-    
-    # chkVal = ws.cells(5,2).Value
-
-    # ws.Range(ws.Cells(5,2),ws.Cells(13,8)).Copy()  
-    # img = ImageGrab.grabclipboard()
-    # imgFile = os.path.join(os.getcwd(),'test.jpg')
-    # img.save(imgFile)
-    
-    
-    # excel.Quit()
     
     
 def make_link():
@@ -257,10 +231,10 @@ def make_link():
     excel = win32com.client.Dispatch("Excel.Application", pythoncom.CoInitialize())
     excel.visible = False
     
-    wb = excel.Workbooks.Open(f'{os.getcwd()}/create_link.xlsx')
+    wb = excel.Workbooks.Open(f'{os.getcwd()}/etc/create_link.xlsx')
     ws = wb.Worksheets['Sheet1']
     
-    with open("./create_link.txt", "w") as f:
+    with open("./etc/create_link.txt", "w") as f:
         f.write('생성시작\n\n')
     
     
@@ -291,7 +265,7 @@ def make_link():
             sc = sc + 9
         pg.alert(linkText)
         
-        with open("./create_link.txt", "a") as f:
+        with open("./etc/create_link.txt", "a") as f:
             f.write(f'{linkText}\n\n')
         plusCount += 1
     
@@ -382,7 +356,7 @@ def gogoScript(getDict):
 
 
 
-# ************************************** 계산기 기준!!!!!
+# ******************************************************** 계산기 기준!!!!!
 
 
 def calculScript(getDict):
@@ -390,7 +364,7 @@ def calculScript(getDict):
     goTongArr = getDict['goTong'].split(',')
     getLineArr = getDict['getLine'].split(',')
     
-    with open("./min_price.txt", "w") as f:
+    with open("./etc/min_price.txt", "w") as f:
         f.write("start~~~~\n")
     
     try:
@@ -405,7 +379,7 @@ def calculScript(getDict):
     # kidsDevice = 
     
     # 엑셀 열기
-    workCreate = openpyxl.load_workbook('create_calcul_link.xlsx')
+    workCreate = openpyxl.load_workbook('./etc/create_calcul_link.xlsx')
     sheet = workCreate.get_sheet_by_name('Sheet1')
     
     # 스프레드 시트 열기
@@ -443,7 +417,7 @@ def calculScript(getDict):
                         sheet.cell(2,9).value = mnp_shal_list
                         sheet.cell(2,10).value = gib_ghal_list
                         sheet.cell(2,11).value = gib_shal_list
-                        workCreate.save('create_calcul_link.xlsx')
+                        workCreate.save('./etc/create_calcul_link.xlsx')
                         priceList1 = getArr(all_list, 70)
                         priceList2 = getArr(all_list, 77)
                         priceList3 = getArr(all_list, 84)
@@ -451,7 +425,7 @@ def calculScript(getDict):
                         
                         price_list = priceList1 + priceList2 + priceList3 + priceList4
                         minPrice = min(price_list)
-                        with open("./min_price.txt", "a") as f:
+                        with open("./etc/min_price.txt", "a") as f:
                             f.write(f"SK 최저가 : \n{minPrice}\n")
                     elif nowTong == 'KT':
                         all_list = workSheet.range(f'B{basicCount}:H{basicCount+12}')
@@ -470,7 +444,7 @@ def calculScript(getDict):
                         sheet.cell(2,16).value = mnp_shal_list
                         sheet.cell(2,17).value = gib_ghal_list
                         sheet.cell(2,18).value = gib_shal_list
-                        workCreate.save('create_calcul_link.xlsx')
+                        workCreate.save('./etc/create_calcul_link.xlsx')
                         priceList1 = getArr(all_list, 63)
                         priceList2 = getArr(all_list, 70)
                         priceList3 = getArr(all_list, 77)
@@ -479,7 +453,7 @@ def calculScript(getDict):
                         price_list = priceList1 + priceList2 + priceList3 + priceList4
                         
                         minPrice = min(price_list)
-                        with open("./min_price.txt", "a") as f:
+                        with open("./etc/min_price.txt", "a") as f:
                             f.write(f"KT 최저가 : \n{minPrice}\n")
                                 
                     else:
@@ -506,11 +480,11 @@ def calculScript(getDict):
                         sheet.cell(2,23).value = mnp_shal_list
                         sheet.cell(2,24).value = gib_ghal_list
                         sheet.cell(2,25).value = gib_shal_list
-                        workCreate.save('create_calcul_link.xlsx')
+                        workCreate.save('./etc/create_calcul_link.xlsx')
                         price_list = priceList1 + priceList2 + priceList3 + priceList4
                         
                         minPrice = min(price_list)
-                        with open("./min_price.txt", "a") as f:
+                        with open("./etc/min_price.txt", "a") as f:
                             f.write(f"LG 최저가 : \n{minPrice}\n")
                         
                                 
@@ -523,9 +497,9 @@ def calculScript(getDict):
 def make_link_calcul():
     # 엑셀파일 열기
 
-    workCreate = openpyxl.load_workbook('create_calcul_link.xlsx')
+    workCreate = openpyxl.load_workbook('./etc/create_calcul_link.xlsx')
     sheet = workCreate.get_sheet_by_name('Sheet1')
-    with open("./create_calcul_link.txt", "w") as f:
+    with open("./etc/create_calcul_link.txt", "w") as f:
         f.write('생성시작\n\n')
     
     linkText = "http://ts-phone.com/test/update_calcul.php"
@@ -543,10 +517,111 @@ def make_link_calcul():
             addLink = f"&{nameValue}={valValue}"
         linkText = linkText + addLink
         
-    with open("./create_calcul_link.txt", "w") as f:
+    with open("./etc/create_calcul_link.txt", "w") as f:
         f.write(f'{linkText}')
     
     pg.alert('종료합니다!!')
+
+
+
+def getGongsi(getDict):
+    
+    with open(f'./etc/useragent_all.txt', 'r') as f:
+        userAgentList = f.readlines()
+    ranVal = random.randrange(0,len(userAgentList))
+    ua_data = userAgentList[ranVal].replace('\n','')
+    pg.alert(ua_data)
+
+    options = Options()
+    user_agent = ua_data
+    options.add_argument('user-agent=' + user_agent)
+    global driver
+    
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(chrome_options=options, service=service)
+    
+    driver.get('http://www.smartchoice.or.kr/smc/mobile/dantongTelList.do')
+    
+    nowTong = getDict['getTong']
+    
+    # 엑셀 열기
+    workCreate = openpyxl.load_workbook('./etc/get_gongsi.xlsx')
+    sheet = workCreate.get_sheet_by_name(nowTong)
+    
+    sheet.cell(2,11).value
+    
+    getCount = 1
+    while True:
+        getCount += 1
+        pServiceName = sheet.cell(getCount,1).value
+        if pServiceName is None:
+            pg.alert('완료 되었습니다!')
+            driver.quit()
+            break
+        dMauName = sheet.cell(getCount,2).value
+        deviceName = sheet.cell(getCount,3).value
+        
+        danCompany = Select(driver.find_element(by=By.CSS_SELECTOR, value='#dan_Company'))
+        danCompany.select_by_visible_text(nowTong)
+        time.sleep(1)
+        
+        
+        planService = Select(driver.find_element(by=By.CSS_SELECTOR, value=f'#plan{nowTong}Service'))
+        planService.select_by_visible_text(pServiceName)
+        time.sleep(1)
+        
+        danMau = Select(driver.find_element(by=By.CSS_SELECTOR, value=f'#dan_Mau'))
+        danMau.select_by_visible_text(dMauName)
+        time.sleep(1)
+        
+        deviceModalBtn = driver.find_element(by=By.CSS_SELECTOR, value=f'#product_btn')
+        deviceModalBtn.click()
+        time.sleep(1)
+        
+        deviceList = driver.find_elements(by=By.CSS_SELECTOR, value=f'.monthlyValue')
+        for val in deviceList:
+            if val.text == deviceName:
+                val.click()
+                break
+        time.sleep(1)
+        mothlybtn = driver.find_elements(by=By.CSS_SELECTOR, value='.mothlybtn')
+        mothlybtn[1].click()
+        time.sleep(1)
+        
+        pg.alert('대기!!!')
+        yogCount = 3
+        while True:
+            yogCount += 1
+            getYogName = sheet.cell(1,yogCount).value
+            if getYogName is None:
+                break
+            
+            planBtn = driver.find_element(by=By.CSS_SELECTOR, value='#plan_btn')
+            planBtn.click()
+            time.sleep(1)
+            
+            yogList = driver.find_elements(by=By.CSS_SELECTOR, value=f'.monthlyValue')
+            for val in yogList:
+                if val.text == getYogName:
+                    val.click()
+                    break
+            time.sleep(1)
+            mothlybtn = driver.find_elements(by=By.CSS_SELECTOR, value='.mothlybtn')
+            mothlybtn[1].click()
+            time.sleep(1)
+            searchBtn = driver.find_elements(by=By.CSS_SELECTOR, value='.btn_wrap.item2.mt10 a')
+            searchBtn[1].click()
+            time.sleep(3)
+            
+            findResult = driver.find_elements(by=By.CSS_SELECTOR, value='.findResult td')
+            
+            sheet.cell(getCount,yogCount).value = findResult[2].text
+            time.sleep(1)
+        workCreate.save('./etc/get_gongsi.xlsx')
+
+
+
+
 
 
 
