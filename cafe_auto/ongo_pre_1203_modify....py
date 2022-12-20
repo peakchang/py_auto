@@ -3,19 +3,16 @@ import random
 import threading
 import time
 from datetime import date, datetime, timedelta
-from dateutil.relativedelta import *
 import sys
 import os
 from pathlib import Path
 from typing import Optional
-from pyparsing import And
 import requests
 from bs4 import BeautifulSoup as bs
 import json
 import re
 import pyautogui as pg
 import pyperclip
-import pywinauto
 import pygetwindow as gw
 import clipboard as cb
 from openpyxl import load_workbook
@@ -37,7 +34,6 @@ from tkinter import ttk
 import requests
 import winsound as ws
 import glob
-import aiohttp
 import asyncio
 
 
@@ -1056,7 +1052,7 @@ def getBlogContentChrome(subjectArr):
         keyCount = random.randrange(0, len(allKeyword))
         getKeyword = allKeyword[keyCount]
         getKeyword = getKeyword.replace('\n', '')
-        searchBar = searchElement('.gLFyf.gsfi')
+        searchBar = searchElement('.gLFyf')
         wait_float(0.5,0.8)
         searchBar[-1].click()
         wait_float(0.5,0.8)

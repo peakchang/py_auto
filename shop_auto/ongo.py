@@ -1,13 +1,11 @@
 import linecache
 import random
-import numpy as np
 import threading
 import time
 import sys
 import os
 from pathlib import Path
 from typing import Optional
-import requests
 import json
 import re
 
@@ -42,6 +40,8 @@ import asyncio
 
 def goScript(getDict):
     
+    
+
     global driver
     
     if getDict['backVal'] == 1:
@@ -93,6 +93,7 @@ def goScript(getDict):
     link_excel = jisho_wb.active
     
     
+    
     setVal = "wait"
     linkCount = 1
     while setVal != None:
@@ -141,7 +142,6 @@ def goScript(getDict):
                     break
         
         # 아이피 체크 끝
-        
         
         """
         백링크 작업 먼저!!!!!!!!!!!!!!
@@ -270,38 +270,86 @@ def goScript(getDict):
                         use_bw_link.append(set_bw_rand)
                         targetCount = set_bw_rand
                         break
-                        
-                mainSearch = searchElement("#MM_SEARCH_FAKE")
-                mainSearch[0].click()
-                subSearch = searchElement("#query")
+                    
                 focus_window('NAVER')
-                subSearch[0].click()
-                keyboard.write(text=targetKeyword, delay=0.3)
-                searchSubmit = searchElement(".MM_SEARCH_SUBMIT")
-                searchSubmit[0].click()
-                pg.press('enter')
-                
+                while True:
+                    
+                    try:
+                        try:
+                            mainSearch = driver.find_element(by=By.CSS_SELECTOR, value='#MM_SEARCH_FAKE')
+                            wait_float(0.8,1.8)
+                        except:
+                            mainSearch = driver.find_element(by=By.CSS_SELECTOR, value='#nx_query')
+                            wait_float(0.8,1.8)
+                    except:
+                        continue
+                    
+                    if mainSearch:
+                        mainSearch.click()
+                        pg.hotkey('ctrl','a')
+                        keyboard.write(text=targetKeyword, delay=0.3)
+                        pg.press('enter')
+                        
+                        wait_float(2.5,3.3)
+                        try:
+                            driver.find_element(by=By.CSS_SELECTOR, value='#ct')
+                            break
+                        except:
+                            continue
+
                 get_bw_link = bw_link_ex.cell(targetCount,1).value
-                pg.alert(get_bw_link)
-                pg.alert(targetKeyword)
                 
-                nameSearchMain = searchElement("#ct")
-                
-                pg.alert(nameSearchMain[0])
-                
-                driver.execute_script("""
+                while True:
+                    try:
+                        searchCreateLink = driver.find_element(by=By.CSS_SELECTOR, value='.createLink')
+                    except:
+                        driver.execute_script(f"""
                                     var node = document.createElement("a");
-                                    node.href = 'https://naver.com';
+                                    node.href = '{get_bw_link}';
+                                    node.target = '_blank';
                                     node.className = 'createLink';
-                                    var textnode = document.createTextNode("JS");
+                                    var textnode = document.createTextNode("{targetKeyword} 정보 바로 가기");
                                     node.prepend(textnode);
                                     document.querySelector('.sp_nreview').appendChild(node);
                                     """)
+                        wait_float(0.5,1.5)
+                        continue
+                    searchCreateLink.click()        
+                    wait_float(0.5,1.2)
+                    if len(driver.window_handles) > 1:
+                        driver.switch_to.window(driver.window_handles[1])
+                        break
+                
+                # 카페 진입
+                linkList = searchElement(".se-link")
+                wait_float(2.1,4.5)
+                for link in linkList:
+                    try:
+                        while True:
+                            link.click()
+                            driver.switch_to.window(driver.window_handles[2])
+                            if len(driver.window_handles) > 2:
+                                break
+                    except:
+                        break
+                    
+                    pg.moveTo(300,300)
+                    ranVal = random.randrange(4,7)
+                    for i in range(ranVal):
+                        pg.scroll(-200)
+                        wait_float(1.5,2.2)
+                    driver.close()
+                    driver.switch_to.window(driver.window_handles[1])
+                    wait_float(1.5,2.2)
+                
+                
+                driver.close()
+                driver.switch_to.window(driver.window_handles[0])
+            
+            pg.alert('대기~~~~')
                 
                 
                 
-                
-                pg.alert('대기~~~~~!!!!')
             
             pass
         
@@ -313,14 +361,37 @@ def goScript(getDict):
         
         workType = random.randrange(0,2)
         if workType == 0:
-            mainSearch = searchElement("#MM_SEARCH_FAKE")
-            mainSearch[0].click()
-            subSearch = searchElement("#query")
-            focus_window('NAVER')
             
-            # subSearch[0].send_keys('네이버쇼핑')
-            subSearch[0].click()
-            keyboard.write(text="검색할 키워드", delay=0.3)
+            for workVal in workArr:
+                searchKeyword = link_excel.cell(workVal, 2).value
+                while True:
+                    try:
+                        try:
+                            mainSearch = driver.find_element(by=By.CSS_SELECTOR, value='#MM_SEARCH_FAKE')
+                            wait_float(0.8,1.8)
+                        except:
+                            mainSearch = driver.find_element(by=By.CSS_SELECTOR, value='#nx_query')
+                            wait_float(0.8,1.8)
+                    except:
+                        continue
+                    
+                    if mainSearch:
+                        mainSearch.click()
+                        pg.hotkey('ctrl','a')
+                        keyboard.write(text=targetKeyword, delay=0.3)
+                        pg.press('enter')
+                        
+                        wait_float(2.5,3.3)
+                        try:
+                            driver.find_element(by=By.CSS_SELECTOR, value='#ct')
+                            break
+                        except:
+                            continue
+                    
+                    
+            pg.alert('오늘은 여기까지?!?!?!?!')
+            
+            
             
             """
             검색기록 삭제 만들기 (메인 / 지식쇼핑 내)
@@ -1041,12 +1112,40 @@ def exitApp():
 
 
 def focus_window(winName):
-    if winName == 'chkname':
-        win_list = gw.getAllTitles()
+    winList = pg.getAllWindows()
+    for win in winList:
+        if winName in win.title:
+            win.activate()
+            return
+    
+    # winList = pg.getActiveWindow()
+    # pg.alert(winList)
+    
+    # win_list = gw.getAllTitles()
+    # pg.alert(win_list)
+    
+    # win = gw.getWindowsWithTitle(winName)
+    # pg.alert(win)
+    
+    # win = gw.getWindowsWithTitle(winName)[1]
+    # pg.alert(win)
+    
+    # win = gw.getWindowsWithTitle(winName)[2]
+    # pg.alert(win)
+    
+    # for now_win in win_list:
+    #     if winName in now_win:
+    #         pg.alert(now_win)
+    #         now_win.activate()
+            
+    # pg.alert(win_list)
+    # if winName == 'chkname':
+    #     win_list = gw.getAllTitles()
+        
         # pg.alert(text=f"{win_list}")
     # 윈도우 타이틀에 Chrome 이 포함된 모든 윈도우 수집, 리스트로 리턴
-    win = gw.getWindowsWithTitle(winName)[0]
-    win.activate()  # 윈도우 활성화
+    # win = gw.getWindowsWithTitle(winName)[0]
+    # win.activate()  # 윈도우 활성화
 
 
 BASE_DIR = Path(__file__).resolve().parent

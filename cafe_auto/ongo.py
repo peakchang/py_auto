@@ -3,19 +3,16 @@ import random
 import threading
 import time
 from datetime import date, datetime, timedelta
-from dateutil.relativedelta import *
 import sys
 import os
 from pathlib import Path
 from typing import Optional
-from pyparsing import And
 import requests
 from bs4 import BeautifulSoup as bs
 import json
 import re
 import pyautogui as pg
 import pyperclip
-import pywinauto
 import pygetwindow as gw
 import clipboard as cb
 from openpyxl import load_workbook
@@ -37,7 +34,6 @@ from tkinter import ttk
 import requests
 import winsound as ws
 import glob
-import aiohttp
 import asyncio
 
 
@@ -56,12 +52,7 @@ cafe_id.cell(세로(열), 가로(행)).value
 
 def goScript(getDict):
     
-    testval = '가나다'
-    testarr = ['가나다','나나나','다다다']
-    if testval in testarr:
-        pg.alert('포함')
-    else:
-        pg.alert('안포함~~~~~')
+    
     global driver
 
     cafe_optimize_file = load_workbook('./etc/naver_optimiz.xlsx')
@@ -582,19 +573,45 @@ def mobile_chrome():
 
 def chk_blog_content():
     
-    chkCount = 0
-    while True:
-        chkCount += 1
-        id_file = load_workbook('./etc/naver_id.xlsx')
-        id_ex = id_file.active
-        get_id = id_ex.cell(chkCount,2).value
-        if get_id is None:
-            pg.alert('그만~~~')
-            break
-        service = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service)
-        driver.get(f'https://blog.naver.com/{get_id}')
-        pg.alert('대기~~~~~')
+    # chkCount = 0
+    # while True:
+    #     chkCount += 1
+    #     id_file = load_workbook('./etc/naver_id.xlsx')
+    #     id_ex = id_file.active
+    #     get_id = id_ex.cell(chkCount,2).value
+    #     if get_id is None:
+    #         pg.alert('그만~~~')
+    #         break
+    #     service = Service(ChromeDriverManager().install())
+    #     driver = webdriver.Chrome(service=service)
+    #     driver.get(f'https://blog.naver.com/{get_id}')
+    #     pg.alert('대기~~~~~')
+    with open('./cafe_content.txt', 'r') as r:
+        all_content = r.readlines()
+        
+    for i,line in enumerate(all_content):
+        line = line.replace('\n','')
+        if i == 0:
+            pg.alert('제목 부분을 클릭 후 엔터를 눌러주세요!')
+            focus_window('chrome')
+            keyboard.write(text=line, delay=0.1)
+            pg.alert('제목 작성 완료! 본문 부분을 클릭 후 엔터를 눌러주세요!')
+        elif 'image' in line:
+            pg.alert('이미지를 첨부해주세요. 첨부 후 엔터를 클릭해주세요!')
+            focus_window('chrome')
+        elif 'enter' in line:
+            focus_window('chrome')
+            pg.press('enter')
+        else:
+            focus_window('chrome')
+            keyboard.write(text=line, delay=0.1)
+            wait_float(0.7,1.3)
+            pg.press('enter')
+            
+            
+            
+        
+    
 
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>함수 시작염
@@ -961,14 +978,20 @@ def exitApp():
         pass
     sys.exit(0)
 
-
 def focus_window(winName):
-    if winName == 'chkname':
-        win_list = gw.getAllTitles()
-        pg.alert(text=f"{win_list}")
-    # 윈도우 타이틀에 Chrome 이 포함된 모든 윈도우 수집, 리스트로 리턴
-    win = gw.getWindowsWithTitle(winName)[0]
-    win.activate()  # 윈도우 활성화
+    winList = pg.getAllWindows()
+    for win in winList:
+        if winName in win.title:
+            win.activate()
+            return
+
+# def focus_window(winName):
+#     if winName == 'chkname':
+#         win_list = gw.getAllTitles()
+#         pg.alert(text=f"{win_list}")
+#     # 윈도우 타이틀에 Chrome 이 포함된 모든 윈도우 수집, 리스트로 리턴
+#     win = gw.getWindowsWithTitle(winName)[0]
+#     win.activate()  # 윈도우 활성화
 
 
 BASE_DIR = Path(__file__).resolve().parent

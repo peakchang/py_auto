@@ -382,6 +382,14 @@ def calculScript(getDict):
     workCreate = openpyxl.load_workbook('./etc/create_calcul_link.xlsx')
     sheet = workCreate.get_sheet_by_name('Sheet1')
     
+    
+    for ii in range(30):
+        if ii == 0:
+            continue
+        sheet.cell(2, ii).value = ""
+        
+    
+    
     # 스프레드 시트 열기
     json_file_name = 'ecstatic-magpie-310310-5c58a2ab08ef.json'
     gc = gspread.service_account(filename=json_file_name)
@@ -547,6 +555,8 @@ def getGongsi(getDict):
     # 엑셀 열기
     workCreate = openpyxl.load_workbook('./etc/get_gongsi.xlsx')
     sheet = workCreate.get_sheet_by_name(nowTong)
+    
+    
     
     sheet.cell(2,11).value
     

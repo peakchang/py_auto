@@ -51,7 +51,7 @@ f_btn1 = Button(frame2, text='모바일', command=th2, padx=50)
 f_btn1.pack()
 
 # 시작 버튼 생성
-f_btn2 = Button(frame2, text='체크체크', command=th3, padx=50)
+f_btn2 = Button(frame2, text='심플글쓰기', command=th3, padx=50)
 f_btn2.pack()
 
 
