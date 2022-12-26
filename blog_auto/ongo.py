@@ -6,14 +6,13 @@ import sys
 import os
 from pathlib import Path
 from typing import Optional
-from pyparsing import And
+# from pyparsing import And
 import requests
 from bs4 import BeautifulSoup as bs
 import json
 import re
 import pyautogui as pg
 import pyperclip
-import pywinauto
 import pygetwindow as gw
 import clipboard as cb
 from openpyxl import load_workbook
@@ -35,7 +34,6 @@ from tkinter import ttk
 import requests
 import winsound as ws
 import glob
-import aiohttp
 import asyncio
 
 
@@ -349,78 +347,85 @@ def allowListVisit():
         visitList = searchElement('.wrap_blog2_sympathy .nick')
         print(visitList[visitCount].text)
         visitList[visitCount].click()
-        
         wait_float(0.7,1.2)
         driver.switch_to.window(driver.window_handles[2])
-        wait_float(0.7,1.2)
-        driver.switch_to.default_content()
-        driver.switch_to.frame('mainFrame')
-        
-        blogMenuChk = searchElement('#blog-menu .menu1 li a')
-        if(len(blogMenuChk) > 1):
-            blogMenuChk[1].click()
-            searchElement('#blog-menu')
-        
-        
         
         try:
-            postListOpenBtn = driver.find_element(by=By.CSS_SELECTOR, value="#toplistSpanBlind")
+            wait_float(0.7,1.2)
+            driver.switch_to.default_content()
+            driver.switch_to.frame('mainFrame')
+            
+            blogMenuChk = searchElement('#blog-menu .menu1 li a')
+            if(len(blogMenuChk) > 1):
+                blogMenuChk[1].click()
+                searchElement('#blog-menu')
+            
+            
+            
+            try:
+                postListOpenBtn = driver.find_element(by=By.CSS_SELECTOR, value="#toplistSpanBlind")
+            except:
+                wait_float(0.5,1.5)
+                driver.close()
+                wait_float(0.3,0.9)
+                driver.switch_to.window(driver.window_handles[1])
+                wait_float(0.3,0.9)
+                continue
+            
+            
+            # 여기서 블로그 말고 프롤로그면 블로그 클릭하게 하기
+            
+            while True:
+                print(postListOpenBtn.text)
+                if postListOpenBtn.text == '목록닫기':
+                    break
+                else:
+                    wait_float(0.5,1.3)
+                    try:
+                        postListOpenBtn.click()
+                    except:
+                        wait_float(2.5,3.5)
+                        continue
+            wait_float(1.5,2.5)
+            postList = searchElement('.blog2_categorylist')
+            
+            for getPostLinkCount in range(3):
+                try:
+                    getPostLink = postList[getPostLinkCount].find_element(by=By.CSS_SELECTOR, value=".ell2")
+                    break
+                except:
+                    pass
+            
+            getPostLink.click()
+            wait_float(1.3,2.5)
+            
+            try:
+                gongamBtn = driver.find_element(by=By.CSS_SELECTOR, value='.u_likeit_list_btn')
+                getGonggamStatus = gongamBtn.get_attribute('aria-pressed')
+                print(getGonggamStatus)
+                if getGonggamStatus == 'false':
+                    gongamBtn = searchElement('.u_ico')
+                    wait_float(0.3,0.9)
+                    gongamBtn[-1].click()
+                    wait_float(3.2,4.5)
+                else:
+                    pass
+            except:
+                pass
+
+            
+            # gongamBtn[1].click()
+            wait_float(0.5,1.5)
+            driver.close()
+            wait_float(0.3,0.9)
+            driver.switch_to.window(driver.window_handles[1])
+            wait_float(0.3,0.9)
         except:
             wait_float(0.5,1.5)
             driver.close()
             wait_float(0.3,0.9)
             driver.switch_to.window(driver.window_handles[1])
             wait_float(0.3,0.9)
-            continue
-        
-        
-        # 여기서 블로그 말고 프롤로그면 블로그 클릭하게 하기
-        
-        while True:
-            print(postListOpenBtn.text)
-            if postListOpenBtn.text == '목록닫기':
-                break
-            else:
-                wait_float(0.5,1.3)
-                try:
-                    postListOpenBtn.click()
-                except:
-                    wait_float(2.5,3.5)
-                    continue
-        wait_float(1.5,2.5)
-        postList = searchElement('.blog2_categorylist')
-        
-        for getPostLinkCount in range(3):
-            try:
-                getPostLink = postList[getPostLinkCount].find_element(by=By.CSS_SELECTOR, value=".ell2")
-                break
-            except:
-                pass
-        
-        getPostLink.click()
-        wait_float(1.3,2.5)
-        
-        try:
-            gongamBtn = driver.find_element(by=By.CSS_SELECTOR, value='.u_likeit_list_btn')
-            getGonggamStatus = gongamBtn.get_attribute('aria-pressed')
-            print(getGonggamStatus)
-            if getGonggamStatus == 'false':
-                gongamBtn = searchElement('.u_ico')
-                wait_float(0.3,0.9)
-                gongamBtn[-1].click()
-                wait_float(3.2,4.5)
-            else:
-                pass
-        except:
-            pass
-
-        
-        # gongamBtn[1].click()
-        wait_float(0.5,1.5)
-        driver.close()
-        wait_float(0.3,0.9)
-        driver.switch_to.window(driver.window_handles[1])
-        wait_float(0.3,0.9)
         
         
     driver.close()

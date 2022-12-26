@@ -96,7 +96,7 @@ def goScript(getval):
 
     nid = ex.cell(el, 2).value
     npwd = ex.cell(el, 3).value
-
+    
     focus_window('로그인')
     bandNaverLogin(nid, npwd)
     
@@ -190,7 +190,7 @@ def goScript(getval):
                     continue
             
             print('버튼 찾기 끝~~~')
-
+            
             # 글쓰기 시작
 
             focus_window('밴드')
@@ -287,11 +287,31 @@ def exitApp():
     sys.exit(0)
 
 
-def focus_window(winname: str):
-    win_list = gw.getAllTitles()
-    get_list = [list for list in win_list if winname in list]
-    win = gw.getWindowsWithTitle(get_list[0])[0]
-    win.activate()
+# def focus_window(winname: str):
+#     win_list = gw.getAllTitles()
+#     get_list = [list for list in win_list if winname in list]
+#     win = gw.getWindowsWithTitle(get_list[0])[0]
+#     win.activate()
+
+def focus_window(winName):
+    while True:
+        activeName = str(pg.getActiveWindow())
+        print('에러 11111')
+        wait_float(0.3,0.9)
+        if winName in activeName:
+            return
+        
+        print('에러 22222')
+        winList = pg.getAllWindows()
+        wait_float(0.3,0.9)
+        print('에러 33333')
+        for win in winList:
+            print(win.title)
+            if winName in win.title:
+                pywinauto.application.Application().connect(handle=win._hWnd).top_window().set_focus()
+                win.activate()
+                wait_float(0.7,1.3)
+                break
 
 def bandNaverLogin(nid, npwd):
     while True:

@@ -14,7 +14,12 @@ def th2():
     onth.start()
     
 def th3():
-    onth = threading.Thread(chk_blog_content())
+    onth = threading.Thread(simple_writer())
+    onth.daemon = True
+    onth.start()
+
+def th4():
+    onth = threading.Thread(login_step())
     onth.daemon = True
     onth.start()
 
@@ -39,8 +44,8 @@ frame3.pack(padx=10, pady=5)  # padx / pady 외부여백
 btn1 = Button(frame1, text='카페 ALL 자동화', command=th, padx=50)
 btn1.pack()
 
-# btn2 = Button(frame1, text='쇼핑 순위 체크', command=th2, padx=50)
-# btn2.pack()
+btn2 = Button(frame1, text='순차 로그인', command=th4, padx=50)
+btn2.pack()
 
 btn3 = Button(frame1, text="종료하기", command=exitApp, padx=50)
 btn3.pack()
