@@ -208,19 +208,23 @@ def cafe_write_mobile(nBoardName,chk_extesion,driver):
 
     with open('./etc/work_link.txt', 'r') as f:
         chkLines = f.readlines()
-
+        
+    delLine = ''
     if len(chkLines) > 6:
         getDelOptimizeReplyNum_temp = chkLines[0].split('/')
         getDelOptimizeReplyNum = getDelOptimizeReplyNum_temp[-1]
         if os.path.exists(f'./etc/content/temp_reply/{getDelOptimizeReplyNum}.txt'):
             os.remove(
                 f'./etc/content/temp_reply/{getDelOptimizeReplyNum}.txt')
+        delLine = chkLines[0]
         del chkLines[0]
 
     with open('./etc/work_link.txt', 'w') as f:
         f.writelines(''.join(chkLines))
     goToHome = searchElement('.header h1', driver)
     untilEleGone(goToHome[0], '.post_title', driver)
+    
+    return [getLinkData,delLine]
  
 
 def cafe_re_reply_mobile(driver,cafeName):
@@ -257,6 +261,9 @@ def cafe_re_reply_mobile(driver,cafeName):
         if 'mine' in chkClassList:
             continue
         replyNum += 1
+        
+    if replyNum < 1:
+        return
 
     eleCount = 0
     for i in range(replyNum):
@@ -307,21 +314,28 @@ def cafe_reply_mobile(driver,cafeName):
     driver.get(cafeName)
     
     with open(f'./etc/work_link.txt') as f:
-            workLinkList = f.readlines()
-
-    for i, workLink in enumerate(workLinkList):
-        replyTimeStart = time.time()
+        workLinkList = f.readlines()
         
+    for i, workLink in enumerate(workLinkList):
+        exceptVal = ''
         workLink_temp = workLink.replace('\n', '')
         workLinkOn = workLink_temp.split('/')[-1]
         boardListAll = searchElement('.list_area li', driver)
         for boardList in boardListAll:
-            chkBoardLink = boardList.find_element(
+            try:
+                chkBoardLink = boardList.find_element(
                 by=By.CSS_SELECTOR, value='.txt_area').get_attribute('href')
+            except:
+                exceptVal = 'on'
+                break
             chkVal = workLinkOn in chkBoardLink
 
             if chkVal:
-                untilEleGone(boardList, '.txt_area', driver)
+                try:
+                    untilEleGone(boardList, '.txt_area', driver)
+                except:
+                    exceptVal = 'on'
+                    break
                 pg.moveTo(300, 500)
                 randomFor = random.randrange(2, 5)
                 for i in range(1, randomFor):
@@ -330,7 +344,8 @@ def cafe_reply_mobile(driver,cafeName):
                 break
 
         # 게시글 클릭 완료 댓글 쓰기 시작!
-
+        if exceptVal == 'on':
+            continue
         randomActionVal = random.randrange(1, 4)
         print(randomActionVal)
         if randomActionVal == 1:
@@ -1299,7 +1314,30 @@ def getBlogContentChrome(subjectArr,driver):
             nowpage = getPgCount
             getPagingList[getPgCount].click()
         
-        getBlogLink = searchElement('.yuRUbf',driver)
+
+        
+        linkSearchCount = 0
+        resetContent = ''
+        while True:
+            wait_float(0.5,1.2)
+            linkSearchCount += 1
+            if linkSearchCount > 10:
+                resetContent = "on"
+                break
+            try:
+                getBlogLink = driver.find_elements(by=By.CSS_SELECTOR, value='.yuRUbf')
+                if len(getBlogLink) > 3:
+                    break
+                
+            except:
+                pass
+        if resetContent == 'on':
+            continue
+            
+                
+            
+            
+        
         getBlogLinkCount = random.randrange(0,len(getBlogLink))
         
         getInfoPostLink = getBlogLink[getBlogLinkCount].find_element(by=By.CSS_SELECTOR, value='a').get_attribute('href')

@@ -35,6 +35,8 @@ def goScript(getDict):
     endOptimize = ''
     nowAction = ''
     preIp = ''
+    rereChkVal = ''
+    rereActionChk = ''
     chk_extesion = ['jpg', 'jpeg', 'JPG', 'png', 'PNG', 'gif']
 
     with open('./etc/cafe_info.txt', 'r') as f:
@@ -52,10 +54,7 @@ def goScript(getDict):
     boardListNum = cafeAllInfo[3].split(',')
 
     while True:
-
         allCount += 1
-        
-        
         # 아이피 변경
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service)
@@ -76,6 +75,8 @@ def goScript(getDict):
         else:
             nowAction = 'reply'
             nowWriteStatus = ""
+            
+        # nowAction = 'reply'
         
         print(f'일단 현재 작업은? {nowAction}')
 
@@ -112,38 +113,60 @@ def goScript(getDict):
 
             cafe_optimize.cell(writeCount, 4).value = datetime.now()
             cafe_optimize_file.save('./etc/naver_optimiz.xlsx')
-        
-        elif nowAction == 'reply' and nowActionNum == 0:
-            nId = preLoginInfo[0]
-            nPwd = preLoginInfo[1]
-            nBoardName = preLoginInfo[3]
-            uaSet = preLoginInfo[2]
-
+            
         elif nowWriteStatus == 'basic' or nowAction == 'reply':
             # 일반 글쓰기 or 댓글 쓰기 일때 (안써진거 or 쓴지 3일 지난거)
             # 먼저 엑셀에서 사용한지 3일이 지난 값 가지고 오기
-            nidExLength = getExLength(cafe_id)
-            chkArr = asyncio.run(getEmptyArr(nidExLength, cafe_id))
-            getRanVal = random.randrange(0, len(chkArr))
-            getRanWorkVal = chkArr[getRanVal]
+            
+            # rereChkVal = 'https://m.cafe.naver.com/gnlcks33/25458'
+            if rereChkVal != '':
+                chkCount = 0
+                rereChkValSplit = rereChkVal.split('/')
 
-            uaSet = cafe_id.cell(getRanWorkVal, 1).value
-            if uaSet is None:
-                uaSet = getUaNum()
-                cafe_id.cell(getRanWorkVal, 1).value = uaSet
+                lastRereSplit = rereChkValSplit[-1].strip()
+                
+                while True:
+                    chkCount += 1
+                    chkNone = cafe_id.cell(chkCount, 1).value
+                    if chkNone is None:
+                        break
+                    chkVal = cafe_id.cell(chkCount, 5).value
+                    if chkVal is not None:
+                        if lastRereSplit in chkVal:
+                            rereActionChk = 'on'
+                            break
+                    
+            if rereActionChk == 'on':
+                uaSet = cafe_id.cell(chkCount, 1).value
+                nId = cafe_id.cell(chkCount, 2).value
+                nPwd = cafe_id.cell(chkCount, 3).value
+                boardGetRan = random.randrange(0, 2)
+                nBoardName = boardListKor[boardGetRan]
+                
+                cafe_id.cell(chkCount, 5).value = ''
+                rereActionChk = ''
+                
+            else:
+                rereActionChk = ''
+                nidExLength = getExLength(cafe_id)
+                chkArr = asyncio.run(getEmptyArr(nidExLength, cafe_id))
+                getRanVal = random.randrange(0, len(chkArr))
+                getRanWorkVal = chkArr[getRanVal]
+
+                uaSet = cafe_id.cell(getRanWorkVal, 1).value
+                if uaSet is None:
+                    uaSet = getUaNum()
+                    cafe_id.cell(getRanWorkVal, 1).value = uaSet
+                    cafe_id_file.save('./etc/naver_id.xlsx')
+
+                nId = cafe_id.cell(getRanWorkVal, 2).value
+                nPwd = cafe_id.cell(getRanWorkVal, 3).value
+                boardGetRan = random.randrange(0, 2)
+                nBoardName = boardListKor[boardGetRan]
+                nBoardNum = boardListNum[boardGetRan]
+                
+                cafe_id.cell(getRanWorkVal, 4).value = datetime.now()
                 cafe_id_file.save('./etc/naver_id.xlsx')
-
-            nId = cafe_id.cell(getRanWorkVal, 2).value
-            nPwd = cafe_id.cell(getRanWorkVal, 3).value
-            boardGetRan = random.randrange(0, 2)
-            nBoardName = boardListKor[boardGetRan]
-            nBoardNum = boardListNum[boardGetRan]
-            
-            cafe_id.cell(getRanWorkVal, 4).value = datetime.now()
-            cafe_id_file.save('./etc/naver_id.xlsx')
-            
-            if nowActionNum == 1:
-                preLoginInfo = [nId, nPwd, uaSet, nBoardName]
                 
         # 테스트겸 냅두자
         try:
@@ -157,8 +180,6 @@ def goScript(getDict):
         print('정보 얻기 완료')
 
         if nowAction == 'write' and nowWriteStatus == 'basic':
-            
-            
             
             # 블로그 글따기 시작!!!
             # 엑셀로 랜덤 돌려서 제목 뽑기
@@ -228,8 +249,18 @@ def goScript(getDict):
                 continue
             
             driver.get(cafeName)
-            cafe_write_mobile(nBoardName,chk_extesion,driver)
-            cafe_reply_mobile(driver,cafeName)
+            getAddRemoveLinks = cafe_write_mobile(nBoardName,chk_extesion,driver)
+            
+            cafe_id.cell(getRanWorkVal, 5).value = getAddRemoveLinks[0]
+            cafe_id_file.save('./etc/naver_id.xlsx')
+            
+            # pg.alert(f"{getRanWorkVal}번째에 써짐!! 그리고 대기!!")
+            
+            rereChkVal = getAddRemoveLinks[1]
+            
+            
+            
+            # cafe_reply_mobile(driver,cafeName)
             nowWriteStatus = ''
 
 
@@ -251,6 +282,7 @@ def goScript(getDict):
             # cafe_re_reply_pc(cafeAllInfo,driver)
             cafe_write_pc(writeCount,driver)
             nowWriteStatus = ''
+            rereChkVal = ''
             
             
             
@@ -284,13 +316,13 @@ def goScript(getDict):
                 driver.close()
                 continue
             
-            if nowActionNum == 0:
-                pg.alert('대기요~~~')
+            if rereChkVal != '':
                 cafe_re_reply_mobile(driver,cafeName)
             
             cafe_reply_mobile(driver,cafeName)
             # 카페 메인 진입 끝! 게시글 클릭 시작!
             nowWriteStatus = ''
+            rereChkVal = ''
         
 
         driver.close()
