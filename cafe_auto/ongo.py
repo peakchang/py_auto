@@ -17,11 +17,13 @@ cafe_id.cell(세로(열), 가로(행)).value
 
 def goScript(getDict):
     
+    # dirList = os.listdir(f"{os.getcwd()}\\etc\\content\\id_{writeCount}")
+    
     
     # global driver
     
-    chromeVersionChkPath = 'C:\\Users\\pcy\\AppData\\Local\\Google\\Chrome\\User Data\\default'
-    # chromeVersionChkPath = 'C:\\Users\\드림모어\\AppData\\Local\\Google\\Chrome\\User Data\\Default'
+    # chromeVersionChkPath = 'C:\\Users\\pcy\\AppData\\Local\\Google\\Chrome\\User Data\\default'
+    chromeVersionChkPath = 'C:\\Users\\드림모어\\AppData\\Local\\Google\\Chrome\\User Data\\Default'
     
     
 
@@ -55,9 +57,15 @@ def goScript(getDict):
 
     while True:
         allCount += 1
-        # 아이피 변경
+        
+        
+        
+    #     # 아이피 변경
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service)
+        
+        
+        # pg.alert('아이피 변경 안풀었어!!!')
         while True:
             getIP = changeIpSpeed(driver)
             print(getIP)
@@ -81,7 +89,7 @@ def goScript(getDict):
         print(f'일단 현재 작업은? {nowAction}')
 
         if endOptimize == '' and nowAction == 'write':
-            if os.path.exists(f'./etc/content/id_{writeCount}'):
+            if os.path.exists(f'./etc/content/opt/id_{writeCount}'):
                 optimizeChkVal1 = cafe_optimize.cell(writeCount, 2).value
                 optimizeChkVal2 = cafe_optimize.cell(writeCount, 4).value
                 if optimizeChkVal1 is None or optimizeChkVal2 is not None:
@@ -144,6 +152,7 @@ def goScript(getDict):
                 nBoardName = boardListKor[boardGetRan]
                 
                 cafe_id.cell(chkCount, 5).value = ''
+                cafe_id_file.save('./etc/naver_id.xlsx')
                 rereActionChk = ''
                 
             else:
@@ -173,7 +182,7 @@ def goScript(getDict):
             getVal = getRanWorkVal
         except:
             getVal = writeCount
-
+            
         # pg.alert(text=f'{getVal}번째 있는 아이디로 {nowWriteStatus} {nowAction}작업, 크롬 정보 : {uaSet} / 아이디 : {nId} / 비번 : {nPwd} / 게시판 이름 {nBoardName}')
         print(f'{getVal}번째 있는 아이디로 {nowWriteStatus} {nowAction}작업, 크롬 정보 : {uaSet} / 아이디 : {nId} / 비번 : {nPwd} / 게시판 이름 {nBoardName}')
 
@@ -183,31 +192,42 @@ def goScript(getDict):
             
             # 블로그 글따기 시작!!!
             # 엑셀로 랜덤 돌려서 제목 뽑기
-            cafe_ex_file = load_workbook('./etc/subject_list.xlsx')
-            cafe_ex = cafe_ex_file.active
+            getSubjectRanVal = random.randrange(0,3)
+            if getSubjectRanVal != 0:
+                # 글 제목 따기!!
+                options = Options()
+                service = Service(ChromeDriverManager().install())
+                options.add_argument('user-agent=Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.1 Mobile/15E148 Safari/604.1')
+                driver = webdriver.Chrome(service=service, chrome_options=options)
+                
+                subjecArr = getSubjectArrToCafe(driver)
+                
+            if getSubjectRanVal == 0 or subjecArr == [] or subjecArr == '' or subjecArr is None:
+                # 엑셀로 랜덤 돌려서 제목 뽑기
+                cafe_ex_file = load_workbook('./etc/subject_list.xlsx')
+                cafe_ex = cafe_ex_file.active
+                subjectCountArr = []
+                for i in range(1, 5):
+                    k = 0
+                    while True:
+                        k += 1
+                        chkVal = cafe_ex.cell(k, i).value
+                        if chkVal is None:
+                            subjectCountArr.append(k)
+                            break
 
-            subjectCountArr = []
-            for i in range(1, 5):
-                k = 0
-                while True:
-                    k += 1
-                    chkVal = cafe_ex.cell(k, i).value
-                    if chkVal is None:
-                        subjectCountArr.append(k)
-                        break
-
-            subjecArr = []
-            for i, subjectCount in enumerate(subjectCountArr):
-                if i == 1 or i == 2:
-                    passNum = random.randrange(1, 3)
-                    if passNum != 1:
-                        continue
-                getConNum = random.randrange(1, subjectCount)
-                chkVal = cafe_ex.cell(getConNum, i+1).value
-                subjecArr.append(chkVal)
-
-            print('제목 생성 완료')
-            # 엑셀로 랜덤 돌려서 제목 뽑기 끝 이제 아래 블로그 컨텐츠 생성 함수에 넣고 막글 뽑자!
+                subjecArr = []
+                for i, subjectCount in enumerate(subjectCountArr):
+                    if i == 1 or i == 2:
+                        passNum = random.randrange(1, 3)
+                        if passNum != 1:
+                            continue
+                    getConNum = random.randrange(1, subjectCount)
+                    chkVal = cafe_ex.cell(getConNum, i+1).value
+                    subjecArr.append(chkVal)
+                    
+                print('제목 생성 완료')
+                # 엑셀로 랜덤 돌려서 제목 뽑기 끝 이제 아래 블로그 컨텐츠 생성 함수에 넣고 막글 뽑자!
             
             
             #블로그 글따기 실패시 (보안문자 뜨면 반복)
@@ -260,7 +280,7 @@ def goScript(getDict):
             
             
             
-            # cafe_reply_mobile(driver,cafeName)
+            cafe_reply_mobile(driver,cafeName)
             nowWriteStatus = ''
 
 
@@ -279,7 +299,7 @@ def goScript(getDict):
             
             naverLogin_pc(nId,nPwd,driver)
             
-            # cafe_re_reply_pc(cafeAllInfo,driver)
+            cafe_re_reply_pc(cafeAllInfo,driver)
             cafe_write_pc(writeCount,driver)
             nowWriteStatus = ''
             rereChkVal = ''
@@ -325,6 +345,6 @@ def goScript(getDict):
             rereChkVal = ''
         
 
-        driver.close()
+        driver.quit()
 
 

@@ -74,10 +74,15 @@ def goScript(getDict):
     user_data = 'C:\\Users\\pcy\\AppData\\Local\\Google\\Chrome\\User Data\\default'
     service = Service(ChromeDriverManager().install())
     options.add_argument(f"user-data-dir={user_data}")
-    options.add_argument(f'--profile-directory={ex.cell(exLineNum, 3).value}')
+    if getDict['profileVal'] == 1:
+        options.add_argument(f'--profile-directory={ex.cell(exLineNum, 3).value}')
     driver = webdriver.Chrome(service=service, chrome_options=options)
     
     driver.get('https://www.naver.com')
+    
+    
+    if getDict['profileVal'] == 0:
+        pg.alert('프로필 체크 대기~~~')
     
     # chrome://version
     
@@ -98,7 +103,7 @@ def goScript(getDict):
     wait_float(0.3,0.9)
     while True:
         
-        pg.click(400,500)
+        pg.click(200,500)
         inputId = driver.find_element(by=By.CSS_SELECTOR, value="#id")
         inputId.click()
         wait_float(0.3,0.9)
@@ -144,6 +149,9 @@ def goScript(getDict):
     else:
         allowListVisit()
     
+    
+    
+    
     navItem = searchElement('.nav_item')
     for mitem in navItem:
         if mitem.text == '블로그':
@@ -155,16 +163,7 @@ def goScript(getDict):
     
     driver.switch_to.window(driver.window_handles[1])
     
-    
     path_dir = './etc/content'
-    # folder_list = os.listdir(path_dir)
-    # for folder in folder_list:
-    
-    
-    
-    # files = sorted(glob.glob('.\\etc\\content\\*.txt'), key=os.path.getctime)
-
-    # writeCount += 1
     
     if getDict['middleVal'] == 0:
         pg.alert(f'글쓰기를 시작합니다!!')
@@ -254,10 +253,6 @@ def goScript(getDict):
         
         
         
-    
-    # se-help-panel-close-button
-    # publish_btn__Y5mLP
-        
     if getDict['middleVal'] == 0:
         chkVal = pg.confirm(text='글쓰기가 완료 되었습니다!! 댓글을 진행 하시겠습니까?', buttons=['go','stop'])
     else:
@@ -268,19 +263,26 @@ def goScript(getDict):
         
         
         
-        while True:
-            try:
-                miniPopup = driver.find_element(by=By.CSS_SELECTOR, value="#floatingda_content button")
-                wait_float(0.5,1.2)
-                miniPopup[0].click()
-            except:
-                break
-            
+        try:
+            miniPopup = driver.find_element(by=By.CSS_SELECTOR, value="#floatingda_content")
+            miniPopupClose = miniPopup.find_element(by=By.CSS_SELECTOR, value="button")
+            driver.execute_script("arguments[0].scrollIntoView();", miniPopupClose)
+            wait_float(0.5,1.2)
+            miniPopupClose.click()
+            wait_float(0.5,1.2)
+        except:
+            pass
+        
         getUrl = searchElement('._transPosition')
         getUrl[0].click()
+            
+        
         wait_float(1.5,2.5)
         pg.press('enter')
         driver.switch_to.default_content()
+        
+        
+        
         driver.close()
         driver.switch_to.window(driver.window_handles[0])
         
@@ -590,8 +592,8 @@ def blogReplyReady(getValList):
     driver = webdriver.Chrome(service=service, chrome_options=options)
     
     driver.get('https://www.naver.com')
-    
     loginBtn = searchElement('.sc_login')
+    pg.alert('대기대기대기!!!!!!!!!!!!!!!')
     loginBtn[0].click()
     
     # while True:
@@ -601,7 +603,7 @@ def blogReplyReady(getValList):
     wait_float(0.3,0.9)
     while True:
         
-        pg.click(400,500)
+        pg.click(200,500)
         inputId = driver.find_element(by=By.CSS_SELECTOR, value="#id")
         inputId.click()
         wait_float(0.3,0.9)
@@ -729,7 +731,7 @@ def blogReplyWork():
     subjectArea = searchElement('.FlexableTextArea')
     subjectArea[0].click()
     
-    with open('./content/social_cafe_content.txt', 'r') as r:
+    with open('./etc/social_cafe_content.txt', 'r') as r:
         cafeContent = r.readlines()
     
     keyboard.write(text=cafeContent[0], delay=0.05)

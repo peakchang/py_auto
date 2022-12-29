@@ -413,7 +413,7 @@ def cafe_re_reply_pc(cafeAllInfo,driver):
     if getInCafe == "":
         driver.get(cafeAllInfo[1])
     else:
-        driver.switch_to.window(driver.window_handles[0])
+        driver.switch_to.window(driver.window_handles[1])
         driver.close()
         driver.switch_to.window(driver.window_handles[0])
 
@@ -425,7 +425,12 @@ def cafe_re_reply_pc(cafeAllInfo,driver):
     myPostList[0].click()
     
     
+    refreshCount = 0
     while True:
+        refreshCount += 1
+        if refreshCount % 5 == 0:
+            pg.press('F5')
+        print('씨발좆 111')
         wait_float(0.5,0.9)
         driver.switch_to.default_content()
         try:
@@ -433,10 +438,12 @@ def cafe_re_reply_pc(cafeAllInfo,driver):
         except:
             continue
         
-        
-        chkProfile = driver.find_element(by=By.CSS_SELECTOR, value=".MemberProfile")
-        if chkProfile:
-            break
+        try:
+            chkProfile = driver.find_element(by=By.CSS_SELECTOR, value=".MemberProfile")
+            if chkProfile:
+                break
+        except:
+            continue
     
     wait_float(0.2,0.7)
     articleBoard = driver.find_element(by=By.CSS_SELECTOR, value=".article-board")
@@ -446,29 +453,49 @@ def cafe_re_reply_pc(cafeAllInfo,driver):
     article.click()
     
     
+    refreshCount = 0
     while True:
-        driver.switch_to.window(driver.window_handles[1])
-        driver.switch_to.default_content()
-        driver.switch_to.frame('cafe_main')
+        refreshCount += 1
+        if refreshCount % 5 == 0:
+            pg.press('F5')
+        print('씨발좆 222')
         wait_float(0.5,0.9)
-        articleContentBox = driver.find_element(by=By.CSS_SELECTOR, value=".ArticleContentBox")
-        if articleContentBox:
-            break
+        
+        try:
+            driver.switch_to.window(driver.window_handles[1])
+            driver.switch_to.default_content()
+            driver.switch_to.frame('cafe_main')
+            wait_float(0.5,0.9)
+            articleContentBox = driver.find_element(by=By.CSS_SELECTOR, value=".ArticleContentBox")
+            if articleContentBox:
+                break
+        except:
+            continue
+        
+        
     
     commentItem = driver.find_elements(by=By.CSS_SELECTOR, value=".CommentItem")
     
     replyNum = 0
+    mineNum = 0
     for val in commentItem:
         chkClassList = val.get_attribute('class')
         if 'mine' in chkClassList:
+            mineNum += 1
             continue
-        
         replyNum += 1
+    
+    if replyNum < 2 or mineNum > 3:
+        wait_float(1.3,2.5)
+        driver.switch_to.window(driver.window_handles[1])
+        driver.close()
+        driver.switch_to.window(driver.window_handles[0])
+        return
     
     eleCount = 0
     for i in range(replyNum):
         
-        commentItem = driver.find_elements(by=By.CSS_SELECTOR, value=".CommentItem")
+        commentItem = searchElement('.CommentItem', driver)
         while True:
             chkClassList = commentItem[eleCount].get_attribute('class')
             if 'mine' in chkClassList or 'reply' in chkClassList:
@@ -477,7 +504,14 @@ def cafe_re_reply_pc(cafeAllInfo,driver):
             else:
                 break
         wait_float(0.5,1.3)
+        
+        refreshCount = 0
         while True:
+            refreshCount += 1
+            if refreshCount % 5 == 0:
+                pg.press('F5')
+            wait_float(0.5,1.2)
+            print('씨발좆 333')
             focus_window('카페')
             replyBtn = commentItem[eleCount].find_element(by=By.CSS_SELECTOR, value=".comment_info_button")
             replyBtn.click()
@@ -520,16 +554,27 @@ def cafe_re_reply_pc(cafeAllInfo,driver):
         wait_float(1.5,2.3)
         eleCount += 1
     
+    while True:
+        wait_float(0.5,1.3)
+        if len(driver.window_handles) > 1:
+            driver.switch_to.window(driver.window_handles[1])
+            driver.close()
+            driver.switch_to.window(driver.window_handles[0])
+        else:
+            break
+    
     
 
 def cafe_write_pc(writeCount,driver):
     
+    pg.alert('PC 글쓰기 시작~~!!!')
+    
 
-    dirList = os.listdir(f"{os.getcwd()}\\etc\\content\\id_{writeCount}")
+    dirList = os.listdir(f"{os.getcwd()}\\etc\\content\\opt\\id_{writeCount}")
     
     for dir in dirList:
         
-        with open(f'./etc/content/id_{writeCount}/{dir}/content.txt', 'r') as f:
+        with open(f'./etc/content/opt/id_{writeCount}/{dir}/content.txt', 'r') as f:
             getContents = f.readlines()
         
         cafeInfo = getContents[0].split('|')
@@ -539,7 +584,13 @@ def cafe_write_pc(writeCount,driver):
         
         workBoardLink = searchElement(f'#menuLink{cafeInfo[2]}', driver)
         workBoardLink[0].click()
-        driver.switch_to.frame('cafe_main')
+        
+        while True:
+            try:
+                driver.switch_to.frame('cafe_main')
+                break
+            except:
+                continue
 
         # 카페에 글 작성하기
 
@@ -558,6 +609,50 @@ def cafe_write_pc(writeCount,driver):
 
         textArea = searchElement('.se-content', driver)
         textArea[0].click()
+        
+        # lineCount = 1
+        # while True:
+        #     lineCount += 1
+            
+        #     if len(getContents) <= lineCount:
+        #         break
+        #     if getContents[lineCount] == '' or getContents[lineCount] is None:
+        #         break
+        #     getline = getContents[lineCount].replace('\n', '')
+            
+        #     getImgAction = getline.split('|')
+        #     if getline == 'enter':
+        #         pg.press('enter')
+        #         wait_float(0.5, 0.9)
+        #     elif getImgAction[0] == 'img_line':
+        #         imgBtn = searchElement('.se-document-toolbar li', driver)
+        #         imgBtn[0].click()
+        #         nowPath = os.getcwd()
+        #         imagePath = nowPath + f"\etc\content\id_{writeCount}\{dir}"
+        #         wait_float(1.5, 2.2)
+        #         pyperclip.copy(imagePath)
+        #         wait_float(0.5, 0.9)
+        #         pg.hotkey('ctrl', 'v')
+        #         wait_float(0.5, 0.9)
+        #         pg.press('enter')
+                
+        #         wait_float(0.9, 1.6)
+        #         pyperclip.copy(getImgAction[1])
+        #         wait_float(0.5, 0.9)
+        #         pg.hotkey('ctrl', 'v')
+        #         wait_float(0.5, 0.9)
+        #         pg.press('enter')
+                
+        #         wait_float(3.5, 4.8)
+                
+        #         imgLength = driver.find_elements(by=By.CSS_SELECTOR, value=".se-drop-indicator img")
+        #         if len(imgLength) < 1:
+        #             lineCount = lineCount - 1
+        #     else:
+        #         keyboard.write(text=getline, delay=0.05)
+        #         wait_float(0.5, 0.9)
+        #         pg.press('enter')
+                
         for i, getline in enumerate(getContents):
             if i < 2:
                 continue
@@ -570,26 +665,37 @@ def cafe_write_pc(writeCount,driver):
                 imgBtn = searchElement('.se-document-toolbar li', driver)
                 imgBtn[0].click()
                 nowPath = os.getcwd()
-                imagePath = nowPath + f"\etc\content\id_{writeCount}\{dir}"
+                imagePath = nowPath + f"\etc\content\opt\id_{writeCount}\{dir}"
                 wait_float(1.5, 2.2)
                 pyperclip.copy(imagePath)
                 wait_float(0.5, 0.9)
                 pg.hotkey('ctrl', 'v')
                 wait_float(0.5, 0.9)
                 pg.press('enter')
-                
                 wait_float(0.9, 1.6)
                 pyperclip.copy(getImgAction[1])
                 wait_float(0.5, 0.9)
                 pg.hotkey('ctrl', 'v')
                 wait_float(0.5, 0.9)
                 pg.press('enter')
-                
                 wait_float(3.5, 4.8)
+                
+                
+                while True:
+                    wait_float(1.2,2.3)
+                    imgLength = driver.find_elements(by=By.CSS_SELECTOR, value=".se-drop-indicator img")
+                    if len(imgLength) < 1:
+                        continue
+                    else:
+                        break
+                
+                
             else:
                 keyboard.write(text=getline, delay=0.05)
                 wait_float(0.5, 0.9)
                 pg.press('enter')
+                
+                
         BaseButton = searchElement('.BaseButton', driver)
         BaseButton[0].click()
         wait_float(2.5,3.3)
@@ -598,7 +704,13 @@ def cafe_write_pc(writeCount,driver):
         
         if 'gnlcks33' in getContents[0]:
             wait_float(1.5,2.5)
-            driver.switch_to.frame('cafe_main')
+            
+            while True:
+                try:
+                    driver.switch_to.frame('cafe_main')
+                    break
+                except:
+                    continue
 
             BaseButton = searchElement('.button_url', driver)
             BaseButton[0].click()
@@ -607,8 +719,8 @@ def cafe_write_pc(writeCount,driver):
             wait_float(0.5,0.9)
             
             
-            if os.path.isfile(f'./etc/content/id_{writeCount}/{dir}/reply.txt') and 'gnlcks33' in getContents[0]:
-                with open(f'./etc/content/id_{writeCount}/{dir}/reply.txt', 'r') as f:
+            if os.path.isfile(f'./etc/content/opt/id_{writeCount}/{dir}/reply.txt') and 'gnlcks33' in getContents[0]:
+                with open(f'./etc/content/opt/id_{writeCount}/{dir}/reply.txt', 'r') as f:
                     getTempReplys = f.readlines()
                     getTempReplys.insert(0, '0\n')
                     getTempReplysName_temp = getLinkData.split('/')
@@ -616,7 +728,8 @@ def cafe_write_pc(writeCount,driver):
                     
                 with open(f'./etc/content/temp_reply/{getTempReplysName}.txt', 'w') as f:
                     f.writelines(''.join(getTempReplys))
-                    
+            
+            wait_float(0.5,0.9)
             with open('./etc/work_link.txt', 'r') as f:
                 chkLines = f.readlines()
             
@@ -627,7 +740,7 @@ def cafe_write_pc(writeCount,driver):
                 with open('./etc/work_link.txt', 'a') as f:
                     f.write('\n')
                     f.write(getLinkData)
-
+            wait_float(0.5,0.9)
             if len(chkLines) > 6:
                 setLines = chkLines[-6:]
                 
@@ -640,8 +753,14 @@ def cafe_write_pc(writeCount,driver):
                 
             wait_float(0.5,0.9)
             driver.close()
-            driver.switch_to.window(driver.window_handles[0])
-            driver.switch_to.frame('cafe_main')
+            
+            while True:
+                try:
+                    driver.switch_to.window(driver.window_handles[0])
+                    driver.switch_to.frame('cafe_main')
+                    break
+                except:
+                    continue
 
             # 글쓰기 및 worklink에 링크 추가 완료 PC버전 댓글 달기 GO!
             with open(f'./etc/work_link.txt') as f:
@@ -656,7 +775,12 @@ def cafe_write_pc(writeCount,driver):
                 workLink_temp = workLink.replace('\n', '')
                 workLinkOn = workLink_temp.split('/')[-1]
                 
-                driver.switch_to.frame('cafe_main')
+                while True:
+                    try:
+                        driver.switch_to.frame('cafe_main')
+                        break
+                    except:
+                        continue
                 articleDiff = searchElement('.article-board', driver)
                 articleList = articleDiff[1].find_elements(by=By.CSS_SELECTOR, value=".td_article")
                 for uu, article in enumerate(articleList):
@@ -1479,7 +1603,58 @@ def getBlogContentChrome(subjectArr,driver):
     
     
     
+
+
+def getSubjectArrToCafe(driver):
+    with open('./etc/subject_cafe_list.txt', 'r') as r:
+        cafeList = r.readlines() 
     
+    onCafe = cafeList[random.randrange(0,len(cafeList))]
+    onCafe = onCafe.replace('\n','')
+    driver.get(onCafe)
+    searchElement('.list_area', driver)
+    
+    while True:
+        boardBox = driver.find_elements(by=By.CSS_SELECTOR, value=".board_box")
+        before_one_day = datetime.now() - timedelta(days=2)
+        
+        setTime = boardBox[-1].find_element(by=By.CSS_SELECTOR, value=".time")
+        if ':' in setTime.text:
+            pg.press('end')
+            wait_float(1.5,2.5)
+            continue
+        setTime = '20' + setTime.text[:-1].replace('.','-')
+        getBoardTime = datetime.strptime(setTime, '%Y-%m-%d')
+        
+        if getBoardTime < before_one_day:
+            break
+        else:
+            pg.press('end')
+            wait_float(1.5,2.5)
+
+    
+    
+    titleList = driver.find_elements(by=By.CSS_SELECTOR, value=".board_box .tit")
+    while True:
+        getRanTitNum = random.randrange(0,len(titleList))
+
+        
+        if len(titleList[getRanTitNum].text) < 13:
+            del titleList[getRanTitNum]
+            continue
+        
+        chkSubjectArr = ['핸드','휴대','휴싸방','좌표어때','가입','등업','안녕','하이','댓글']
+        for chkOn in chkSubjectArr:
+            if chkOn in titleList[getRanTitNum].text:
+                del titleList[getRanTitNum]
+                continue
+        
+        getSubjectOn = titleList[getRanTitNum].text
+        break
+    getSubject = re.sub(r"[^\uAC00-\uD7A30-9a-zA-Z\s]", "", getSubjectOn)
+    subjectArr = getSubject.split(' ')
+    
+    return subjectArr
     
     
     
