@@ -67,7 +67,7 @@ def goScript(getDict):
                 preIp = getIP
                 break
         
-    
+        pg.alert(getIP)
     
     
     options = Options()
@@ -593,7 +593,6 @@ def blogReplyReady(getValList):
     
     driver.get('https://www.naver.com')
     loginBtn = searchElement('.sc_login')
-    pg.alert('대기대기대기!!!!!!!!!!!!!!!')
     loginBtn[0].click()
     
     # while True:
@@ -1097,7 +1096,7 @@ def changeIp():
         while True:
             try:
                 wait_float(0.5, 0.9)
-                getIp = requests.get("http://ip.jsontest.com").json()['ip']
+                getIp = requests.get("https://api.ip.pe.kr/json/").json()['ip']
                 if getIp is not None:
                     break
             except:
@@ -1107,7 +1106,7 @@ def changeIp():
         while True:
             try:
                 wait_float(0.5, 0.9)
-                getIp = requests.get("http://ip.jsontest.com").json()['ip']
+                getIp = requests.get("https://api.ip.pe.kr/json/").json()['ip']
                 if getIp is not None:
                     break
             except:

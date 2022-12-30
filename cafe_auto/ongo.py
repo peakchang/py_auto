@@ -48,8 +48,6 @@ def goScript(getDict):
         cafeAllInfo[i] = cafeAllInfo[i].replace('\n', '')
 
     print(cafeAllInfo)
-
-    pg.alert(text='시작 대기!!')
     
     cafeName = cafeAllInfo[1]
     boardListKor = cafeAllInfo[2].split(',')
@@ -58,20 +56,16 @@ def goScript(getDict):
     while True:
         allCount += 1
         
-        
-        
-    #     # 아이피 변경
-        service = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service)
-        
-        
-        # pg.alert('아이피 변경 안풀었어!!!')
-        while True:
-            getIP = changeIpSpeed(driver)
-            print(getIP)
-            if not preIp == getIP:
-                preIp = getIP
-                break
+        if getDict['ipval'] == 1:
+            while True:
+                getIP = changeIpSpeed()
+                print(getIP)
+                if getIP == '119.197.60.174':
+                    pg.alert('집 아이피 입니다!')
+                    continue
+                if not preIp == getIP:
+                    preIp = getIP
+                    break
 
         # 4로 나누어서 나머지가 1이면 글쓰기 아니면 댓글 (댓글은 6번 총 23~24 클릭)
         print('아이피 변경 완료')
@@ -269,18 +263,22 @@ def goScript(getDict):
                 continue
             
             driver.get(cafeName)
+            
+            cafe_join_btn(driver)
+            getAddRemoveLinks = ''
             getAddRemoveLinks = cafe_write_mobile(nBoardName,chk_extesion,driver)
             
-            cafe_id.cell(getRanWorkVal, 5).value = getAddRemoveLinks[0]
-            cafe_id_file.save('./etc/naver_id.xlsx')
-            
-            # pg.alert(f"{getRanWorkVal}번째에 써짐!! 그리고 대기!!")
-            
-            rereChkVal = getAddRemoveLinks[1]
-            
+            if getAddRemoveLinks != '' or getAddRemoveLinks is not None:
+                cafe_id.cell(getRanWorkVal, 5).value = getAddRemoveLinks[0]
+                cafe_id_file.save('./etc/naver_id.xlsx')
+                rereChkVal = getAddRemoveLinks[1]
+                cafe_reply_mobile(driver)
             
             
-            cafe_reply_mobile(driver,cafeName)
+            
+            
+            
+            
             nowWriteStatus = ''
 
 
@@ -300,7 +298,7 @@ def goScript(getDict):
             naverLogin_pc(nId,nPwd,driver)
             
             cafe_re_reply_pc(cafeAllInfo,driver)
-            cafe_write_pc(writeCount,driver)
+            cafe_write_pc(cafeAllInfo,writeCount,driver)
             nowWriteStatus = ''
             rereChkVal = ''
             
@@ -321,9 +319,8 @@ def goScript(getDict):
             options.add_argument('user-agent=' + user_agent)
             service = Service(ChromeDriverManager().install())
             driver = webdriver.Chrome(chrome_options=options, service=service)
-
             driver.get('https://www.naver.com')
-
+            
             errchk = naverLogin_mobile(nId, nPwd, driver)
             if errchk is not None:
                 if nowWriteStatus == 'basic':
@@ -336,10 +333,14 @@ def goScript(getDict):
                 driver.close()
                 continue
             
+            driver.get(cafeName)
+            cafe_join_btn(driver)
+            
             if rereChkVal != '':
                 cafe_re_reply_mobile(driver,cafeName)
             
-            cafe_reply_mobile(driver,cafeName)
+            driver.get(cafeName)
+            cafe_reply_mobile(driver)
             # 카페 메인 진입 끝! 게시글 클릭 시작!
             nowWriteStatus = ''
             rereChkVal = ''

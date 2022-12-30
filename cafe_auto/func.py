@@ -36,9 +36,117 @@ import requests
 import winsound as ws
 import glob
 import asyncio
+import string
 
 
 
+
+def cafe_join_btn(driver):
+    searchElement('.btn_write', driver)
+    try:
+        joinBtn = driver.find_element(by=By.CSS_SELECTOR, value='.inner_box .btn_join')
+    except:
+        return
+    
+    joinBtn.click()
+    searchElement('.cafe_info', driver)
+    
+    
+    
+    wait_float(0.5,1.2)
+    
+    
+    while True:
+        focus_window('네이버 카페')
+        try:
+            labelJoinNick = driver.find_element(by=By.CSS_SELECTOR, value='#label_join_nick').get_attribute('value')
+            messageAlertText = driver.find_element(by=By.CSS_SELECTOR, value='.input_message').text
+            
+            if labelJoinNick is None or labelJoinNick == '' or '이미' in messageAlertText:
+                ranVal = random.randrange(5,9)
+                rand_str = ''
+                for i in range(ranVal):
+                    rand_str += str(random.choice(string.ascii_lowercase))
+                wait_float(0.5,1.2)
+                
+                labelJoinNickArea = driver.find_element(by=By.CSS_SELECTOR, value='#label_join_nick')
+                labelJoinNickArea.click()
+                wait_float(0.5,1.2)
+                focus_window('네이버 카페')
+                wait_float(0.5,1.2)
+                pg.hotkey('ctrl', 'a')
+                wait_float(0.5,1.2)
+                keyboard.write(text=rand_str, delay=0.3)
+        except:
+            pass
+        
+
+        
+        for kk in range(0, 11):
+            try:
+                joinQuestion = driver.find_element(by=By.CSS_SELECTOR, value=f'#label_join_question_{kk}')
+                if joinQuestion:
+                    joinVal = joinQuestion.get_attribute('value')
+                    if joinVal == '' or joinVal is None:
+                        wait_float(0.5,1.2)
+                        joinQuestion.click()
+                        focus_window('네이버 카페')
+                        wait_float(0.5,1.2)
+                        keyboard.write(text='네 알겠습니다.', delay=0.3)
+            except:
+                pass
+        
+        
+        for ii in range(0, 11):
+            try:
+                radioQuestion = driver.find_element(by=By.CSS_SELECTOR, value=f'#radio_join_question_{ii}_0')
+                if radioQuestion:
+                    wait_float(0.5,1.2)
+                    radioQuestion.click()
+                    wait_float(0.5,1.2)
+            except:
+                pass
+        
+        wait_float(2.5,3.2)
+        
+        
+        
+        
+        try:
+            joinFailBtn = driver.find_element(by=By.CSS_SELECTOR, value='.BaseButton—disabled')
+            if joinFailBtn:
+                continue
+        except:
+            joinSuccessBtn = driver.find_element(by=By.CSS_SELECTOR, value='.join_btn_box .ButtonBase--green')
+            joinSuccessBtn.click()
+            break
+        
+    searchElement('.section_cafe', driver)
+    
+    try:
+        joinSuccessModal = driver.find_element(by=By.CSS_SELECTOR, value=f'.join_ly')
+        if joinSuccessModal:
+            modalClose = driver.find_element(by=By.CSS_SELECTOR, value=f'.btn_lyr_clse')
+            modalClose.click()
+    except:
+        pass
+    
+            
+    
+        
+        
+    
+    
+            
+            
+            
+            
+    
+    
+    # driver.execute_script("arguments[0].scrollIntoView();", replySuccessBtn[0])
+    
+    
+    
 def login_step():
     
     chromeVersionChkPath = 'C:\\Users\\pcy\\AppData\\Local\\Google\\Chrome\\User Data\\default'
@@ -113,6 +221,13 @@ def cafe_write_mobile(nBoardName,chk_extesion,driver):
     
     
     print('카페 진입 완료')
+    
+    try:
+        joinBtn = driver.find_element(by=By.CSS_SELECTOR, value='.inner_box .btn_join')
+        if joinBtn:
+            return
+    except:
+        pass
 
     writeBtn = searchElement('.inner_box .btn_write', driver)
     untilEleGone(writeBtn[0], '.inner_box .btn_write', driver)
@@ -309,9 +424,9 @@ def cafe_re_reply_mobile(driver,cafeName):
         eleCount += 1
     
 
-def cafe_reply_mobile(driver,cafeName):
+def cafe_reply_mobile(driver):
     
-    driver.get(cafeName)
+    
     
     with open(f'./etc/work_link.txt') as f:
         workLinkList = f.readlines()
@@ -565,11 +680,8 @@ def cafe_re_reply_pc(cafeAllInfo,driver):
     
     
 
-def cafe_write_pc(writeCount,driver):
+def cafe_write_pc(cafeAllInfo,writeCount,driver):
     
-    pg.alert('PC 글쓰기 시작~~!!!')
-    
-
     dirList = os.listdir(f"{os.getcwd()}\\etc\\content\\opt\\id_{writeCount}")
     
     for dir in dirList:
@@ -609,49 +721,6 @@ def cafe_write_pc(writeCount,driver):
 
         textArea = searchElement('.se-content', driver)
         textArea[0].click()
-        
-        # lineCount = 1
-        # while True:
-        #     lineCount += 1
-            
-        #     if len(getContents) <= lineCount:
-        #         break
-        #     if getContents[lineCount] == '' or getContents[lineCount] is None:
-        #         break
-        #     getline = getContents[lineCount].replace('\n', '')
-            
-        #     getImgAction = getline.split('|')
-        #     if getline == 'enter':
-        #         pg.press('enter')
-        #         wait_float(0.5, 0.9)
-        #     elif getImgAction[0] == 'img_line':
-        #         imgBtn = searchElement('.se-document-toolbar li', driver)
-        #         imgBtn[0].click()
-        #         nowPath = os.getcwd()
-        #         imagePath = nowPath + f"\etc\content\id_{writeCount}\{dir}"
-        #         wait_float(1.5, 2.2)
-        #         pyperclip.copy(imagePath)
-        #         wait_float(0.5, 0.9)
-        #         pg.hotkey('ctrl', 'v')
-        #         wait_float(0.5, 0.9)
-        #         pg.press('enter')
-                
-        #         wait_float(0.9, 1.6)
-        #         pyperclip.copy(getImgAction[1])
-        #         wait_float(0.5, 0.9)
-        #         pg.hotkey('ctrl', 'v')
-        #         wait_float(0.5, 0.9)
-        #         pg.press('enter')
-                
-        #         wait_float(3.5, 4.8)
-                
-        #         imgLength = driver.find_elements(by=By.CSS_SELECTOR, value=".se-drop-indicator img")
-        #         if len(imgLength) < 1:
-        #             lineCount = lineCount - 1
-        #     else:
-        #         keyboard.write(text=getline, delay=0.05)
-        #         wait_float(0.5, 0.9)
-        #         pg.press('enter')
                 
         for i, getline in enumerate(getContents):
             if i < 2:
@@ -688,8 +757,6 @@ def cafe_write_pc(writeCount,driver):
                         continue
                     else:
                         break
-                
-                
             else:
                 keyboard.write(text=getline, delay=0.05)
                 wait_float(0.5, 0.9)
@@ -700,26 +767,27 @@ def cafe_write_pc(writeCount,driver):
         BaseButton[0].click()
         wait_float(2.5,3.3)
         
+        cafe_id = cafeAllInfo[1].split('/')[-1]
         
-        
-        if 'gnlcks33' in getContents[0]:
-            wait_float(1.5,2.5)
-            
-            while True:
-                try:
-                    driver.switch_to.frame('cafe_main')
-                    break
-                except:
-                    continue
+        while True:
+            try:
+                driver.switch_to.frame('cafe_main')
+                break
+            except:
+                continue
 
-            BaseButton = searchElement('.button_url', driver)
+        BaseButton = searchElement('.button_url', driver)
+        
+        
+        if cafe_id in getContents[0]:
+            wait_float(1.5,2.5)
             BaseButton[0].click()
             wait_float(0.5,0.9)
             getLinkData = cb.paste()
             wait_float(0.5,0.9)
             
             
-            if os.path.isfile(f'./etc/content/opt/id_{writeCount}/{dir}/reply.txt') and 'gnlcks33' in getContents[0]:
+            if os.path.isfile(f'./etc/content/opt/id_{writeCount}/{dir}/reply.txt') and cafe_id in getContents[0]:
                 with open(f'./etc/content/opt/id_{writeCount}/{dir}/reply.txt', 'r') as f:
                     getTempReplys = f.readlines()
                     getTempReplys.insert(0, '0\n')
@@ -1089,7 +1157,7 @@ def changeIp():
     while True:
         try:
             wait_float(0.5, 0.9)
-            getIp = requests.get("http://ip.jsontest.com").json()['ip']
+            getIp = requests.get("https://api.ip.pe.kr/json/").json()['ip']
             if getIp is not None:
                 break
         except:
@@ -1099,7 +1167,9 @@ def changeIp():
 
 
 
-def changeIpSpeed(driver):
+def changeIpSpeed():
+    
+    
     os.system('adb server start')
     client = AdbClient(host="127.0.0.1", port=5037)
     device = client.devices()  # 디바이스 1개
@@ -1121,7 +1191,7 @@ def changeIpSpeed(driver):
             while True:
                 try:
                     wait_float(0.5, 0.9)
-                    getIp = requests.get("http://ip.jsontest.com").json()['ip']
+                    getIp = requests.get("https://api.ip.pe.kr/json/").json()['ip']
                     if getIp is not None:
                         break
                 except:
@@ -1131,21 +1201,24 @@ def changeIpSpeed(driver):
             while True:
                 try:
                     wait_float(0.5, 0.9)
-                    getIp = requests.get("http://ip.jsontest.com").json()['ip']
+                    getIp = requests.get("https://api.ip.pe.kr/json/").json()['ip']
                     if getIp is not None:
                         break
                 except:
                     continue
-
+                
+        service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service)
         driver.get('https://fast.com/ko/')
         searchElement('.speed-results-container',driver)
-        time.sleep(3)
+        time.sleep(5)
         getInternetRapidEle = searchElement('.speed-results-container',driver)
         getInternetRapid = getInternetRapidEle[0].text
-        if float(getInternetRapid) < 2.7:
+        if float(getInternetRapid) < 2.7 or float(getInternetRapid) > 100.0:
+            driver.quit()
             continue
         else:
-            driver.close()
+            driver.quit()
             break
 
     return getIp
