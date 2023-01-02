@@ -9,7 +9,8 @@ def th():
     onth.start()
 
 def th2():
-    onth = threading.Thread(mobile_chrome())
+    getDict = {'ipval': ipVal.get()}
+    onth = threading.Thread(target=lambda: mobile_chrome(getDict))
     onth.daemon = True
     onth.start()
     

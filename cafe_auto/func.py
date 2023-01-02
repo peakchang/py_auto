@@ -49,6 +49,8 @@ def cafe_join_btn(driver):
         return
     
     joinBtn.click()
+    
+    
     searchElement('.cafe_info', driver)
     
     
@@ -196,13 +198,15 @@ def login_step():
 
 
 
-def mobile_chrome():
+def mobile_chrome(getDict):
     preIp = ''
-    while True:
-        getIP = changeIp()
-        if not preIp == getIP:
-            preIp = getIP
-            break
+    
+    if getDict['ipval'] == 1:
+        while True:
+            getIP = changeIp()
+            if not preIp == getIP:
+                preIp = getIP
+                break
     with open(f'./etc/useragent/useragent_all.txt') as f:
         ua_data = f.readlines()
         randomUaCount = random.randrange(0, len(ua_data))
@@ -214,6 +218,7 @@ def mobile_chrome():
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(chrome_options=options, service=service)
     driver.get('https://www.naver.com')
+    pg.alert('할거 하고 끝내기~')
     
     
     
@@ -457,7 +462,15 @@ def cafe_reply_mobile(driver):
                     wait_float(1.5, 2.5)
                     pg.scroll(-500)
                 break
-
+        
+        try:
+            error_page = driver.find_element(by=By.CSS_SELECTOR, value='.EmptyMessageBox')
+            if error_page:
+                preBtn = driver.find_element(by=By.CSS_SELECTOR, value='.ButtonBase--gray')
+                preBtn.click()
+        except:
+            pass
+            
         # 게시글 클릭 완료 댓글 쓰기 시작!
         if exceptVal == 'on':
             continue
@@ -1604,7 +1617,7 @@ def getBlogContentChrome(subjectArr,driver):
         if len(allStr) < 400:
             continue
         if len(allStr) > 600:
-            sliceRanNum = random.randrange(400, 600)
+            sliceRanNum = random.randrange(350, 450)
             allStr = allStr[0:sliceRanNum]
             
         # 제목에 들어간 단어들 삭제하기

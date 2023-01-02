@@ -66,8 +66,6 @@ def goScript(getDict):
             if not preIp == getIP:
                 preIp = getIP
                 break
-        
-        pg.alert(getIP)
     
     
     options = Options()
@@ -216,6 +214,10 @@ def goScript(getDict):
             wait_float(0.5,0.9)
             pg.press('enter')
             wait_float(0.5,0.9)
+        elif getline == 'enter':
+            wait_float(0.5,0.9)
+            pg.press('enter')
+            wait_float(0.5,0.9)
         else:
             keyboard.write(text=getline, delay=0.05)
             wait_float(0.5,0.9)
@@ -323,7 +325,6 @@ def allowListVisit():
         pass
     
     getUrl = searchElement('._transPosition')
-    getUrl[0].click()
     wait_float(1.5,2.5)
     pg.press('enter')
     
