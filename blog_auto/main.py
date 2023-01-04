@@ -24,6 +24,13 @@ def th3():
     onth.daemon = True
     onth.start()
 
+def th4():
+    getValGo = {'getText' :  textbox.get()}
+    onth = threading.Thread(getBlogContent(getValGo))
+    onth.daemon = True
+    onth.start()
+
+
 
 # 윈도우 창 생성 및 버튼 화면 조절
 root = Tk()
@@ -64,7 +71,7 @@ profileChk1.pack()
 profileChk2.pack()
 
 
-frame1 = LabelFrame(root, text='아이디 선택', padx=40, pady=20)  # padx / pady 내부여백
+frame1 = LabelFrame(root, text='입력 란', padx=40, pady=20)  # padx / pady 내부여백
 frame1.pack(padx=10, pady=5)  # padx / pady 외부여백
 
 frame2 = LabelFrame(root, text='버튼', padx=60, pady=10)  # padx / pady 내부여백
@@ -83,8 +90,8 @@ btn2.pack()
 btn3 = Button(frame2, text="블로그 소셜", command=th3, padx=50)
 btn3.pack()
 
-btn4 = Button(frame2, text="종료하기", command=exitApp, padx=50)
-btn4.pack()
+btn3 = Button(frame2, text="블로그 글따기", command=th4, padx=50)
+btn3.pack()
 
 
 wb = load_workbook('./etc/nid.xlsx')
