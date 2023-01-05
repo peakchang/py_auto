@@ -148,8 +148,89 @@ def goScript(getDict):
         allowListVisit()
     
     
+    writeBlog(driver,getDict)
     
     
+    
+        
+        
+        
+        
+    if getDict['middleVal'] == 0:
+        chkVal = pg.confirm(text='글쓰기가 완료 되었습니다!! 댓글을 진행 하시겠습니까?', buttons=['go','stop'])
+    else:
+        chkVal = 'go'
+
+
+    if chkVal == 'go':
+        
+        
+        
+        try:
+            miniPopup = driver.find_element(by=By.CSS_SELECTOR, value="#floatingda_content")
+            miniPopupClose = miniPopup.find_element(by=By.CSS_SELECTOR, value="button")
+            driver.execute_script("arguments[0].scrollIntoView();", miniPopupClose)
+            wait_float(0.5,1.2)
+            miniPopupClose.click()
+            wait_float(0.5,1.2)
+        except:
+            pass
+        
+        getUrl = searchElement('._transPosition')
+        getUrl[0].click()
+            
+        
+        wait_float(1.5,2.5)
+        pg.press('enter')
+        driver.switch_to.default_content()
+        
+        
+        
+        driver.close()
+        driver.switch_to.window(driver.window_handles[0])
+        
+        goToNaverMain = searchElement('.link_naver')
+        goToNaverMain[0].click()
+        blogReplyWork()
+    else:
+        pass
+    
+    chkVal = pg.confirm(text='추가 글쓰기(예약 발행)을 진행하시겠습니까?', buttons=['go','stop'])
+    
+    if chkVal == 'go':
+        
+        if len(driver.window_handles) > 1:
+            wait_float(0.3,0.9)
+            driver.switch_to.window(driver.window_handles[1])
+            wait_float(0.3,0.9)
+            driver.close()
+            wait_float(0.3,0.9)
+            driver.switch_to.window(driver.window_handles[0])
+            wait_float(0.3,0.9)
+            driver.get('https://www.naver.com')
+            
+            
+        writeBlog(driver,getDict,'go')
+    else:
+        exitApp()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def writeBlog(driver,getDict,goChk=''):
     navItem = searchElement('.nav_item')
     for mitem in navItem:
         if mitem.text == '블로그':
@@ -161,8 +242,6 @@ def goScript(getDict):
     
     driver.switch_to.window(driver.window_handles[1])
     
-    path_dir = './etc/content'
-    
     if getDict['middleVal'] == 0:
         pg.alert(f'글쓰기를 시작합니다!!')
     # driver.to_switch()
@@ -173,8 +252,21 @@ def goScript(getDict):
     writeArea = searchElement('.se-component-content')
     wait_float(2.5,3.5)
     
-    with open('./content/content.txt', 'r') as f:
-        getLines = f.readlines()
+    
+    if goChk == '':
+        try:
+            with open('./content/content.txt', 'rt', encoding='UTF8') as f:
+                getLines = f.readlines()
+        except:
+            with open('./content/content.txt', 'r') as f:
+                getLines = f.readlines()
+    elif goChk == 'go':
+        try:
+            with open('./content/sub_content.txt', 'rt', encoding='UTF8') as f:
+                getLines = f.readlines()
+        except:
+            with open('./content/sub_content.txt', 'r') as f:
+                getLines = f.readlines()
         
     for i, getline in enumerate(getLines):
         focus_window('블로그')
@@ -224,7 +316,8 @@ def goScript(getDict):
             pg.press('enter')
             wait_float(0.5,0.9)
     
-    if getDict['middleVal'] == 0:
+    
+    if getDict['middleVal'] == 0 and goChk == '':
         pg.alert('글 작성 완료!! 글쓰기 완료 버튼 클릭 후 확인을 눌러주세요!')
     else:
         
@@ -240,60 +333,36 @@ def goScript(getDict):
         wait_float(1.5,2.5)
         tagArea = searchElement('.tag_textarea__iAnXk')
         tagArea[0].click()
-        with open('./content/tag_list.txt', 'r') as tagr:
-            tagList = tagr.readlines()
+        
+        if goChk == '':
+            try:
+                with open('./content/tag_list.txt', 'rt', encoding='UTF8') as tagr:
+                    tagList = tagr.readlines()
+            except:
+                with open('./content/tag_list.txt', 'r') as tagr:
+                    tagList = tagr.readlines()
+        elif goChk == 'go':
+            try:
+                with open('./content/sub_tag_list.txt', 'rt', encoding='UTF8') as tagr:
+                    tagList = tagr.readlines()
+            except:
+                with open('./content/sub_tag_list.txt', 'r') as tagr:
+                    tagList = tagr.readlines()
+                    
+                    
         if tagList is not []:
             for tag in tagList:
                 writeTag = tag.replace('\n', '')
                 keyboard.write(text=writeTag, delay=0.05)
                 wait_float(0.5,1.2)
                 pg.press('enter')
-        confirmBtn = searchElement('.confirm_btn__Dv9du')
-        confirmBtn[0].click()
-        wait_float(3.5,5.5)
         
-        
-        
-        
-    if getDict['middleVal'] == 0:
-        chkVal = pg.confirm(text='글쓰기가 완료 되었습니다!! 댓글을 진행 하시겠습니까?', buttons=['go','stop'])
-    else:
-        chkVal = 'go'
-
-
-    if chkVal == 'go':
-        
-        
-        
-        try:
-            miniPopup = driver.find_element(by=By.CSS_SELECTOR, value="#floatingda_content")
-            miniPopupClose = miniPopup.find_element(by=By.CSS_SELECTOR, value="button")
-            driver.execute_script("arguments[0].scrollIntoView();", miniPopupClose)
-            wait_float(0.5,1.2)
-            miniPopupClose.click()
-            wait_float(0.5,1.2)
-        except:
-            pass
-        
-        getUrl = searchElement('._transPosition')
-        getUrl[0].click()
-            
-        
-        wait_float(1.5,2.5)
-        pg.press('enter')
-        driver.switch_to.default_content()
-        
-        
-        
-        driver.close()
-        driver.switch_to.window(driver.window_handles[0])
-        
-        goToNaverMain = searchElement('.link_naver')
-        goToNaverMain[0].click()
-        blogReplyWork()
-    else:
-        exitApp()
-        
+        if goChk == '':
+            confirmBtn = searchElement('.confirm_btn__Dv9du')
+            confirmBtn[0].click()
+            wait_float(3.5,5.5)
+        else:
+            pg.alert('예약 발행을 실행 해주세요!!!')
 
 
 def allowListVisit():

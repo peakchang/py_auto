@@ -19,14 +19,14 @@ def goScript(getDict):
     
     driver = ''
     
-    now = datetime.now()
+    # now = datetime.now()
 
-    nowDate = now.date().strftime("%Y-%m-%d")
-    dateCom1 = nowDate + " 000000"
-    dateCom1 = datetime.strptime(dateCom1, "%Y-%m-%d %H%M%S")
+    # nowDate = now.date().strftime("%Y-%m-%d")
+    # dateCom1 = nowDate + " 000000"
+    # dateCom1 = datetime.strptime(dateCom1, "%Y-%m-%d %H%M%S")
     
-    dateCom2 = nowDate + " 210000"
-    dateCom2 = datetime.strptime(dateCom2, "%Y-%m-%d %H%M%S")
+    # dateCom2 = nowDate + " 210000"
+    # dateCom2 = datetime.strptime(dateCom2, "%Y-%m-%d %H%M%S")
     
     # pg.alert(now)
     # pg.alert(dateCom1)
@@ -39,11 +39,15 @@ def goScript(getDict):
     
     # dirList = os.listdir(f"{os.getcwd()}\\etc\\content\\id_{writeCount}")
     
-    
+    # chromeVersionChkPath = 'C:\\Users\\드림모어\\AppData\\Local\\Google\\Chrome\\User Data\\Default'
     # global driver
     
+    
+    # chrome://version/ << 크롬 검색창에 이거 찾으면 됨
     # chromeVersionChkPath = 'C:\\Users\\pcy\\AppData\\Local\\Google\\Chrome\\User Data\\default'
-    chromeVersionChkPath = 'C:\\Users\\드림모어\\AppData\\Local\\Google\\Chrome\\User Data\\Default'
+    
+    chromeVersionChkPath = 'C:\\Users\\USER-COM\\AppData\\Local\\Google\\Chrome\\User Data\\Default'
+    
     
     
 
@@ -318,9 +322,7 @@ def goScript(getDict):
             
             
             driver.get('https://www.naver.com')
-            
             naverLogin_pc(nId,nPwd,driver)
-            
             cafe_re_reply_pc(cafeAllInfo,driver)
             cafe_write_pc(cafeAllInfo,writeCount,driver)
             nowWriteStatus = ''

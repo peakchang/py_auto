@@ -698,14 +698,12 @@ def cafe_write_pc(cafeAllInfo,writeCount,driver):
     dirList = os.listdir(f"{os.getcwd()}\\etc\\content\\opt\\id_{writeCount}")
     
     for dir in dirList:
-        
+
         with open(f'./etc/content/opt/id_{writeCount}/{dir}/content.txt', 'r') as f:
             getContents = f.readlines()
-        
+            
         cafeInfo = getContents[0].split('|')
-        
         driver.get(cafeInfo[0])
-        
         
         workBoardLink = searchElement(f'#menuLink{cafeInfo[2]}', driver)
         workBoardLink[0].click()
@@ -788,17 +786,45 @@ def cafe_write_pc(cafeAllInfo,writeCount,driver):
                 break
             except:
                 continue
-
+            
         BaseButton = searchElement('.button_url', driver)
         
         
+        
         if cafe_id in getContents[0]:
-            wait_float(1.5,2.5)
-            BaseButton[0].click()
-            wait_float(0.5,0.9)
-            getLinkData = cb.paste()
-            wait_float(0.5,0.9)
             
+            while True:
+                BaseButton = searchElement('.button_url', driver)
+                
+                wait_float(1.5,2.5)
+                BaseButton[0].click()
+                wait_float(0.5,0.9)
+                getLinkData = cb.paste()
+                wait_float(0.5,0.9)
+                
+                wait_float(0.5,0.9)
+                with open('./etc/work_link.txt', 'r') as f:
+                    chkLines = f.readlines()
+                
+                if len(chkLines) == 0:
+                    with open('./etc/work_link.txt', 'a') as f:
+                        f.write(getLinkData)
+                else:
+                    with open('./etc/work_link.txt', 'a') as f:
+                        f.write('\n')
+                        f.write(getLinkData)
+                wait_float(0.5,0.9)
+                
+                with open('./etc/work_link.txt', 'r') as f:
+                    chkLinks = f.read()
+                    
+                wait_float(0.5,0.9)
+                
+                if getLinkData in chkLinks:
+                    pg.alert('들어있냐?!?!?!?!?!?')
+                    break
+                else:
+                    continue
             
             if os.path.isfile(f'./etc/content/opt/id_{writeCount}/{dir}/reply.txt') and cafe_id in getContents[0]:
                 with open(f'./etc/content/opt/id_{writeCount}/{dir}/reply.txt', 'r') as f:
@@ -810,20 +836,14 @@ def cafe_write_pc(cafeAllInfo,writeCount,driver):
                 with open(f'./etc/content/temp_reply/{getTempReplysName}.txt', 'w') as f:
                     f.writelines(''.join(getTempReplys))
             
-            wait_float(0.5,0.9)
-            with open('./etc/work_link.txt', 'r') as f:
-                chkLines = f.readlines()
             
-            if len(chkLines) == 0:
-                with open('./etc/work_link.txt', 'a') as f:
-                    f.write(getLinkData)
-            else:
-                with open('./etc/work_link.txt', 'a') as f:
-                    f.write('\n')
-                    f.write(getLinkData)
-            wait_float(0.5,0.9)
-            if len(chkLines) > 6:
-                setLines = chkLines[-6:]
+            with open('./etc/work_link.txt', 'r') as f:
+                linkLines = f.readlines()
+                
+            wait_float(0.5,1.2)
+            
+            if len(linkLines) > 6:
+                setLines = linkLines[-6:]
                 
                 linkContent = ''
                 for linkline in setLines:
