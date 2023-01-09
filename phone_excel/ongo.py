@@ -263,7 +263,7 @@ def make_link():
                 if ws.cells(bc,nc).Value is not None:
                     linkText = linkText + f"&{ws.cells(1,nc).Value}={ws.cells(bc,nc).Value}"
             sc = sc + 9
-        pg.alert(linkText)
+        # pg.alert(linkText)
         
         with open("./etc/create_link.txt", "a") as f:
             f.write(f'{linkText}\n\n')
@@ -436,14 +436,14 @@ def calculScript(getDict):
                         with open("./etc/min_price.txt", "a") as f:
                             f.write(f"SK 최저가 : \n{minPrice}\n")
                     elif nowTong == 'KT':
-                        all_list = workSheet.range(f'B{basicCount}:H{basicCount+12}')
+                        all_list = workSheet.range(f'B{basicCount}:I{basicCount+12}')
                         capa_list = getArrToStr(all_list, 0, 'ok')
-                        fPrice_list = getArrToStr(all_list, 7, 'ok')
-                        gongsi_list = getArrToStr(all_list, 14)
-                        mnp_ghal_list = getArrToStr(all_list, 35)
-                        mnp_shal_list = getArrToStr(all_list, 42)
-                        gib_ghal_list = getArrToStr(all_list, 49)
-                        gib_shal_list = getArrToStr(all_list, 56)
+                        fPrice_list = getArrToStr(all_list, 8, 'ok')
+                        gongsi_list = getArrToStr(all_list, 16,'','KT')
+                        mnp_ghal_list = getArrToStr(all_list, 40,'','KT')
+                        mnp_shal_list = getArrToStr(all_list, 48,'','KT')
+                        gib_ghal_list = getArrToStr(all_list, 56,'','KT')
+                        gib_shal_list = getArrToStr(all_list, 64,'','KT')
                         
                         sheet.cell(2,12).value = fPrice_list
                         sheet.cell(2,13).value = capa_list
@@ -453,13 +453,13 @@ def calculScript(getDict):
                         sheet.cell(2,17).value = gib_ghal_list
                         sheet.cell(2,18).value = gib_shal_list
                         workCreate.save('./etc/create_calcul_link.xlsx')
-                        priceList1 = getArr(all_list, 63)
-                        priceList2 = getArr(all_list, 70)
-                        priceList3 = getArr(all_list, 77)
-                        priceList4 = getArr(all_list, 84)
+                        
+                        priceList1 = getArr(all_list, 72)
+                        priceList2 = getArr(all_list, 80)
+                        priceList3 = getArr(all_list, 88)
+                        priceList4 = getArr(all_list, 96)
                         
                         price_list = priceList1 + priceList2 + priceList3 + priceList4
-                        
                         minPrice = min(price_list)
                         with open("./etc/min_price.txt", "a") as f:
                             f.write(f"KT 최저가 : \n{minPrice}\n")
@@ -534,31 +534,19 @@ def make_link_calcul():
 
 def getGongsi(getDict):
     
-    with open(f'./etc/useragent_all.txt', 'r') as f:
-        userAgentList = f.readlines()
-    ranVal = random.randrange(0,len(userAgentList))
-    ua_data = userAgentList[ranVal].replace('\n','')
-    pg.alert(ua_data)
 
-    options = Options()
-    user_agent = ua_data
-    options.add_argument('user-agent=' + user_agent)
     global driver
     
     service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(chrome_options=options, service=service)
+    driver = webdriver.Chrome(service=service)
     
     driver.get('http://www.smartchoice.or.kr/smc/mobile/dantongTelList.do')
     
     nowTong = getDict['getTong']
-    
     # 엑셀 열기
     workCreate = openpyxl.load_workbook('./etc/get_gongsi.xlsx')
     sheet = workCreate.get_sheet_by_name(nowTong)
-    
-    
-    
-    sheet.cell(2,11).value
+    # sheet.cell(2,11).value
     
     getCount = 1
     while True:
@@ -571,102 +559,75 @@ def getGongsi(getDict):
             break
         dMauName = sheet.cell(getCount,2).value
         deviceName = sheet.cell(getCount,3).value
-
+        
         danCompany = Select(driver.find_element(by=By.CSS_SELECTOR, value='#dan_Company'))
         danCompany.select_by_visible_text(nowTong)
-        time.sleep(2)
-
-        planService = Select(driver.find_element(by=By.CSS_SELECTOR, value=f'#plan{nowTong}Service'))
+        if nowTong == 'LG U+':
+            findTong = 'LGU'
+        else:
+            findTong = nowTong
+        
+        time.sleep(1.5)
+        
+        
+        planService = Select(driver.find_element(by=By.CSS_SELECTOR, value=f'#plan{findTong}Service'))
         planService.select_by_visible_text(pServiceName)
-        time.sleep(2)
+        time.sleep(1.5)
         
         danMau = Select(driver.find_element(by=By.CSS_SELECTOR, value=f'#dan_Mau'))
         danMau.select_by_visible_text(dMauName)
-        time.sleep(2)
+        time.sleep(1.5)
         
-        deviceModalBtn = driver.find_element(by=By.CSS_SELECTOR, value=f'#product_btn')
-        deviceModalBtn.click()
-        time.sleep(3)
-        
-        
-        popupList = driver.find_elements(by=By.CSS_SELECTOR, value=f'.popcontents')
-        for searchPop in popupList:
+        while True:
             try:
-                if '휴대폰' in searchPop.text:
-                    setPop = searchPop
-                    time.sleep(2)
-                    break
+                danMau = Select(driver.find_element(by=By.CSS_SELECTOR, value=f'#productName'))
+                danMau.select_by_visible_text(deviceName)
+                time.sleep(1)
+                break
             except:
                 pass
         
-        deviceList = setPop.find_elements(by=By.CSS_SELECTOR, value=f'.monthlyValue')
-
-        for val in deviceList:
-            if val.text == deviceName:
-                val.click()
-                break
-
-        time.sleep(2)
-        
-        mothlybtn = driver.find_elements(by=By.CSS_SELECTOR, value='.mothlybtn')
-        mothlybtn[1].click()
-        time.sleep(2)
-        
         yogCount = 3
         while True:
-            print('에러예상 0000')
             yogCount += 1
-            getYogName = sheet.cell(1,yogCount).value
-            if getYogName is None:
+            yogName = sheet.cell(1,yogCount).value
+            if yogName == '' or yogName is None:
                 break
             
-            print('에러예상 1111')
-            planBtn = driver.find_element(by=By.CSS_SELECTOR, value='#plan_btn')
-            planBtn.click()
-            time.sleep(1)
             
-            print('에러예상 2222')
+            yogSel = Select(driver.find_element(by=By.CSS_SELECTOR, value=f'#dan_Plan_Code'))
+            yogSel.select_by_visible_text(yogName)
             
+            serch_btn = driver.find_element(by=By.CSS_SELECTOR, value=f'.btn_wrap.item2 .h_btn_blue')
+            serch_btn.click()
             
-            yogListPopUp = driver.find_element(by=By.CSS_SELECTOR, value=f'.selectPopup')
-            time.sleep(2)
-            yogList = yogListPopUp.find_elements(by=By.CSS_SELECTOR, value=f'.monthlyValue')
-            
-            for val in yogList:
-                if val.text == getYogName:
-                    val.click()
-                    break
-            time.sleep(1)
-            print('에러예상 3333')
-            mothlybtn = driver.find_elements(by=By.CSS_SELECTOR, value='.mothlybtn')
-            mothlybtn[1].click()
-            time.sleep(1)
-            print('에러예상 4444')
-            searchBtn = driver.find_elements(by=By.CSS_SELECTOR, value='.btn_wrap.item2.mt10 a')
-            searchBtn[1].click()
-            time.sleep(2)
-            
-            sameCount = 0
             while True:
-                if sameCount > 15:
-                    break
-                findResult = driver.find_elements(by=By.CSS_SELECTOR, value='.findResult td')
+                time.sleep(1)
                 try:
-                    getResult = findResult[2].text
+                    resultTable = driver.find_element(by=By.CSS_SELECTOR, value=f'.danSEH')
+                    if resultTable:
+                        break
                 except:
-                    continue
-                if getResult == preResult:
-                    sameCount += 1
-                    continue
-                else:
-                    break
-                
-            sheet.cell(getCount,yogCount).value = findResult[2].text
-            preResult = findResult[2].text
+                    pass
+            
+            tdList = resultTable.find_elements(by=By.CSS_SELECTOR, value=f'td')
+            getGongsiVal = re.sub(r"[^0-9]", "", tdList[4].text)
+            
+            sheet.cell(getCount,yogCount).value = getGongsiVal
             workCreate.save('./etc/get_gongsi.xlsx')
-
-
-
+            time.sleep(2)
+            
+            
+            
+            
+                    
+                
+            
+            
+            
+            
+        
+        
 
 
 
@@ -691,8 +652,12 @@ def getArr(setList, setNum, ok=''):
             temp_arr.append(setVal)
     return temp_arr
 
-def getArrToStr(setList, setNum, ok=''):
-    temp_list = setList[setNum:setNum+7]
+def getArrToStr(setList, setNum, ok='', tong=''):
+    
+    if tong == 'KT':
+        temp_list = setList[setNum:setNum+8]
+    else:
+        temp_list = setList[setNum:setNum+7]
     temp_arr = []
     for val in temp_list:
         if not val.value:
