@@ -9,6 +9,7 @@ def goScript(getDict):
     blog_list_file = load_workbook('./etc/blog_list.xlsx')
     blog_list = blog_list_file.active
     allCount = 1
+    preIp = ''
     while True:
         allCount += 1
         
@@ -80,22 +81,22 @@ def goScript(getDict):
                 scrapBtn = searchElement('.naver-splugin.btn_share', driver)
                 for btn in scrapBtn:
                     try:
+                        pg.scroll(400)
                         btn.click()
-                        wait_float(0.5,1.2)
-                        scrap_more = searchElement('.spi_swipe_area', driver)
-                        blogScrapBtn = scrap_more[0].find_element(by=By.CSS_SELECTOR, value='.spim_be')
-                        blogScrapBtn.click()
-                        wait_float(0.5,1.2)
-                        searchElement('.post_wr_og', driver)
-                        # searchElement('.set_close.on', driver)
-                        btn_ok = searchElement('.btn_ok', driver)
-                        btn_ok[0].click()
-                        cancleBtn = searchElement('#_confirmLayercancel', driver)
-                        cancleBtn[0].click()
-                        
                         break
                     except:
                         pass
+                wait_float(0.5,1.2)
+                scrap_more = searchElement('.spi_swipe_area', driver)
+                blogScrapBtn = scrap_more[0].find_element(by=By.CSS_SELECTOR, value='.spim_be')
+                blogScrapBtn.click()
+                wait_float(0.5,1.2)
+                searchElement('.post_wr_og', driver)
+                # searchElement('.set_close.on', driver)
+                btn_ok = searchElement('.btn_ok', driver)
+                btn_ok[0].click()
+                cancleBtn = searchElement('#_confirmLayercancel', driver)
+                cancleBtn[0].click()
         goToBlog = searchElement('.Nicon_service', driver)
         goToBlog[0].click()
         goToNaver = searchElement('.icon_logo_naver__vBku4', driver)
