@@ -63,7 +63,6 @@ def changeIp():
                 break
         except:
             continue
-    print(getIp)
     return getIp
 
 def wait_float(start, end):
@@ -209,18 +208,13 @@ def searchElement(ele,driver):
 def focus_window(winName):
     while True:
         activeName = str(pg.getActiveWindow())
-        print('에러 11111')
         wait_float(0.3,0.9)
         if winName in activeName:
             return
-        
-        print('에러 22222')
         winList = pg.getAllWindows()
         # pg.alert(winList)
         wait_float(0.3,0.9)
-        print('에러 33333')
         for win in winList:
-            print(win.title)
             if winName in win.title:
                 pywinauto.application.Application().connect(handle=win._hWnd).top_window().set_focus()
                 win.activate()
@@ -320,4 +314,10 @@ def mainToPost(driver,blog_list_file,allCount):
                 break
         searchElement('.Nservice_item', driver)
         
-        
+
+def webhook_send(getId,errChk):
+    webhook_url = f"http://adpeak.kr/nwork/gethook?n_id={getId}&errchk={errChk}"
+    # webhook_url = f"http://localhost:3060/nwork/gethook?n_id={getId}&errchk={errChk}"
+    data = {'test' : '나중에 재확인 하기!!'}
+    requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+    r = requests.get(webhook_url, data=json.dumps(data), headers={'Content-Type' : 'application/json'})

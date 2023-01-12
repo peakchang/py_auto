@@ -58,10 +58,10 @@ def writeBlog(driver,getDict,goChk):
     for idx,dir in enumerate(dirList):
         
         if goChk == 0:
-            addHour += 2
+            addHour += 1
         else:
             if idx != 0:
-                addHour += 2
+                addHour += 1
         menu_my_blog = searchElement('.menu_my_blog .item', driver)
         menu_my_blog[1].click()
         
@@ -107,6 +107,13 @@ def writeBlog(driver,getDict,goChk):
             if chkImg[0] == 'img_line':
                 nowPath = os.getcwd()
                 
+                try:
+                    if chkImg[1]:
+                        pass
+                    else:
+                        continue
+                except:
+                    continue
                 img_btn = searchElement('.se-image-toolbar-button', driver)
                 img_btn[0].click()
                 wait_float(1.5,2.3)
@@ -161,12 +168,15 @@ def writeBlog(driver,getDict,goChk):
         tagArea[0].click()
         
         try:
-            with open(f'./content/{dir}/tag_list.txt', 'rt', encoding='UTF8') as tagr:
-                tagList = tagr.readlines()
+            try:
+                with open(f'./content/{dir}/tag_list.txt', 'rt', encoding='UTF8') as tagr:
+                    tagList = tagr.readlines()
+            except:
+                with open(f'./content/{dir}/tag_list.txt', 'r') as tagr:
+                    tagList = tagr.readlines()
         except:
-            with open(f'./content/{dir}/tag_list.txt', 'r') as tagr:
-                tagList = tagr.readlines()
-                    
+            tagList = []
+            pass  
                     
         if tagList is not []:
             for tag in tagList:

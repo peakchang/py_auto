@@ -5,6 +5,7 @@ from func import *
 
 def goScript(getDict):
     
+    # webhook_send(getId,'ok')
     
     blog_list_file = load_workbook('./etc/blog_list.xlsx')
     blog_list = blog_list_file.active
@@ -12,6 +13,10 @@ def goScript(getDict):
     preIp = ''
     while True:
         allCount += 1
+        
+        if blog_list.cell(allCount, 1).value is None or blog_list.cell(allCount, 1).value == '':
+            pg.alert('종료합니다!')
+            sys.exit(0)
         
         
         # 아이피 변경
@@ -35,6 +40,7 @@ def goScript(getDict):
         getUa = getInfo['n_ua']
         getId = getInfo['n_id']
         getPwd = getInfo['n_pwd']
+        print(getId)
         
         with open('./etc/useragent/useragent_all.txt', 'r') as r:
             uaList = r.readlines()
@@ -51,17 +57,20 @@ def goScript(getDict):
         errchk = naverLogin_mobile(getId, getPwd, driver)
         if errchk is not None:
             allCount = allCount - 1
+            webhook_send(getId,errchk)
             continue
+        else:
+            webhook_send(getId,'ok')
         
         mainToPost(driver,blog_list_file,allCount)
-        pg.alert('대기요~~~~~')
-        
         
         pg.moveTo(300,500)
+        
+        
         focus_window('블로그')
         scrollRanVal = random.randrange(10,20)
-        gongamRanVal = random.randrange(5,18)
-        scrapRanVal = random.randrange(5,18)
+        gongamRanVal = random.randrange(5,15)
+        scrapRanVal = random.randrange(5,10)
         for i in range(scrollRanVal):
             wait_float(2.2,3.1)
             scrollVal = random.randrange(100,300)
@@ -97,8 +106,19 @@ def goScript(getDict):
                 btn_ok[0].click()
                 cancleBtn = searchElement('#_confirmLayercancel', driver)
                 cancleBtn[0].click()
+        
         goToBlog = searchElement('.Nicon_service', driver)
-        goToBlog[0].click()
+        while True:
+            wait_float(0.5,0.7)
+            pg.scroll(-200)
+            try:
+                goToBlog[0].click()
+                break
+            except:
+                pass
+        
+        
+        
         goToNaver = searchElement('.icon_logo_naver__vBku4', driver)
         goToNaver[0].click()
         wait_float(2.2,3.5)
