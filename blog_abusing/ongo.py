@@ -110,7 +110,7 @@ def goScript(getDict):
         goToBlog = searchElement('.Nicon_service', driver)
         while True:
             wait_float(0.5,0.7)
-            pg.scroll(-200)
+            pg.scroll(300)
             try:
                 goToBlog[0].click()
                 break
