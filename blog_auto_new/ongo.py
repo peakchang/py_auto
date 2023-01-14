@@ -6,15 +6,10 @@ from func import *
 
 def goScript(getDict):
     
-    chkBabo = pg.confirm(text='카페 글 내용 바꿨니? 좀 바꿔 ㅠ', buttons=['yes','no'])
-    if chkBabo == 'yes':
-        pass
-    else:
-        sys.exit(0)
     
     if getDict['nlist'] == 1:
         pg.alert('아이디가 선택되지 않았습니다. 다시 실행해주세요')
-        exitApp()
+        sys.exit(0)
     
     
     exLineNum = getDict['nlist']
@@ -40,15 +35,16 @@ def goScript(getDict):
     user_data = 'C:\\Users\\pcy\\AppData\\Local\\Google\\Chrome\\User Data\\default'
     service = Service(ChromeDriverManager().install())
     options.add_argument(f"user-data-dir={user_data}")
-    if getDict['profileVal'] == 1:
-        options.add_argument(f'--profile-directory={ex.cell(exLineNum, 3).value}')
+    # if getDict['profileVal'] == 1:
+    #     
+    options.add_argument(f'--profile-directory={ex.cell(exLineNum, 3).value}')
     driver = webdriver.Chrome(service=service, chrome_options=options)
     
     driver.get('https://www.naver.com')
     
     
-    if getDict['profileVal'] == 0:
-        pg.alert('프로필 체크 대기~~~')
+    # if getDict['profileVal'] == 0:
+    #     pg.alert('프로필 체크 대기~~~')
     
     # chrome://version
     
@@ -98,22 +94,27 @@ def goScript(getDict):
             driver.get('https://www.naver.com')
             
     
-    if getDict['middleVal'] == 0:
+    if getDict['middleVal'] == 1:
         chkVal = pg.confirm(text='댓글순방을 진행하겠습니까?', buttons=['go','stop'])
         if chkVal == 'go':
             allowListVisit(driver)
         else:
             pass
     else:
-        allowListVisit(driver)
+        if getDict['gonggamVal'] == 1:
+            allowListVisit(driver)
+        else:
+            pass
+        
+    writeBlog(driver,getDict['middleVal'])
     
-    
-    writeBlog(driver,getDict,getDict['middleVal'])
-    
-    if getDict['middleVal'] == 0:
+    if getDict['middleVal'] == 1:
         chkVal = pg.confirm(text='글쓰기가 완료 되었습니다!! 댓글을 진행 하시겠습니까?', buttons=['go','stop'])
     else:
-        chkVal = 'go'
+        if getDict['cafeVal'] == 1:
+            chkVal = 'go'
+        else:
+            chkVal = ''
 
 
     if chkVal == 'go':

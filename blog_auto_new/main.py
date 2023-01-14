@@ -3,17 +3,10 @@ from ongo import *
 
 
 def th():
-    getDict = {'ipval': ipVal.get(), 'middleVal': middleVal.get(), 'profileVal': profileVal.get()}
+    getDict = {'ipval': ipVal.get(), 'gonggamVal': gonggamVal.get(), 'cafeVal': cafeVal.get(), 'middleVal': middleVal.get()}
     getDict['nlist'] = idbox.current() + 1
     onth = threading.Thread(target=lambda: goScript(getDict))
     
-    onth.daemon = True
-    onth.start()
-
-def th2():
-    getDict = {'nlist' : idbox.current() + 1 , 'getText' :  textbox.get()}
-    
-    onth = threading.Thread(target=lambda: blogRankChk(getDict))
     onth.daemon = True
     onth.start()
     
@@ -48,6 +41,10 @@ cafeChk.pack()
 neighborVal = IntVar()
 neighborChk = Checkbutton(frame0,text="이웃 순방하기(준비)",variable=neighborVal)
 neighborChk.pack()
+
+middleVal = IntVar()
+middleChk = Checkbutton(frame0,text="중간체크",variable=middleVal)
+middleChk.pack()
 
 
 

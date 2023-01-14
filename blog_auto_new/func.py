@@ -44,7 +44,7 @@ import asyncio
 
 
 # 블로그 글쓰기
-def writeBlog(driver,getDict,goChk):
+def writeBlog(driver,goChk):
     navItem = searchElement('.nav_item', driver)
     for mitem in navItem:
         if mitem.text == '블로그':
@@ -66,15 +66,6 @@ def writeBlog(driver,getDict,goChk):
         menu_my_blog[1].click()
         
         driver.switch_to.window(driver.window_handles[1])
-        
-        if getDict['middleVal'] == 0:
-            pg.alert(f'글쓰기를 시작합니다!!')
-        # driver.to_switch()
-        driver.switch_to.window(driver.window_handles[1])
-        
-        
-        
-        
         
         driver.switch_to.frame('mainFrame')
         
@@ -99,6 +90,10 @@ def writeBlog(driver,getDict,goChk):
         except:
             with open(f'./content/{dir}/content.txt', 'r') as f:
                 getLines = f.readlines()
+                
+                
+                
+        
             
         for i, getline in enumerate(getLines):
             focus_window('블로그')
@@ -141,6 +136,16 @@ def writeBlog(driver,getDict,goChk):
                 wait_float(1.2,2.8)
             elif i == 1:
                 writeArea[1].click()
+                while True:
+                    openAlignBoxBtn = searchElement('.se-align-left-toolbar-button',driver)
+                    wait_float(0.2,0.5)
+                    openAlignBoxBtn[0].click()
+                    try:
+                        alignBtnList = driver.find_elements(by=By.CSS_SELECTOR, value=".se-toolbar-option.se-toolbar-option-align button")
+                        alignBtnList[1].click()
+                        break
+                    except:
+                        pass
                 keyboard.write(text=getline, delay=0.05)
                 wait_float(0.5,0.9)
                 pg.press('enter')
@@ -160,6 +165,10 @@ def writeBlog(driver,getDict,goChk):
             helpCloseBtn.click()
         except:
             pass
+        
+        
+        
+                
         
         publichBtn = searchElement('.publish_btn__Y5mLP',driver)
         publichBtn[0].click()
@@ -185,7 +194,7 @@ def writeBlog(driver,getDict,goChk):
                 wait_float(0.5,1.2)
                 pg.press('enter')
         
-        if goChk == 0:
+        if goChk == 1:
             chkVal = pg.confirm(text='글을 지금 바로 등록하시겠습니까?', buttons=['now','reserve'])
             if chkVal == 'now':
                 confirmBtn = searchElement('.confirm_btn__Dv9du',driver)
@@ -200,7 +209,9 @@ def writeBlog(driver,getDict,goChk):
                 setHourStr = str(setHour)
                 planService = Select(driver.find_element(by=By.CSS_SELECTOR, value=f'.hour_option__XigHn'))
                 planService.select_by_visible_text(setHourStr)
-                pg.alert('예약 조건 확인 후 글 발행하고 엔터!!!')
+                pg.alert('예약 조건 확인 후 발행하고 엔터!!! (글발행 자동 클릭)')
+                confirmBtn = searchElement('.confirm_btn__Dv9du',driver)
+                confirmBtn[0].click()
         else:
             if idx == 0:
                 confirmBtn = searchElement('.confirm_btn__Dv9du',driver)
@@ -216,7 +227,8 @@ def writeBlog(driver,getDict,goChk):
                 setHourStr = str(setHour)
                 planService = Select(driver.find_element(by=By.CSS_SELECTOR, value=f'.hour_option__XigHn'))
                 planService.select_by_visible_text(setHourStr)
-                pg.alert('예약 조건 확인 후 글 발행하고 엔터!!!')
+                confirmBtn = searchElement('.confirm_btn__Dv9du',driver)
+                confirmBtn[0].click()
         
         wait_float(3.5,5.5)
         
@@ -429,71 +441,6 @@ def allowListVisit(driver):
             break
         except:
             driver.get('https://www.naver.com')
-            
-    
-
-    
-    
-    
-    
-    
-
-
-def blogRankChk(getDict):
-    getInfoPostLink = getDict['getText']
-    exLineNum = getDict['nlist']
-    wb = load_workbook('./etc/nid.xlsx')
-    ex = wb.active
-    searchId = ex.cell(exLineNum, 1).value
-    
-    global driver
-
-    
-    if getInfoPostLink == "":
-        pg.alert('검색어를 입력하세요!')
-        return
-        
-    
-    options = Options()
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, chrome_options=options)
-    driver.get('https://www.naver.com')
-    
-    serchBar = searchElement('#query',driver)
-    serchBar[0].send_keys(getInfoPostLink)
-    wait_float(0.3,0.8)
-    pg.press('enter')
-    wait_float(0.3,0.8)
-    
-    lnbMenu = searchElement('.lnb_menu .menu',driver)
-    
-    for menu in lnbMenu:
-        if 'VIEW' in menu.text:
-            menu.click()
-            break
-        
-    blogChk = searchElement('.type_sort a',driver)
-    blogChk[1].click()
-    
-    listCount = 0
-    while True:
-        
-        if listCount % 20 == 0:
-            pg.press('end')
-        
-        allList = searchElement('.lst_total li',driver)
-        listCount += 1
-        
-        try:
-            getHref = allList[listCount].find_element(by=By.CSS_SELECTOR, value='.thumb_single')
-            print(getHref.get_attribute('href'))
-            
-        except:
-            continue
-        
-        if searchId in getHref.get_attribute('href'):
-            pg.alert(f'현재 {listCount}번째 있습니다~')
-            exitApp()
         
     
      
@@ -949,7 +896,6 @@ def exitApp():
 def focus_window(winName):
     if winName == 'chkname':
         win_list = gw.getAllTitles()
-        pg.alert(text=f"{win_list}")
     # 윈도우 타이틀에 Chrome 이 포함된 모든 윈도우 수집, 리스트로 리턴
     win = gw.getWindowsWithTitle(winName)[0]
     win.activate()  # 윈도우 활성화
