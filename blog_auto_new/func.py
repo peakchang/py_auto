@@ -894,11 +894,20 @@ def exitApp():
 
 
 def focus_window(winName):
-    if winName == 'chkname':
-        win_list = gw.getAllTitles()
-    # 윈도우 타이틀에 Chrome 이 포함된 모든 윈도우 수집, 리스트로 리턴
-    win = gw.getWindowsWithTitle(winName)[0]
-    win.activate()  # 윈도우 활성화
+    while True:
+        activeName = str(pg.getActiveWindow())
+        wait_float(0.3,0.9)
+        if winName in activeName:
+            return
+        winList = pg.getAllWindows()
+        # pg.alert(winList)
+        wait_float(0.3,0.9)
+        for win in winList:
+            if winName in win.title:
+                pywinauto.application.Application().connect(handle=win._hWnd).top_window().set_focus()
+                win.activate()
+                wait_float(0.7,1.3)
+                break
 
 
 BASE_DIR = Path(__file__).resolve().parent
