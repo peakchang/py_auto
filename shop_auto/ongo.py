@@ -287,5 +287,5 @@ def gabi_chk():
                 findProduct = 'ok'
                 break
         if findProduct == '':
-            gabi_ex.cell(chkCount, 6).value = '없음'
+            gabi_ex.cell(chkCount, 6).value = '없음!!!!!'
         gabi_wb.save('./etc/chk_gabi.xlsx')
