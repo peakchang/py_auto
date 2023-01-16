@@ -51,13 +51,12 @@ def goScript(getDict):
     
     loginBtn = searchElement('.sc_login',driver)
     loginBtn[0].click()
-    
     searchElement('#id',driver)
-    focus_window('chrome')
+    focus_window('로그인')
     wait_float(0.3,0.9)
     while True:
         
-        pg.click(200,500)
+        pg.click(250,500)
         inputId = driver.find_element(by=By.CSS_SELECTOR, value="#id")
         inputId.click()
         wait_float(0.3,0.9)

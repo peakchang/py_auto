@@ -13,6 +13,7 @@ import json
 import re
 import pyautogui as pg
 import pyperclip
+import pywinauto
 import pygetwindow as gw
 import clipboard as cb
 from openpyxl import load_workbook
@@ -138,10 +139,11 @@ def writeBlog(driver,goChk):
                 writeArea[1].click()
                 while True:
                     openAlignBoxBtn = searchElement('.se-align-left-toolbar-button',driver)
-                    wait_float(0.2,0.5)
+                    wait_float(0.5,1.2)
                     openAlignBoxBtn[0].click()
                     try:
                         alignBtnList = driver.find_elements(by=By.CSS_SELECTOR, value=".se-toolbar-option.se-toolbar-option-align button")
+                        wait_float(0.5,1.2)
                         alignBtnList[1].click()
                         break
                     except:
@@ -185,9 +187,9 @@ def writeBlog(driver,goChk):
                     tagList = tagr.readlines()
         except:
             tagList = []
-            pass  
-                    
-        if tagList is not []:
+            pass
+        
+        if tagList is not [] and len(tagList) < 7:
             for tag in tagList:
                 writeTag = tag.replace('\n', '')
                 keyboard.write(text=writeTag, delay=0.05)
@@ -480,7 +482,7 @@ def blogReplyReady(getValList):
     # while True:
     
     searchElement('#id',driver)
-    focus_window('chrome')
+    focus_window('네이버')
     wait_float(0.3,0.9)
     while True:
         
@@ -832,7 +834,7 @@ def searchElement(ele,driver):
             print(ele)
             print("새로고침!!!!")
             driver.refresh()
-            focus_window('chrome')
+            
             pg.press('F5')
         elif element != "":
             break
