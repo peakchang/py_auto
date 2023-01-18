@@ -27,15 +27,11 @@ def goScript(getDict):
         # 작업할 배열 순서 정하기
         exCount = 1
         while True:
-            if link_excel.cell(exCount, 1).value is None:
+            if link_excel.cell(exCount, 2).value is None:
                 break
             exCount += 1
-        pg.alert(exCount)
         workArr = list(range(1,exCount))
         random.shuffle(workArr)
-        pg.alert(workArr)
-        
-        
         
         # 설정 끝~ 접속하기
         ua_data = linecache.getline('./etc/useragent/useragent_all.txt', random.randrange(1, 14)).strip()
@@ -46,25 +42,17 @@ def goScript(getDict):
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(chrome_options=options, service=service)
 
-        driver.get('https://www.naver.com')
+        driver.get('https://shopping.naver.com/')
 
         time.sleep(2)
-        focus_window('NAVER')
-        
-        
-        mainToJisho(driver)
-        
-        pg.alert('대기대기대기요~~~')
+        focus_window('네이버쇼핑')
 
         for workVal in workArr:
-            
-            print('에러 예상 111111')
             searchKeyword = link_excel.cell(workVal, 2).value
             
             #검색기록 삭제 만들기!!!!!! .recentHistory_list_word__EJZeH // .recentHistory_btn_del__greg5
             searchJisho(searchKeyword, driver)
             
-            print('에러 예상 222222')
             nShopCategory = searchElement(".mainFilter_option__c4_Lq", driver)
             
             try:
@@ -77,9 +65,8 @@ def goScript(getDict):
                 chkin_tong = ""
                 for category in nShopCategory:
                     category_name = category.text.replace('+', '')
-                    if category_name[0:2] == setTong:
+                    if setTong in category_name:
                         chkin_tong = "on"
-                        print('여기서 나는 에러가 맞는걸까요?????')
                         # untilEleShow(category, ".selected_btn_del__0mIMB")
                         untilEleShow(category, ".mainFilter_option__c4_Lq",driver)
 
@@ -93,92 +80,55 @@ def goScript(getDict):
                     else:
                         searchKeyword = addKeyword + " " + searchKeyword
                     searchJisho(searchKeyword, driver)
-            print('에러 예상 444444')
                     
             # 상위 4개 중 1개 클릭
             
             # 여기서 6개까지 찾고 / 그중에 있으면 그냥 한번만, 없으면 원래대로
             
+            pg.alert('대기~~~')
             
-            pg.alert('여기까지는 어디까지지?? 검색 마무리 같은디?!?!?')
-            highWork = ""
-            item_list = driver.find_elements("xpath", "//*[contains(@class, 'product_list_item')]")
-            print('상위 작업 체크 시작!!')
-            chkCount = 0
-            for highCount in range(6):
-                chkCount += 1
-                getHighHref = item_list[highCount].find_element(by=By.CSS_SELECTOR, value='a').get_attribute('href')
-                searchMid = link_excel.cell(workVal, 3).value
-                if str(searchMid) in getHighHref:
-                    highWork = "on"
-                    driver.execute_script("arguments[0].scrollIntoView();", item_list[highCount])
-                    item_list[highCount].click()
-                    maxRange = random.randrange(7, 10)
-                    onProductScroll(maxRange)
-                        
-                    break
-            print('에러 예상 555555')
-            print('상위 작업 체크 끝~~~~!!')
+            searchMidVal = str(link_excel.cell(workVal, 3).value).strip()
+            maxPageCount = link_excel.cell(workVal, 4).value
+            if maxPageCount is None:
+                maxPageCount = 4
+            else:
+                maxPageCount = int(maxPageCount)
+            
+            whCount = 0
+            getSearch = ''
+            while whCount < maxPageCount:
+                whCount += 1
                 
-            # 상위에 있는거 찾는거 끝
-            if highWork == "":
-                item_list = driver.find_elements("xpath", "//*[contains(@class, 'product_list_item')]")
-                topProduct_val = random.randrange(0, 4)
-                wait_float(0.5, 1.7)
-                driver.execute_script("arguments[0].scrollIntoView();", item_list[topProduct_val])
-                untilEleGone(item_list[topProduct_val], ".product_list_item")
-
-                wait_float(2, 5)
-
-                maxRange = random.randrange(2, 4)
-                onProductScroll(maxRange)
-
-                truncBreak = ""
-                truncCount = 1
+                searchElement('.basicFilter_filter_button_area__A_l9Y',driver)
+            
                 while True:
-                    truncCount += 1
-                    
-                    resetCount = 0
-                    while True:
-                        resetCount += 1
-                        if resetCount > 20:
-                            driver.refresh()
-                            wait_float(2, 4)
-                            resetCount = 0
-                        
-                        item_list = driver.find_elements("xpath", "//*[contains(@class, 'product_list_item')]")
-
-                        if len(item_list) < 35:
-                            pg.hotkey('end')
-                            wait_float(2, 4)
-                        else:
-                            break
-                        
-                    chkCount = 0
-                    for item in item_list:
-                        chkCount += 1
-                        getHref = item.find_element(by=By.CSS_SELECTOR, value='a').get_attribute('href')
-                        searchMid = link_excel.cell(workVal, 3).value
-                        wait_float(0.1, 0.3)
-                        if str(searchMid) in getHref:
-                            truncBreak = "on"
-                            # action.move_to_element(item).perform()
-                            driver.execute_script("arguments[0].scrollIntoView();", item)
-                            item.click()
-                            maxRange = random.randrange(4, 6)
-                            onProductScroll(maxRange)
-                            break
-                        
-                        
-
-                    if truncBreak == "on":
+                    item_list = driver.find_elements("xpath", "//*[contains(@class, 'product_list_item')]")
+                    if len(item_list) > 30:
                         break
-
+                    wait_float(0.5,1.2)
+                    pg.press('end')
+                    
+                    
+                for item in item_list:
+                    getItemHref = item.find_element(by=By.CSS_SELECTOR, value='.product_info_main__piyRs').get_attribute('href')
+                    # pg.alert(getItemHref)
+                    # pg.alert(searchMidVal)
+                    if searchMidVal in getItemHref:
+                        whCount = maxPageCount
+                        getSearch = 'on'
+                        
+                        driver.execute_script("arguments[0].scrollIntoView();", item)
+                        item.click()
+                        
+                        onProductScroll(5,driver)
+                        pg.alert('대기!!')
+                
+                if getSearch == '':
                     pageBtn = driver.find_elements(by=By.CSS_SELECTOR, value='.paginator_list_paging__VxWMC > a')
-                    for btn in pageBtn:
-                        if int(btn.text) == truncCount:
-                            btn.click()
-                            break
+                    pageBtn[whCount].click()
+                
+            
+            pg.alert('도는거 끝남여!')
 
         # 끝내고 allCount 값 ++
         driver.quit()
@@ -190,8 +140,14 @@ def goScript(getDict):
         data = {'on_time' : endTime}
         requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
         r = requests.post(webhook_url, data=json.dumps(data), headers={'Content-Type' : 'application/json'}, verify=False)
-        
-        
+
+
+
+
+
+
+
+
 
 def ongo_searchItem():
     URL = "https://openapi.naver.com/v1/search/shop"
