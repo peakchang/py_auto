@@ -45,4 +45,9 @@ def goScript():
     pg.alert('완료! 종료합니다!')
     sys.exit(0)
     
-        
+
+
+def makeFolder(val):
+    pg.alert(val['cwd'])
+    with open(f"{val['cwd']}/tag_list.txt",'w') as w:
+        w.write('')

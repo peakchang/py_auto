@@ -39,7 +39,7 @@ import socket
 
 import getpass
 
-
+import shutil
 
 
 
@@ -120,7 +120,7 @@ def searchElement(ele,driver):
 
 
 
-def untilEleShow(clickEle, searchEle):
+def untilEleShow(clickEle, searchEle,driver):
     while True:
         try:
             clickEle.click()
@@ -135,7 +135,7 @@ def untilEleShow(clickEle, searchEle):
             continue
 
 
-def untilEleGone(clickEle, searchEle):
+def untilEleGone(clickEle, searchEle,driver):
     while True:
         try:
             clickEle.click()
@@ -156,7 +156,7 @@ def wait_float(start, end):
     time.sleep(wait_ran)
 
 
-def exitApp():
+def exitApp(driver):
     pg.alert(text='프로그램을 종료합니다.', title='제목입니다.', button='OK')
     try:
         driver.quit()
@@ -216,7 +216,7 @@ def getUaNum():
         uaSet = random.randrange(0, fCount)
     return uaSet
 
-def mainToCafe():
+def mainToCafe(driver):
     shs_item = searchElement('.shs_item',driver)
     for item in shs_item:
         chkCafe = item.find_element(
