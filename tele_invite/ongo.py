@@ -5,8 +5,7 @@ from func import *
 
 
 def goScript(getDict):
-    
-    
+    pg.alert('왜 시작 안해????')
     
     
     pcUser = getpass.getuser()
@@ -22,7 +21,10 @@ def goScript(getDict):
             break
         
         profileStatus = authSheet.cell(authCount,3).value
-        if profileStatus is not None or profileStatus != '인증XX':
+        pg.alert(profileStatus)
+        if profileStatus is None:
+            continue
+        if "X" not in profileStatus and "x" not in profileStatus:
             options = Options()
             user_data = f'C:\\Users\\{pcUser}\\AppData\\Local\\Google\\Chrome\\User Data\\default'
             service = Service(ChromeDriverManager().install())
@@ -30,9 +32,9 @@ def goScript(getDict):
             options.add_argument(f'--profile-directory=Profile {profileNum}')
             driver = webdriver.Chrome(service=service, chrome_options=options)
             driver.get('https://web.telegram.org/z/')
-            wait_float(2.5,3.2)
-            
             pg.alert('대기~~~')
+            
+            wait_float(2.5,3.2)
             
             notAuth = ''
             okAuth = ''
@@ -50,9 +52,6 @@ def goScript(getDict):
                         break
                 except:
                     pass
-                
-                
-            
             if notAuth != '':
                 pg.alert('인증이 안되어있옹')
                 authSheet.cell(authCount,3).value = '인증XX'
@@ -60,32 +59,65 @@ def goScript(getDict):
                 driver.quit()
                 continue
             
-            hamBtnWrap = driver.find_element(by=By.CSS_SELECTOR, value='.translucent.round.has-ripple')
-            pg.alert(hamBtnWrap)
-            hamBtn = hamBtnWrap.find_element(by=By.CSS_SELECTOR, value='.ripple-container')
-            hamBtn.click()
-            pg.alert()
+            
+            menuList = showTeleMenu(driver)
+            wait_float(1.2,1.9)
+            if '메시지' not in menuList[0].text:
+                menuList[3].click()
+                wait_float(1.2,1.9)
+                listItem = searchWaitElement('.settings-main-menu .ListItem', driver)
+                listItem[7].click()
+                wait_float(1.2,1.9)
+                listRadio = searchWaitElement('.settings-language .Radio', driver)
+                listRadio[0].click()
+                clickBackBtn(driver)
+                clickBackBtn(driver)
+                
+                wait_float(2.5,3.5)
+                pg.press('F5')
+            else:
+                pass
+            
+            # 연락처 추가로 이동하기!!!
+            while True:
+                try:
+                    wait_float(0.9,1.7)
+                    menuList[2].click()
+                    wait_float(0.9,1.7)
+                    driver.find_element(by=By.CSS_SELECTOR, value='.FloatingActionButton.revealed')
+                    break
+                except:
+                    menuList = showTeleMenu(driver)
+            
+            # 연락처 추가 이동 완료!! 사람 추가 반복하자!!
+            
+            for i in range(9):
+                while True:
+                    try:
+                        addAddressBtn = driver.find_element(by=By.CSS_SELECTOR, value='.FloatingActionButton.revealed')
+                        addAddressBtn.click()
+                        wait_float(1.5,2.2)
+                        inputList = driver.find_elements(by=By.CSS_SELECTOR, value='.NewContactModal__new-contact-fieldset .form-control')
+                        inputList[0].click()
+                        break
+                    except:
+                        pg.click(400,300)
+                        wait_float(1.2,2.2)
+                        pass          
+                
+                pg.alert('대기!!!!')
+                
+        
         
         
             
+        
+        pg.alert('다음 작업 합시다~~~~')
             
-    
-    
-    
-    # auth-qr-form
-    
-    
-    
-    sideBarMenu = searchElement('.menuitem',driver)
-    for barMenu in sideBarMenu:
-        if 'Contacts' in barMenu.text:
-            barMenu.click()
-    
-    
-    floatBtn = driver.find_element(by=By.CSS_SELECTOR, value='.FloatingActionButton.revealed')
-    floatBtn.click()
-    
-    pg.alert('대기~~~')
+            
+            
+            
+            
     
     
     

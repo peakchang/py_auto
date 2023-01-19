@@ -10,7 +10,7 @@ def th():
 
 # 윈도우 창 생성 및 버튼 화면 조절
 root = Tk()
-root.title("카페 자동화")
+root.title("블로그 어뷰징")
 root.geometry("300x360+500+300")
 root.resizable(False, FALSE)
 
@@ -25,7 +25,7 @@ ipChk1.pack()
 ipChk2.pack()
 
 # 시작 버튼 생성
-btn1 = Button(frame0, text='카페 ALL 자동화', command=th, padx=50)
+btn1 = Button(frame0, text='어뷰징 시작', command=th, padx=50)
 btn1.pack()
 
 

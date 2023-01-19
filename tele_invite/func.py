@@ -92,6 +92,44 @@ def changeIp():
                 continue
     return getIp
 
+def clickBackBtn(driver):
+    preBtn = searchWaitElement('.left-header .Button.translucent', driver)
+    for btn in preBtn:
+        try:
+            btn.click()
+            wait_float(1.5,2.2)
+            return
+        except:
+            pass
+
+def showTeleMenu(driver):
+    while True:
+        hamBtn = searchWaitElement('.LeftMainHeader .DropdownMenu', driver)
+        hamBtn[0].click()
+        
+        try:
+            menuOpenChk = hamBtn[0].find_elements(by=By.CSS_SELECTOR, value='.active')
+            if menuOpenChk:
+                menuList = hamBtn[0].find_elements(by=By.CSS_SELECTOR, value='.menu-container.top .MenuItem')
+                break
+        except:
+            pass
+        
+    return menuList
+
+
+def searchWaitElement(ele,driver):
+    while True:
+        try:
+            element = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, ele)))
+            if element:
+                break
+        except:
+            wait_float(1.5, 2.2)
+            pass
+    selected_element = driver.find_elements(by=By.CSS_SELECTOR, value=ele)
+    return selected_element
+
 
 
 def searchElement(ele,driver):
