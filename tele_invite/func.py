@@ -1,7 +1,7 @@
 import random
 import threading
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import sys
 import os
 from pathlib import Path
@@ -36,7 +36,6 @@ import winsound as ws
 import glob
 import asyncio
 import socket
-
 import getpass
 
 import shutil
@@ -54,6 +53,36 @@ import shutil
 
 # 상품 들어가서 스크롤 내리고 나오기
 
+
+def searchNextBtn(resultEle, clickEle, driver):
+    while True:
+        wait_float(1.2,1.9)
+        try:
+            modal = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, resultEle)))
+            if modal:
+                break
+        except:
+            pass
+        
+        try:
+            delIcon = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, clickEle)))
+            delIcon.click()
+        except:
+            pass
+
+def compareDate(getDateText):
+    getDateText = re.sub(r'[\uAC00-\uD7A3a-zA-Z\s]', '', getDateText)[:-1].split('.')
+    getDate = datetime(int(getDateText[0]), int(getDateText[1]), int(getDateText[2]))
+
+    now = datetime.now()
+    todayStr = f"{now.date().strftime('%Y-%m-%d')} 00:00:00:00"
+    datetime_format = "%Y-%m-%d %H:%M:%S:%f"
+    getToday = datetime.strptime(todayStr,datetime_format)
+    getBrfoer4Day = getToday - timedelta(days=4)
+    
+    return getDate > getBrfoer4Day
+    
+    
 
 def changeIp():
     try:
@@ -92,42 +121,83 @@ def changeIp():
                 continue
     return getIp
 
-def clickBackBtn(driver):
-    preBtn = searchWaitElement('.left-header .Button.translucent', driver)
-    for btn in preBtn:
+# def clickBackBtn(driver):
+#     preBtn = searchWaitElement('.left-header .Button.translucent', driver)
+#     for btn in preBtn:
+#         try:
+#             btn.click()
+#             wait_float(1.5,2.2)
+#             return
+#         except:
+#             pass
+
+def goToMain(driver,fore):
+    setCount = 0
+    while True:
+        print('메인으로!!!!!!')
+        wait_float(0.5,1.2)
+        setCount += 1
+        if setCount > 3:
+            pg.click(fore.left+500,fore.top+300)
+            wait_float(1.2,2.2)
+            
         try:
-            btn.click()
-            wait_float(1.5,2.2)
-            return
+            chkSuccessMain = driver.find_element(by=By.CSS_SELECTOR, value='.LeftMainHeader .Button.translucent')
+            chkAttr = chkSuccessMain.get_attribute('title')
+            
+            if "메뉴" in chkAttr:
+                focus_window('Telegram')
+                pg.press('F5')
+                return
         except:
             pass
+        
+        try:
+            backBtn = driver.find_element(by=By.CSS_SELECTOR, value='.LeftMainHeader .Button.translucent')
+            backBtn.click()
+        except:
+            pass
+        
+        
 
 def showTeleMenu(driver):
     while True:
-        hamBtn = searchWaitElement('.LeftMainHeader .DropdownMenu', driver)
-        hamBtn[0].click()
+        wait_float(0.5,0.9)
         
         try:
-            menuOpenChk = hamBtn[0].find_elements(by=By.CSS_SELECTOR, value='.active')
+            hamBtn = driver.find_element(by=By.CSS_SELECTOR, value='.LeftMainHeader .DropdownMenu')
+            hamBtn.click()
+            wait_float(0.9,1.2)
+        except:
+            pass
+        
+        try:
+            menuOpenChk = hamBtn.find_element(by=By.CSS_SELECTOR, value='.active')
             if menuOpenChk:
-                menuList = hamBtn[0].find_elements(by=By.CSS_SELECTOR, value='.menu-container.top .MenuItem')
+                menuList = hamBtn.find_elements(by=By.CSS_SELECTOR, value='.menu-container.top .MenuItem')
                 break
         except:
             pass
+        
+        
+                
+        
         
     return menuList
 
 
 def searchWaitElement(ele,driver):
     while True:
+        print(ele + ' 찾는중임!!!')
         try:
             element = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, ele)))
             if element:
+                selected_element = driver.find_elements(by=By.CSS_SELECTOR, value=ele)
                 break
         except:
             wait_float(1.5, 2.2)
             pass
-    selected_element = driver.find_elements(by=By.CSS_SELECTOR, value=ele)
+    
     return selected_element
 
 

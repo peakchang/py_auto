@@ -10,10 +10,7 @@ def th():
     onth.daemon = True
     onth.start()
     
-
-
-
-
+    
 # 윈도우 창 생성 및 버튼 화면 조절
 root = Tk()
 root.title("블로그 자동화")
