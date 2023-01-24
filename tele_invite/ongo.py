@@ -35,8 +35,7 @@ def goScript(getDict):
         
         today = datetime.today()
         todayStr = today.strftime("%y/%m/%d")
-        authSheet.cell(authCount, 6).value = f"{todayStr} 작업 완료"
-        authList.save('./auth_list.xlsx')
+        
         profileNum = authSheet.cell(authCount,1).value
         workType = authSheet.cell(authCount,5).value
         if profileNum is None:
@@ -308,54 +307,56 @@ def goScript(getDict):
                 # 그룹 유형 체크 (최초 1회만)
                 
                     
-                if workType == '관리자추가':
+                
+                while True:
+                    # 그룹 클릭 (그룹명 찾아서 클릭 / 채팅방 클릭)
                     while True:
-                        # 그룹 클릭 (그룹명 찾아서 클릭 / 채팅방 클릭)
-                        while True:
-                            print("그룹 클릭 (그룹명 찾아서 클릭 / 채팅방 클릭)")
-                            try:
-                                nowChatRoom = driver.find_element(by=By.CSS_SELECTOR, value='.MiddleHeader .ChatInfo .fullName')
-                                if getChatRoomName in nowChatRoom.text:
-                                    break
-                            except:
-                                pass
-                            
-                            try:
-                                wait_float(0.9,1.2)
-                                chatList = searchWaitElement('.chat-list .ListItem', driver)
-                                for chatRoom in chatList:
-                                    wait_float(0.2,0.5)
-                                    if getChatRoomName in chatRoom.text:
-                                        wait_float(0.5,0.9)
-                                        chatRoom.click()
-                                        break
-                            except:
-                                pass
-                        wait_float(0.5,0.9)
+                        print("그룹 클릭 (그룹명 찾아서 클릭 / 채팅방 클릭)")
+                        try:
+                            nowChatRoom = driver.find_element(by=By.CSS_SELECTOR, value='.MiddleHeader .ChatInfo .fullName')
+                            if getChatRoomName in nowChatRoom.text:
+                                break
+                        except:
+                            pass
                         
-                        # 상단 그룹이름 클릭(우측 그룹 정보 나올때까지)
-                        while True:
-                            print('그룹 관리 열기')
-                            try:
-                                wait_float(0.9,1.2)
-                                # ChatInfo = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.chat-info-wrapper .ChatInfo')))
-                                ChatInfo = driver.find_element(by=By.CSS_SELECTOR, value='.chat-info-wrapper .ChatInfo')
-                                ChatInfo.click()
-                                
-                            except:
-                                pass
-                            
-                            try:
-                                wait_float(0.9,1.2)
-                                # ProfilePhoto = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.ProfilePhoto')))
-                                ProfilePhoto = driver.find_element(by=By.CSS_SELECTOR, value='.ProfilePhoto')
-                                
-                                if ProfilePhoto:
+                        try:
+                            wait_float(0.9,1.2)
+                            chatList = searchWaitElement('.chat-list .ListItem', driver)
+                            for chatRoom in chatList:
+                                wait_float(0.2,0.5)
+                                if getChatRoomName in chatRoom.text:
+                                    wait_float(0.5,0.9)
+                                    chatRoom.click()
                                     break
-                            except:
-                                pg.press('F5')
-                                pass
+                        except:
+                            pass
+                    wait_float(0.5,0.9)
+                    
+                    # 상단 그룹이름 클릭(우측 그룹 정보 나올때까지)
+                    while True:
+                        print('그룹 관리 열기')
+                        try:
+                            wait_float(0.9,1.2)
+                            # ChatInfo = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.chat-info-wrapper .ChatInfo')))
+                            ChatInfo = driver.find_element(by=By.CSS_SELECTOR, value='.chat-info-wrapper .ChatInfo')
+                            ChatInfo.click()
                             
+                        except:
+                            pass
+                        
+                        try:
+                            wait_float(0.9,1.2)
+                            # ProfilePhoto = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.ProfilePhoto')))
+                            ProfilePhoto = driver.find_element(by=By.CSS_SELECTOR, value='.ProfilePhoto')
+                            
+                            if ProfilePhoto:
+                                break
+                        except:
+                            pg.press('F5')
+                            pass
+                        
+                    if workType == '관리자추가':
+                        
                         # 그룹 정보 우상단 연필 클릭
                         while True:
                             print('그룹 툴 열기')
@@ -381,7 +382,6 @@ def goScript(getDict):
                         groupMenu = searchWaitElement('.Management .ListItem', driver)
                         # 그룹 > 수정 > 관리자 클릭
                         while True:
-                            
                             print("그룹 > 수정 > 관리자 클릭")
                             
                             try:
@@ -451,10 +451,12 @@ def goScript(getDict):
                                     break
                             except:
                                 pass
-                                 
+                                
                             
                         if findUser == '':
                             print('더이상 찾을 회원이 없음')
+                            authSheet.cell(authCount, 6).value = f"{todayStr} 작업 완료"
+                            authList.save('./auth_list.xlsx')
                             break
                             
                             
@@ -542,140 +544,217 @@ def goScript(getDict):
                                 pass
                             
                             
-                            
-                        # 그룹 설정 메인 갈때까지 뒤로가기 클릭
-                        while True:
-                            print("그룹 설정 메인 갈때까지 뒤로가기 클릭")
-                            wait_float(0.5,0.9)
-                            try:
-                                closeBtn = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.close-button')))
-                                getBtnText = closeBtn.get_attribute('title')
-                                if getBtnText == '닫기':
-                                    memberList = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.content.members-list')))
-                                    if memberList:
-                                        break
-                                else:
-                                    closeBtn.click()
-                            except:
-                                pass
-                        
-                        # 연락처 삭제 준비, 회원 클릭 (헤더에 "회원" 이라고 나타나게)
-                        while True:
-                            print("연락처 삭제 준비, 회원 클릭 (헤더에 회원 이라고 나타나게)")
-                            wait_float(0.5,0.9)
-                            try:
-                                # userInfo = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.RightHeader .Transition__slide--active')))
-                                userInfo = driver.find_element(by=By.CSS_SELECTOR, value='.RightHeader .Transition__slide--active')
-                                if '회원' in userInfo.text:
-                                    break
-                            except:
-                                pass
-                            
-                            try:
-                                memberList = searchWaitElement('.content.members-list .ListItem .fullName', driver)
-                                for mamber in memberList:
-                                    getmemberName = re.sub(r'[^0-9]', '', mamber.text)
-                                    if getmemberName == setUserName:
-                                        mamber.click()
-                            except:
-                                pass
-                        
-                        # 연락처 삭제 준비, 삭제 아이콘 나오게
-                        while True:
-                            print("연락처 삭제 준비, 삭제 아이콘 나오게")
-                            wait_float(0.5,0.9)
-                            try:
-                                # delIcon = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.icon-delete')))
-                                delIcon = driver.find_element(by=By.CSS_SELECTOR, value='.icon-delete')
-                                if delIcon:
-                                    break
-                            except:
-                                pass
-                            
-                            try:
-                                # tools = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.tools')))
-                                tools = driver.find_element(by=By.CSS_SELECTOR, value='.tools')
-                                tools.click()
-                            except:
-                                pass
-                        
-                        # 연락처 삭제 모달창 띄우기
-                        while True:
-                            print("연락처 삭제 모달창 띄우기")
-                            wait_float(0.5,0.9)
-                            try:
-                                # modal = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.Modal')))
-                                modal = driver.find_element(by=By.CSS_SELECTOR, value='.Modal')
-                                if modal:
-                                    break
-                            except:
-                                pass
-                            
-                            try:
-                                # delIcon = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.destructive')))
-                                delIcon = driver.find_element(by=By.CSS_SELECTOR, value='.destructive')
-                                delIcon.click()
-                            except:
-                                pass
-                            
-                        # 연락처 삭제 완료
-                        while True:
-                            print("연락처 삭제 완료")
-                            wait_float(0.5,0.9)
-                            try:
-                                # manageText = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.RightHeader .Transition__slide--active')))
-                                manageText = driver.find_element(by=By.CSS_SELECTOR, value='.RightHeader .Transition__slide--active')
-                                if manageText.text == '회원 정보':
-                                    break
-                            except:
-                                pass
-                            
-                            try:
-                                # delManageBtn = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.Modal .confirm-dialog-button.default.danger.text')))
-                                delManageBtn = driver.find_element(by=By.CSS_SELECTOR, value='.Modal .confirm-dialog-button.default.danger.text')
-                                delManageBtn.click()
-                            except:
-                                pass
-                        
-                        
-                        # 엑셀에 삭제된 연락처 진짜 이름 추가                        
-                        reCount = 0
-                        realUserWork = ''
-                        chkDb = ''
-                        while True:
-                            reCount += 1
-                            wait_float(0.5,1.2)
-                            if reCount > 3:
-                                reCount = 0
-                                pg.press('F5')
-                                wait_float(0.5,1.2)
-                            
-                            getRealNameArea = searchWaitElement('.MiddleHeader .info .fullName', driver)
-                            wait_float(0.3,0.9)
-                            for getRealName in getRealNameArea:
-                                if getRealName.text:
-                                    getReal = re.sub(r'[^\uAC00-\uD7A30-9a-zA-Z\s]', '', getRealName.text)
-                                    if getReal == setUserName or getReal == '':
-                                        continue
-                                    else:
-                                        chkDbCount = 0
-                                        while True:
-                                            chkDbCount += 1
-                                            if dbSheet.cell(chkDbCount,4).value is not None:
-                                                chkDb = re.sub(r'[^0-9]', '', dbSheet.cell(chkDbCount,4).value)
-                                            if chkDb == setUserName:
-                                                break
-                                        wait_float(0.3,0.9)
-                                        dbSheet.cell(chkDbCount,2).value = getReal
-                                        dbList.save('./db_list.xlsx')
-                                        realUserWork = 'on'
-                            
-                            if realUserWork == 'on':
-                                break
-                else:
-                    pg.alert('관리자 추가 말고 딴거!!!')
-                
                     
+                    
+                    else:
+                        # 그룹 > 수정 > 관리자 클릭
+                        while True:
+                            print("참가자 추가 버튼 클릭")
+                            try:
+                                wait_float(0.9,1.2)
+                                managerAddBtn = driver.find_element(by=By.CSS_SELECTOR, value='#RightColumn .FloatingActionButton.revealed')
+                                managerAddBtn.click()
+                            except:
+                                pass
+                            
+                            try:
+                                wait_float(0.9,1.2)
+                                inputBar = driver.find_element(by=By.CSS_SELECTOR, value='.AddChatMembers-inner .form-control')
+                                if inputBar:
+                                    break
+                            except:
+                                pass
+                        while True:
+                            wait_float(0.5,0.9)
+                            print("관리자 추가 > 010 검색 > 010 번호 가진사람 클릭")
+                            findUser = ''
+                            
+                            # 회원 없으면 걍 종료
+                            try:
+                                nothingFound = driver.find_element(by=By.CSS_SELECTOR, value='.AddChatMembers-inner .no-results')
+                                if nothingFound:
+                                    findUser = ''
+                                    break
+                            except:
+                                pass
+                            
+                            
+                            try:
+                                wait_float(0.9,1.2)
+                                searchUserNameList = driver.find_elements(by=By.CSS_SELECTOR, value='.AddChatMembers-inner .ListItem')
+                                for userItem in searchUserNameList:
+                                    userName = userItem.find_element(by=By.CSS_SELECTOR, value='.fullName')
+                                    if userName.text[0:3] == '010' or userName.text[0:2] == '10':
+                                        userItem.click()
+                                        setUserName = re.sub(r'[^0-9]', '', userName.text)
+                                        findUser = 'on'
+                                        break
+                            except:
+                                pass
+                            
+                            
+                            try:
+                                wait_float(0.9,1.2)
+                                addUserBtn = driver.find_element(by=By.CSS_SELECTOR, value='#RightColumn .FloatingActionButton.revealed')
+                                addUserBtn.click()
+                            except:
+                                pass
+                            
+                            
+                            try:
+                                wait_float(0.9,1.2)
+                                # ProfilePhoto = driver.find_element(by=By.CSS_SELECTOR, value='.ProfilePhoto')
+                                ProfilePhoto = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.ProfilePhoto')))
+                                if ProfilePhoto:
+                                    break
+                            except:
+                                pass
+                            
+                        if findUser == '':
+                            print('더이상 찾을 회원이 없음')
+                            authSheet.cell(authCount, 6).value = f"{todayStr} 작업 완료"
+                            authList.save('./auth_list.xlsx')
+                            break
+                        
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                    # 그룹 설정 메인 갈때까지 뒤로가기 클릭
+                    while True:
+                        print("그룹 설정 메인 갈때까지 뒤로가기 클릭")
+                        wait_float(0.5,0.9)
+                        try:
+                            closeBtn = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.close-button')))
+                            getBtnText = closeBtn.get_attribute('title')
+                            if getBtnText == '닫기':
+                                memberList = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.content.members-list')))
+                                if memberList:
+                                    break
+                            else:
+                                closeBtn.click()
+                        except:
+                            pass
+                    
+                    # 연락처 삭제 준비, 회원 클릭 (헤더에 "회원" 이라고 나타나게)
+                    while True:
+                        print("연락처 삭제 준비, 회원 클릭 (헤더에 회원 이라고 나타나게)")
+                        wait_float(0.5,0.9)
+                        try:
+                            # userInfo = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.RightHeader .Transition__slide--active')))
+                            userInfo = driver.find_element(by=By.CSS_SELECTOR, value='.RightHeader .Transition__slide--active')
+                            if '회원' in userInfo.text:
+                                break
+                        except:
+                            pass
+                        
+                        try:
+                            memberList = searchWaitElement('.content.members-list .ListItem .fullName', driver)
+                            for mamber in memberList:
+                                getmemberName = re.sub(r'[^0-9]', '', mamber.text)
+                                if getmemberName == setUserName:
+                                    mamber.click()
+                        except:
+                            pass
+                    
+                    # 연락처 삭제 준비, 삭제 아이콘 나오게
+                    while True:
+                        print("연락처 삭제 준비, 삭제 아이콘 나오게")
+                        wait_float(0.5,0.9)
+                        try:
+                            # delIcon = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.icon-delete')))
+                            delIcon = driver.find_element(by=By.CSS_SELECTOR, value='.icon-delete')
+                            if delIcon:
+                                break
+                        except:
+                            pass
+                        
+                        try:
+                            # tools = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.tools')))
+                            tools = driver.find_element(by=By.CSS_SELECTOR, value='.tools')
+                            tools.click()
+                        except:
+                            pass
+                    
+                    # 연락처 삭제 모달창 띄우기
+                    while True:
+                        print("연락처 삭제 모달창 띄우기")
+                        wait_float(0.5,0.9)
+                        try:
+                            # modal = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.Modal')))
+                            modal = driver.find_element(by=By.CSS_SELECTOR, value='.Modal')
+                            if modal:
+                                break
+                        except:
+                            pass
+                        
+                        try:
+                            # delIcon = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.destructive')))
+                            delIcon = driver.find_element(by=By.CSS_SELECTOR, value='.destructive')
+                            delIcon.click()
+                        except:
+                            pass
+                        
+                    # 연락처 삭제 완료
+                    while True:
+                        print("연락처 삭제 완료")
+                        wait_float(0.5,0.9)
+                        try:
+                            # manageText = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.RightHeader .Transition__slide--active')))
+                            manageText = driver.find_element(by=By.CSS_SELECTOR, value='.RightHeader .Transition__slide--active')
+                            if manageText.text == '회원 정보':
+                                break
+                        except:
+                            pass
+                        
+                        try:
+                            # delManageBtn = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.Modal .confirm-dialog-button.default.danger.text')))
+                            delManageBtn = driver.find_element(by=By.CSS_SELECTOR, value='.Modal .confirm-dialog-button.default.danger.text')
+                            delManageBtn.click()
+                        except:
+                            pass
+                    
+                    
+                    # 엑셀에 삭제된 연락처 진짜 이름 추가                        
+                    reCount = 0
+                    realUserWork = ''
+                    chkDb = ''
+                    while True:
+                        reCount += 1
+                        wait_float(0.5,1.2)
+                        if reCount > 3:
+                            reCount = 0
+                            pg.press('F5')
+                            wait_float(0.5,1.2)
+                        
+                        getRealNameArea = searchWaitElement('.MiddleHeader .info .fullName', driver)
+                        wait_float(0.3,0.9)
+                        for getRealName in getRealNameArea:
+                            if getRealName.text:
+                                getReal = re.sub(r'[^\uAC00-\uD7A30-9a-zA-Z\s]', '', getRealName.text)
+                                if getReal == setUserName or getReal == '':
+                                    continue
+                                else:
+                                    chkDbCount = 0
+                                    while True:
+                                        chkDbCount += 1
+                                        if dbSheet.cell(chkDbCount,4).value is not None:
+                                            chkDb = re.sub(r'[^0-9]', '', dbSheet.cell(chkDbCount,4).value)
+                                        if chkDb == setUserName:
+                                            break
+                                    wait_float(0.3,0.9)
+                                    dbSheet.cell(chkDbCount,2).value = getReal
+                                    dbList.save('./db_list.xlsx')
+                                    realUserWork = 'on'
+                        
+                        if realUserWork == 'on':
+                            break
             wait_float(0.5,1.2)
             driver.quit()
             wait_float(0.5,1.2)
@@ -795,8 +874,37 @@ def inviteManager():
         if authSheet.cell(authCount, 6).value is None:
             authCount = authCount - 1
             break
-        
+    
+    options = Options()
+    user_data = f'C:\\Users\\{pcUser}\\AppData\\Local\\Google\\Chrome\\User Data\\default'
+    service = Service(ChromeDriverManager().install())
+    options.add_argument(f"user-data-dir={user_data}")
+    options.add_argument(f'--profile-directory=Profile {getMasterProfile}')
+    driver = webdriver.Chrome(service=service, chrome_options=options)
+    driver.get('https://web.telegram.org/z/')
+    driver.set_window_size(1600, 800)
+    driver.set_window_position(0,0)
+    fore = pg.getActiveWindow()
+    
+    wait_float(1.2,1.9)
+    # 만약 현재 영어 버전일경우 한글 버전으로 변경!!
+    menuList = showTeleMenu(driver)
+    if '메시지' not in menuList[0].text:
+        menuList[3].click()
+        wait_float(0.5,0.9)
+        listItem = searchWaitElement('.settings-main-menu .ListItem', driver)
+        listItem[7].click()
+        wait_float(0.5,0.9)
+        listRadio = searchWaitElement('.settings-language .Radio', driver)
+        listRadio[0].click()
+        goToMain(driver, fore)
+        wait_float(1.5,2.5)
+    else:
+        pg.press('F5')
+        pass
+    
     while True:
+        pg.moveTo(fore.left+500, fore.top+500)
         authCount += 1
         getManagerNum = authSheet.cell(authCount, 2).value
         getChatRoomName = authSheet.cell(authCount, 4).value
@@ -807,71 +915,68 @@ def inviteManager():
         getManagerNationNum = getManagerPhNumSplit[0]
         getManagerPhNum = ''.join(getManagerPhNumSplit[1:])
         
-        options = Options()
-        user_data = f'C:\\Users\\{pcUser}\\AppData\\Local\\Google\\Chrome\\User Data\\default'
-        service = Service(ChromeDriverManager().install())
-        options.add_argument(f"user-data-dir={user_data}")
-        options.add_argument(f'--profile-directory=Profile {getMasterProfile}')
-        driver = webdriver.Chrome(service=service, chrome_options=options)
-        driver.get('https://web.telegram.org/z/')
-        driver.set_window_size(1600, 800)
-        driver.set_window_position(0,0)
-        fore = pg.getActiveWindow()
-        
-        
-        wait_float(1.2,1.9)
-        # 만약 현재 영어 버전일경우 한글 버전으로 변경!!
-        menuList = showTeleMenu(driver)
-        if '메시지' not in menuList[0].text:
-            menuList[3].click()
-            wait_float(0.5,0.9)
-            listItem = searchWaitElement('.settings-main-menu .ListItem', driver)
-            listItem[7].click()
-            wait_float(0.5,0.9)
-            listRadio = searchWaitElement('.settings-language .Radio', driver)
-            listRadio[0].click()
-            goToMain(driver, fore)
-            wait_float(1.5,2.5)
-        else:
-            pg.press('F5')
-            pass
-        
-        
+        goToMain(driver, fore)
         
         print('연락처 추가하기! 모달창 키고 번호 입력!')
         focus_window('Telegram')
         wait_float(1.2,1.9)
         
-        try:
-            wait_float(0.9,1.2)
-            menuList = showTeleMenu(driver)
-            menuList[2].click()
-        except:
-            pass
         
-        try:
-            wait_float(0.9,1.2)
-            addAddressBtn = driver.find_element(by=By.CSS_SELECTOR, value='.FloatingActionButton.revealed')
-            addAddressBtn.click()
-        except:
-            pg.click(fore.left+500,fore.top+300)
-            authCount = authCount - 1
-            wait_float(0.9,1.2)
-            continue
         
-        try:
-            wait_float(0.9,1.2)
-            inputList = driver.find_elements(by=By.CSS_SELECTOR, value='.NewContactModal__new-contact-fieldset .form-control')
-            inputList[0].click()
-            inputList[0].send_keys(getManagerNationNum + getManagerPhNum)
-            wait_float(0.9,1.2)
-            inputList[1].send_keys(getManagerPhNum)
-            okBtn = driver.find_elements(by=By.CSS_SELECTOR, value='.confirm-dialog-button')
-            okBtn[1].click()
-            wait_float(0.5,0.9)
-        except:
-            continue
         
+        getSearchUser = ''
+        while True:
+            print('연락처에 매니저 있으면 패스~ 아니면 추가')
+            
+            try:
+                wait_float(0.9,1.2)
+                addAddressBtn = driver.find_element(by=By.CSS_SELECTOR, value='#LeftColumn .FloatingActionButton.revealed')
+            except:
+                print('연락처 추가로 이동')
+                menuList = showTeleMenu(driver)
+                for menu in menuList:
+                    if "연락처" in menu.text:
+                        menu.click()
+                        break
+                wait_float(0.9,1.2)
+                continue
+            
+            try:
+                pg.moveTo(fore.left+100, fore.top+500)
+                for i in range(7):
+                    AllAddrList = driver.find_elements(by=By.CSS_SELECTOR, value='#LeftColumn-main .chat-list')
+                    nowAddrList = AllAddrList[1].find_elements(by=By.CSS_SELECTOR, value='.fullName')
+                    for addr in nowAddrList:
+                        if getManagerPhNum in addr.text:
+                            getSearchUser = 'on'
+                            break
+                    if getSearchUser == 'on':
+                        break
+                    wait_float(0.2,0.4)
+                    pg.scroll(-1000)
+                
+                if getSearchUser == 'on':
+                    break
+            except:
+                continue
+            
+            
+            try:
+                wait_float(0.9,1.2)
+                addAddressBtn = driver.find_element(by=By.CSS_SELECTOR, value='.FloatingActionButton.revealed')
+                addAddressBtn.click()
+                wait_float(1.2,1.9)
+                inputList = driver.find_elements(by=By.CSS_SELECTOR, value='.NewContactModal__new-contact-fieldset .form-control')
+                inputList[0].click()
+                inputList[0].send_keys(getManagerNationNum + getManagerPhNum)
+                wait_float(0.9,1.2)
+                inputList[1].send_keys(getManagerPhNum)
+                okBtn = driver.find_elements(by=By.CSS_SELECTOR, value='.confirm-dialog-button')
+                okBtn[1].click()
+                wait_float(0.5,0.9)
+                break
+            except:
+                continue
         
         goToMain(driver, fore)
 
@@ -970,8 +1075,10 @@ def inviteManager():
             except:
                 pass
         
-        
+        searchSuccessManager = ''
+        alreadyManager = ''
         while True:
+            
             wait_float(0.5,0.9)
             print("관리자 추가 > 010 검색 > 010 번호 가진사람 클릭")
             findUser = ''
@@ -989,8 +1096,17 @@ def inviteManager():
                 for userName in searchUserNameList:
                     if userName.text == getManagerPhNum:
                         userName.click()
+                        searchSuccessManager = 'on'
+                        break
+                if searchSuccessManager == '':
+                    alreadyManager = 'on'
             except:
                 pass
+            
+            if alreadyManager == 'on':
+                authSheet.cell(authCount, 6).value = '기존 매니저 확인'
+                authList.save('./auth_list.xlsx')
+                break
             
             try:
                 wait_float(0.9,1.2)
@@ -998,13 +1114,10 @@ def inviteManager():
                 menegerOkBtn[0].click()
                 authSheet.cell(authCount, 6).value = '관리자 추가 완료'
                 authList.save('./auth_list.xlsx')
+                wait_float(2.2,2.9)
                 break
             except:
                 pass
-                
-        wait_float(1.9,2.8)
-        driver.quit()
-        wait_float(0.5,0.9)
         
         
         

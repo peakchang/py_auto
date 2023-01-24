@@ -58,7 +58,7 @@ startBtn.pack()
 frame1 = LabelFrame(root, text='인증관련', padx=60, pady=10)  # padx / pady 내부여백
 frame1.pack(padx=10, pady=5)  # padx / pady 외부여백
 
-authBtn = Button(frame1, text='인증따기', command=th2, padx=50)
+authBtn = Button(frame1, text='인증따기 / 확인', command=th2, padx=50)
 authBtn.pack()
 
 delAuthBtn = Button(frame1, text='인증삭제', command=th3, padx=50)
