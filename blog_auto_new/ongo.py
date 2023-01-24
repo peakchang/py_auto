@@ -7,6 +7,9 @@ from func import *
 def goScript(getDict):
     
     
+
+    
+    
     if getDict['nlist'] == 1:
         pg.alert('아이디가 선택되지 않았습니다. 다시 실행해주세요')
         sys.exit(0)
@@ -16,6 +19,12 @@ def goScript(getDict):
     wb = load_workbook('./etc/nid.xlsx')
     ex = wb.active
     
+    
+    if ex.cell(exLineNum, 4).value is not None:
+        pg.alert('이미 작업된 블로그! 작업 안했다면 항목을 지워주세요!')
+        
+    ex.cell(exLineNum, 4).value = '작업완료'
+    wb.save('./etc/nid.xlsx')
     
     preIp = ''
     
@@ -107,6 +116,8 @@ def goScript(getDict):
         
     writeBlog(driver,getDict['middleVal'])
     
+    
+    
     if getDict['middleVal'] == 1:
         chkVal = pg.confirm(text='글쓰기가 완료 되었습니다!! 댓글을 진행 하시겠습니까?', buttons=['go','stop'])
     else:
@@ -121,5 +132,11 @@ def goScript(getDict):
     else:
         pass
     
+    
+    for i in range(3):
+        fr = 1600    # range : 37 ~ 32767
+        du = 500     # 1000 ms ==1second
+        sd.Beep(fr, du)
+        
     pg.alert('종료합니다!!')
     sys.exit(0)

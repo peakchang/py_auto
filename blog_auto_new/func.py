@@ -37,7 +37,7 @@ import requests
 import winsound as ws
 import glob
 import asyncio
-
+import winsound as sd
 
 
 
@@ -92,6 +92,9 @@ def writeBlog(driver,goChk):
             with open(f'./content/{dir}/content.txt', 'r') as f:
                 getLines = f.readlines()
                 
+        if len(getLines) < 5:
+            continue
+                
                 
                 
         
@@ -145,6 +148,7 @@ def writeBlog(driver,goChk):
                         alignBtnList = driver.find_elements(by=By.CSS_SELECTOR, value=".se-toolbar-option.se-toolbar-option-align button")
                         wait_float(0.5,1.2)
                         alignBtnList[1].click()
+                        wait_float(0.5,1.2)
                         break
                     except:
                         pass

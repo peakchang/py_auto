@@ -9,6 +9,7 @@ def goScript(getDict):
     pg.alert('작업을 시작합니다!')
     
     pcUser = getpass.getuser()
+    pg.alert(pcUser)
     authList = load_workbook('./auth_list.xlsx')
     authSheet = authList.active
     
@@ -98,11 +99,12 @@ def goScript(getDict):
                     wait_float(0.5,0.9)
                     listItem = searchWaitElement('.settings-main-menu .ListItem', driver)
                     for item in listItem:
-                        if "Language" in item.text:
+                        if "Language" in item.text or "언어" in item.text:
                             item.click()
                     wait_float(0.5,0.9)
                     listRadio = searchWaitElement('.settings-language .Radio', driver)
                     listRadio[0].click()
+                    pg.press('F5')
                 
                     goToMain(driver, fore)
                     wait_float(1.5,2.5)
@@ -335,6 +337,7 @@ def goScript(getDict):
                     # 상단 그룹이름 클릭(우측 그룹 정보 나올때까지)
                     while True:
                         print('그룹 관리 열기')
+                        
                         try:
                             wait_float(0.9,1.2)
                             # ChatInfo = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.chat-info-wrapper .ChatInfo')))
@@ -809,12 +812,22 @@ def authListChk():
             options.add_argument(f"user-data-dir={user_data}")
             options.add_argument(f'--profile-directory=Profile {profileNum}')
             driver = webdriver.Chrome(service=service, chrome_options=options)
+            driver.set_window_size(1600, 800)
+            driver.set_window_position(0,0)
+            fore = pg.getActiveWindow()
             driver.get('https://web.telegram.org/z/')
-            wait_float(2.5,3.2)
-            chkAuth = pg.confirm('인증 완료 후 yes 버튼을 클릭해주세요! 확인만 하신다면 no 버튼을 클릭해주세요!',buttons=['yes','no'])
+            
+            wait_float(1.9,2.5)
+            chkAuth = pg.confirm(f'현재 접속한 아이디는 {profileNum} 입니다. 인증을 진행하시려면 yes를 / 확인만 하시려면 no를 클릭해주세요',buttons=['yes','no'])
             if chkAuth == 'yes':
                 authSheet.cell(authCount,3).value = '인증완료'
                 authList.save('./auth_list.xlsx')
+                getAuthPhNum = pg.prompt(title='TITLE',default='',text=f'현재 접속한 아이디는 {profileNum} 입니다. 아래 칸에 국가번호 전화번호를 입력하시면 엑셀에 반영됩니다. (미작성시 패스~)')
+                if getAuthPhNum != '':
+                    authSheet.cell(authCount,2).value = getAuthPhNum
+                    authList.save('./auth_list.xlsx')
+                
+            
             driver.quit()
     
     pg.alert('인증 작업이 완료 되었습니다. 엑셀 파일을 확인 해주세요!')
