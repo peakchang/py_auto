@@ -30,6 +30,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from ppadb.client import Client as AdbClient
 from tkinter import *
+import tkinter
 from tkinter import ttk
 import requests
 import winsound as ws
@@ -39,7 +40,7 @@ import socket
 import getpass
 
 import shutil
-
+import winsound as sd
 
 
 
@@ -70,7 +71,7 @@ def searchNextBtn(resultEle, clickEle, driver):
         except:
             pass
 
-def compareDate(getDateText):
+def compareDate(getDateText,minus_date):
     getDateText = re.sub(r'[\uAC00-\uD7A3a-zA-Z\s]', '', getDateText)[:-1].split('.')
     getDate = datetime(int(getDateText[0]), int(getDateText[1]), int(getDateText[2]))
 
@@ -78,7 +79,7 @@ def compareDate(getDateText):
     todayStr = f"{now.date().strftime('%Y-%m-%d')} 00:00:00:00"
     datetime_format = "%Y-%m-%d %H:%M:%S:%f"
     getToday = datetime.strptime(todayStr,datetime_format)
-    getBrfoer4Day = getToday - timedelta(days=4)
+    getBrfoer4Day = getToday - timedelta(days=minus_date)
     
     return getDate > getBrfoer4Day
     

@@ -6,16 +6,17 @@ from func import *
 
 def goScript(getDict):
     
-    pg.alert('작업을 시작합니다!')
+    pg.FAILSAFE = False
+    pg.alert('시작합니당')
     
+
     pcUser = getpass.getuser()
-    pg.alert(pcUser)
     authList = load_workbook('./auth_list.xlsx')
     authSheet = authList.active
     
     dbList = load_workbook('./db_list.xlsx')
     dbSheet = dbList.active
-    chkInnerUserText = ['전까지','어제','일주일','최근','오늘']
+    chkInnerUserText = ['전까지','어제','일주일','최근','오늘','온라인']
         
     noMoreDb = ''
     while True:
@@ -56,10 +57,13 @@ def goScript(getDict):
             driver.set_window_size(1600, 800)
             driver.set_window_position(0,0)
             
+            
+            
             fore = pg.getActiveWindow()
             print(fore.title)   # 활성화된 창의 제목 정보
             print(fore.size)    # 활성화된 창의 사이즈
             print(fore.left, fore.top, fore.right, fore.bottom) # 좌표정보
+            
             
             wait_float(2.5,3.2)
             
@@ -119,7 +123,7 @@ def goScript(getDict):
                     if dbId is None:
                         break
                 # 준비 완료!! 사람 추가 반복하자!!
-                for i in range(9):
+                for i in range(int(getDict['add_addr_count'])):
                     goToMain(driver, fore)
                     notMb = ''
                     finChk = ''
@@ -129,7 +133,7 @@ def goScript(getDict):
                         noMoreDb = 'on'
                         break
                     
-                    getPhNum = re.sub(r'[^0-9]', '', getPhNum)
+                    getPhNum = re.sub(r'[^0-9]', '', str(getPhNum))
                     if getPhNum[0:1] != '0':
                         getPhNum = f"0{getPhNum}"
                     addPhAddr = f"+82{getPhNum[1:]}"
@@ -138,13 +142,13 @@ def goScript(getDict):
                     dbList.save('./db_list.xlsx')
                     
                     # 연락처 추가하기! 모달창 키고 번호 입력!
+                    maxAddrFull = ''
                     while True:
                         print('연락처 추가하기! 모달창 키고 번호 입력!')
                         focus_window('Telegram')
-                        wait_float(1.2,1.9)
                         
                         try:
-                            wait_float(0.9,1.5)
+                            wait_float(1.2,1.9)
                             menuList = showTeleMenu(driver)
                             menuList[2].click()
                         except:
@@ -152,6 +156,19 @@ def goScript(getDict):
                             pg.click(fore.left+500,fore.top+300)
                             wait_float(0.5,1.2)
                             continue
+                        
+                        try:
+                            wait_float(0.9,1.2)
+                            addrWrapList = driver.find_elements(by=By.CSS_SELECTOR, value='#LeftColumn-main .Transition.zoom-fade>div')
+                            addrList = addrWrapList[1].find_elements(by=By.CSS_SELECTOR, value='.ListItem')
+                            if len(addrList) >= 6:
+                                maxAddrFull = 'on'
+                                break
+                            
+                            
+                        except:
+                            continue
+                            
                         
                         try:
                             wait_float(0.9,1.5)
@@ -178,6 +195,9 @@ def goScript(getDict):
                         except:
                             continue
                     
+                    if maxAddrFull == 'on':
+                        break
+                        
                     #친추 완료! 모달창 떠있으면 가입한 회원 아님 / 안떠있으면 체크!
                     while True:
                         wait_float(2.7,3.5)
@@ -224,14 +244,26 @@ def goScript(getDict):
                             finChk = 'ok'
                             continue
                     
+                    oldUser = ''
                     if finChk == '':
                         wait_float(1.2,1.9)
-                        chkCompare = compareDate(userStatusText)
-                        if chkCompare:
+                        if "오래됨" in userStatusText:
+                            oldUser = 'on'
+                        else:
+                            try:
+                                minus_date = int(getDict['serch_day'])
+                                chkCompare = compareDate(userStatusText,minus_date)
+                            except:
+                                for i in range(3):
+                                    fr = 1600    # range : 37 ~ 32767
+                                    du = 500     # 1000 ms ==1second
+                                    sd.Beep(fr, du)
+                                pg.alert('에러가 어디서 났는지 확인!!!')
+                            
+                        if oldUser == '' and chkCompare:
                             dbSheet.cell(dbLine,7).value = 'V'
                             dbList.save('./db_list.xlsx')
                         else:
-                            
                             dbSheet.cell(dbLine,6).value = 'V'
                             dbList.save('./db_list.xlsx')
                             
@@ -299,10 +331,16 @@ def goScript(getDict):
                                 except:
                                     pass
                                 
+            if not getDict['join_group_val']:
+                authSheet.cell(authCount, 6).value = f"{todayStr} 작업 완료"
+                authList.save('./auth_list.xlsx')
+                driver.quit()
+                continue
                             
             ################## 아이디 추가 작업 끝 그룹에 추가 시작!!
             
             if getDict['join_group_val']:
+                goToMain(driver, fore)
                 getChatRoomName = authSheet.cell(authCount,4).value.strip()
                 saveGroupType = ""
                 
@@ -365,9 +403,9 @@ def goScript(getDict):
                             print('그룹 툴 열기')
                             try:
                                 wait_float(0.9,1.2)
-                                tools = driver.find_element(by=By.CSS_SELECTOR, value='.tools')
+                                tools = driver.find_elements(by=By.CSS_SELECTOR, value='.tools button')
                                 # tools = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.tools')))
-                                tools.click()
+                                tools[0].click()
                             except:
                                 pass
                             
@@ -435,7 +473,7 @@ def goScript(getDict):
                                         setUserName = re.sub(r'[^0-9]', '', userName.text)
                                         findUser = 'on'
                                         break
-                                # pg.alert(findUser)
+                                    
                                 wait_float(0.5,0.9)
                                 
                                 if findUser == 'on' and setUserName:
@@ -484,7 +522,8 @@ def goScript(getDict):
                             except:
                                 pass
                         
-                        # 관리자 승격된 사람 클릭 관리자 권한 삭제 준비
+                        # 관리자 승격된 사람 클릭 관리자 권한 삭제 준비------------------------------
+                        getSearchManager = ''
                         while True:
                             print("관리자 승격된 사람 클릭 관리자 권한 삭제 준비")
                             wait_float(0.5,0.9)
@@ -498,11 +537,20 @@ def goScript(getDict):
                                 pass
                             
                             try:
-                                managerList = searchWaitElement('.Management .ListItem .fullName', driver)
-                                for manager in managerList:
-                                    getManagerName = re.sub(r'[^0-9]', '', manager.text)
-                                    if getManagerName == setUserName:
-                                        manager.click()
+                                for i in range(3):
+                                    managerList = searchWaitElement('.Management .ListItem .fullName', driver)
+                                    for manager in managerList:
+                                        getManagerName = re.sub(r'[^0-9]', '', manager.text)
+                                        if getManagerName == setUserName:
+                                            getSearchManager = 'on'
+                                            manager.click()
+                                            break
+                                if getSearchManager == 'on':
+                                    break
+                                else:
+                                    pg.moveTo(fore.right - 150, fore.bottom - 300)
+                                    pg.scroll(-1000)
+                                            
                             except:
                                 pass
                             
@@ -646,6 +694,7 @@ def goScript(getDict):
                             pass
                     
                     # 연락처 삭제 준비, 회원 클릭 (헤더에 "회원" 이라고 나타나게)
+                    getSearchMember = ''
                     while True:
                         print("연락처 삭제 준비, 회원 클릭 (헤더에 회원 이라고 나타나게)")
                         wait_float(0.5,0.9)
@@ -658,11 +707,29 @@ def goScript(getDict):
                             pass
                         
                         try:
-                            memberList = searchWaitElement('.content.members-list .ListItem .fullName', driver)
-                            for mamber in memberList:
-                                getmemberName = re.sub(r'[^0-9]', '', mamber.text)
-                                if getmemberName == setUserName:
-                                    mamber.click()
+                            groupStatus = driver.find_element(by=By.CSS_SELECTOR, value='.group-status')
+                            groupCount = re.sub(r'[^0-9]', '', groupStatus.text)
+                            forCountTemp = int(groupCount) // 20
+                            if forCountTemp < 2:
+                                forCount = 2
+                            else:
+                                forCount = forCountTemp
+                                
+                            for i in range(forCount):
+                                memberList = searchWaitElement('.content.members-list .ListItem .fullName', driver)
+                                for mamber in memberList:
+                                    getmemberName = re.sub(r'[^0-9]', '', mamber.text)
+                                    if getmemberName == setUserName:
+                                        mamber.click()
+                                        getSearchMember = 'on'
+                                        break
+                                if getSearchMember == 'on':
+                                    break
+                                else:
+                                    pg.moveTo(fore.right - 150, fore.bottom - 300)
+                                    pg.scroll(-1000)
+                            
+                            
                         except:
                             pass
                     
@@ -735,7 +802,6 @@ def goScript(getDict):
                             reCount = 0
                             pg.press('F5')
                             wait_float(0.5,1.2)
-                        
                         getRealNameArea = searchWaitElement('.MiddleHeader .info .fullName', driver)
                         wait_float(0.3,0.9)
                         for getRealName in getRealNameArea:
@@ -744,12 +810,13 @@ def goScript(getDict):
                                 if getReal == setUserName or getReal == '':
                                     continue
                                 else:
+                                    
                                     chkDbCount = 0
                                     while True:
                                         chkDbCount += 1
                                         if dbSheet.cell(chkDbCount,4).value is not None:
                                             chkDb = re.sub(r'[^0-9]', '', dbSheet.cell(chkDbCount,4).value)
-                                        if chkDb == setUserName:
+                                        if chkDb in setUserName:
                                             break
                                     wait_float(0.3,0.9)
                                     dbSheet.cell(chkDbCount,2).value = getReal
@@ -823,11 +890,13 @@ def authListChk():
                 authSheet.cell(authCount,3).value = '인증완료'
                 authList.save('./auth_list.xlsx')
                 getAuthPhNum = pg.prompt(title='TITLE',default='',text=f'현재 접속한 아이디는 {profileNum} 입니다. 아래 칸에 국가번호 전화번호를 입력하시면 엑셀에 반영됩니다. (미작성시 패스~)')
-                if getAuthPhNum != '':
+                
+                if getAuthPhNum == '' or getAuthPhNum is None:
+                    pass
+                else:
                     authSheet.cell(authCount,2).value = getAuthPhNum
                     authList.save('./auth_list.xlsx')
-                
-            
+                    
             driver.quit()
     
     pg.alert('인증 작업이 완료 되었습니다. 엑셀 파일을 확인 해주세요!')
