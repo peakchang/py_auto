@@ -5,10 +5,6 @@ from datetime import datetime, timedelta, date
 import sys
 import os
 from pathlib import Path
-from typing import Optional
-# from pyparsing import And
-# import requests
-# from bs4 import BeautifulSoup as bs
 import json
 import re
 import pyautogui as pg
@@ -46,14 +42,21 @@ import winsound as sd
 
 
 
-
-
+# class FourCal:
+#     def setdata(self, first, second):
+#         self.first = first
+#         self.second = second
+#     def add(self,testval):
+#         result = self.first + self.second + testval
+#         return result
 
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>함수 시작염
 
 # 상품 들어가서 스크롤 내리고 나오기
 
+# def testChkLoad():
+    
 
 def searchNextBtn(resultEle, clickEle, driver):
     while True:

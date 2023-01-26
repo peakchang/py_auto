@@ -249,11 +249,13 @@ def writeBlog(driver,goChk):
             except:
                 pass
             
-            getUrl = searchElement('._transPosition',driver)
-            getUrl[0].click()
-            wait_float(1.5,2.5)
+            try:
+                getUrl = searchElement('._transPosition',driver)
+                getUrl[0].click()
+                wait_float(1.5,2.5)
+            except:
+                pass
             
-        pg.press('enter')
         driver.switch_to.default_content()
         while True:
             if len(driver.window_handles) > 1:
@@ -263,6 +265,15 @@ def writeBlog(driver,goChk):
             else:
                 break
             wait_float(0.5,0.9)
+    
+    wait_float(2.2,2.9)
+    
+    try:
+        closeModal = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.label_not_see._btn_no_more_show')))
+        if closeModal:
+            closeModal.click()
+    except:
+        pass
     
     goToNaverMain = searchElement('.link_naver',driver)
     goToNaverMain[0].click()
