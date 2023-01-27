@@ -40,40 +40,144 @@ import winsound as sd
 
 
 
-
-
-# class FourCal:
-#     def setdata(self, first, second):
-#         self.first = first
-#         self.second = second
-#     def add(self,testval):
-#         result = self.first + self.second + testval
-#         return result
-
-
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>함수 시작염
 
-# 상품 들어가서 스크롤 내리고 나오기
 
-# def testChkLoad():
-    
-
-def searchNextBtn(resultEle, clickEle, driver):
+def changeToKorean(driver, fore):
     while True:
-        wait_float(1.2,1.9)
+        menuList = showTeleMenu(driver)
+        if '메시지' in menuList[0].text:
+            goToMain(driver, fore)
+            break
+        else:
+            menuList[3].click()
+            wait_float(0.5,0.9)
+            listItem = searchWaitElement('.settings-main-menu .ListItem', driver)
+            for item in listItem:
+                if "Language" in item.text or "언어" in item.text:
+                    item.click()
+            wait_float(0.5,0.9)
+            listRadio = searchWaitElement('.settings-language .Radio', driver)
+            listRadio[0].click()
+            while True:
+                wait_float(0.5,1.2)
+                try:
+                    backBtnWrap = driver.find_elements(by=By.CSS_SELECTOR, value='#Settings > div')
+                    backBtn = backBtnWrap[1].find_element(by=By.CSS_SELECTOR, value='.translucent')
+                    backBtn.click()
+                except:
+                    pass
+                
+                try:
+                    hamBtn = driver.find_element(by=By.CSS_SELECTOR, value='.LeftMainHeader .DropdownMenu')
+                    if hamBtn:
+                        wait_float(1.9,2.5)
+                        pg.press('F5')
+                        wait_float(1.2,1.9)
+                        break
+                except:
+                    pass
+
+def searchTextAndClick(compareText, clickEle, driver):
+    while True:
         try:
-            modal = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, resultEle)))
-            if modal:
+            wait_float(0.9,1.5)
+            manageText = driver.find_element(by=By.CSS_SELECTOR, value='.RightHeader .Transition__slide--active')
+            if manageText.text == compareText:
                 break
         except:
             pass
         
         try:
-            delIcon = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, clickEle)))
-            delIcon.click()
+            wait_float(0.9,1.5)
+            delManageBtn = driver.find_element(by=By.CSS_SELECTOR, value=clickEle)
+            delManageBtn.click()
         except:
             pass
 
+def addAddr(driver,fore,addPhAddr,getPhNum):
+    while True:
+        print('연락처 추가하기! 모달창 키고 번호 입력!')
+        focus_window('Telegram')
+        
+        try:
+            wait_float(1.2,1.9)
+            menuList = showTeleMenu(driver)
+            menuList[2].click()
+        except:
+            wait_float(0.5,1.2)
+            pg.click(fore.left+500,fore.top+300)
+            wait_float(0.5,1.2)
+            continue
+        
+        try:
+            wait_float(0.9,1.2)
+            addrWrapList = driver.find_elements(by=By.CSS_SELECTOR, value='#LeftColumn-main .Transition.zoom-fade>div')
+            addrList = addrWrapList[1].find_elements(by=By.CSS_SELECTOR, value='.ListItem')
+            if len(addrList) >= 6:
+                maxAddrFull = 'on'
+                return maxAddrFull
+        except:
+            continue
+            
+        
+        try:
+            wait_float(0.9,1.5)
+            addAddressBtn = driver.find_element(by=By.CSS_SELECTOR, value='.FloatingActionButton.revealed')
+            wait_float(0.5,1.2)
+            addAddressBtn.click()
+        except:
+            wait_float(0.5,1.2)
+            pg.click(fore.left+500,fore.top+300)
+            wait_float(0.5,1.2)
+            continue
+        
+        try:
+            wait_float(1.2,1.9)
+            inputList = driver.find_elements(by=By.CSS_SELECTOR, value='.NewContactModal__new-contact-fieldset .form-control')
+            inputList[0].click()
+            inputList[0].send_keys(addPhAddr)
+            wait_float(1.2,1.9)
+            inputList[1].send_keys(getPhNum)
+            wait_float(0.5,1.2)
+            okBtn = driver.find_elements(by=By.CSS_SELECTOR, value='.confirm-dialog-button')
+            okBtn[1].click()
+            return
+        except:
+            continue
+
+
+def changePhNum(getPhNum):
+    getPhNum = re.sub(r'[^0-9]', '', str(getPhNum))
+    if getPhNum[0:1] != '0':
+        getPhNum = f"0{getPhNum}"
+    addPhAddr = f"+82{getPhNum[1:]}"
+    return addPhAddr
+
+def searchAndClick(searchEle, clickEle, driver, addCode=0, addEle=''):
+    while True:
+        try:
+            wait_float(0.9,1.5)
+            click_ele = driver.find_elements(by=By.CSS_SELECTOR, value=clickEle)
+            click_ele[0].click()
+        except:
+            pass
+        
+        try:
+            wait_float(0.9,1.5)
+            search_ele = driver.find_element(by=By.CSS_SELECTOR, value=searchEle)
+            if search_ele:
+                break
+        except:
+            pass
+        
+        if addCode:
+            try:
+                add_ele = driver.find_element(by=By.CSS_SELECTOR, value=addEle)
+                add_ele.click()
+            except:
+                pass
+        
 def compareDate(getDateText,minus_date):
     getDateText = re.sub(r'[\uAC00-\uD7A3a-zA-Z\s]', '', getDateText)[:-1].split('.')
     getDate = datetime(int(getDateText[0]), int(getDateText[1]), int(getDateText[2]))
@@ -85,55 +189,6 @@ def compareDate(getDateText,minus_date):
     getBrfoer4Day = getToday - timedelta(days=minus_date)
     
     return getDate > getBrfoer4Day
-    
-    
-
-def changeIp():
-    try:
-        os.system('adb server start')
-        client = AdbClient(host="127.0.0.1", port=5037)
-        device = client.devices()  # 디바이스 1개
-        ondevice = device[0]
-        ondevice.shell("input keyevent KEYCODE_POWER")
-        ondevice.shell("svc data disable")
-        ondevice.shell("settings put global airplane_mode_on 1")
-        ondevice.shell(
-            "am broadcast -a android.intent.action.AIRPLANE_MODE --ez state true")
-
-        ondevice.shell("svc data enable")
-        ondevice.shell("settings put global airplane_mode_on 0")
-        ondevice.shell(
-            "am broadcast -a android.intent.action.AIRPLANE_MODE --ez state false")
-        time.sleep(3)
-        while True:
-            try:
-                wait_float(0.5, 0.9)
-                getIp = requests.get("https://api.ip.pe.kr/json/").json()['ip']
-                if getIp is not None:
-                    break
-            except:
-                continue
-    except:
-
-        while True:
-            try:
-                wait_float(0.5, 0.9)
-                getIp = requests.get("https://api.ip.pe.kr/json/").json()['ip']
-                if getIp is not None:
-                    break
-            except:
-                continue
-    return getIp
-
-# def clickBackBtn(driver):
-#     preBtn = searchWaitElement('.left-header .Button.translucent', driver)
-#     for btn in preBtn:
-#         try:
-#             btn.click()
-#             wait_float(1.5,2.2)
-#             return
-#         except:
-#             pass
 
 def goToMain(driver,fore):
     setCount = 0
@@ -182,15 +237,11 @@ def showTeleMenu(driver):
                 break
         except:
             pass
-        
-        
-                
-        
-        
     return menuList
 
 
 def searchWaitElement(ele,driver):
+    focus_window('Telegram')
     while True:
         print(ele + ' 찾는중임!!!')
         try:
@@ -206,61 +257,60 @@ def searchWaitElement(ele,driver):
 
 
 
-def searchElement(ele,driver):
-    wait_float(0.3, 0.7)
-    re_count = 0
-    element = ""
+def wrongUserWork(driver,fore,setUserName):
+    goToMain(driver,fore)
     while True:
-        re_count += 1
-        if re_count % 5 == 0:
-            print(ele)
-            print("새로고침!!!!")
-            driver.refresh()
-            focus_window('chrome')
-            pg.press('F5')
-        elif element != "":
-            break
         try:
-            element = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, ele)))
+            wait_float(1.2,1.9)
+            addrWrapList = driver.find_elements(by=By.CSS_SELECTOR, value='#LeftColumn-main .Transition.zoom-fade>div')
+            if len(addrWrapList) < 2:
+                raise Exception('연락처를 선택 안함')
+            else:
+                break
         except:
             pass
         
-
-    selected_element = driver.find_elements(by=By.CSS_SELECTOR, value=ele)
-    wait_float(0.3, 0.7)
-    return selected_element
-
-
-
-def untilEleShow(clickEle, searchEle,driver):
-    while True:
         try:
-            clickEle.click()
-            time.sleep(1)
+            wait_float(1.2,1.9)
+            menuList = showTeleMenu(driver)
+            menuList[2].click()
         except:
-            pass
-        try:
-            btnEle = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR, searchEle)))
-            if btnEle is not None:
-                return
-        except:
+            wait_float(0.5,1.2)
+            pg.click(fore.left+500,fore.top+300)
+            wait_float(0.5,1.2)
             continue
-
-
-def untilEleGone(clickEle, searchEle,driver):
+        
     while True:
         try:
-            clickEle.click()
-            time.sleep(1)
+            getName = driver.find_element(by=By.CSS_SELECTOR, value='.MiddleHeader .ChatInfo .fullName')
+            getUserName = re.sub(r'[^0-9]', '', getName.text)
+            if getUserName == setUserName:
+                break
         except:
             pass
         
         try:
-            btnEle = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CSS_SELECTOR, searchEle)))
-            if btnEle is None:
-                return
+            addrWrapList = driver.find_elements(by=By.CSS_SELECTOR, value='#LeftColumn-main .Transition.zoom-fade>div')
+            addrList = addrWrapList[1].find_elements(by=By.CSS_SELECTOR, value='.ListItem')
+            for addr in addrList:
+                getUserName = re.sub(r'[^0-9]', '', addr.text)
+                if setUserName in getUserName:
+                    addr.click()
+                    break
         except:
-            return
+            pass
+        
+    print("연락처 삭제 준비, 삭제 아이콘 나오게")
+    searchAndClick('.icon-delete', '.tools button', driver)
+
+    # 연락처 삭제 모달창 띄우기
+    print("연락처 삭제 모달창 띄우기")
+    searchAndClick('.Modal', '.destructive', driver)
+        
+    # 연락처 삭제 완료
+    searchTextAndClick('회원 정보', '.Modal .confirm-dialog-button.default.danger.text', driver)
+    goToMain(driver,fore)
+
 
 
 def wait_float(start, end):
@@ -280,87 +330,7 @@ def exitApp(driver):
 def focus_window(winName):
     if winName == 'chkname':
         win_list = gw.getAllTitles()
-        pg.alert(text=f"{win_list}")
+        # pg.alert(text=f"{win_list}")
     # 윈도우 타이틀에 Chrome 이 포함된 모든 윈도우 수집, 리스트로 리턴
     win = gw.getWindowsWithTitle(winName)[0]
     win.activate()  # 윈도우 활성화
-
-
-BASE_DIR = Path(__file__).resolve().parent
-
-
-
-
-async def getEmptyArr(setNum, exName):
-    getArr = []
-    asyncio.gather(*[busyFunc(i, getArr, exName) for i in range(1, setNum)])
-    return getArr
-
-
-async def busyFunc(i, getArr, exName):
-    getTime = exName.cell(i, 4).value
-
-    try:
-        if getTime is None:
-            getTime = datetime.now().date()
-        if isinstance(getTime, datetime):
-            getTime = getTime.date()
-        compareTime = datetime.now() - timedelta(days=3)
-        if exName.cell(i, 4).value is None or getTime <= compareTime.date():
-            getArr.append(i)
-    except:
-        pass
-
-
-def getExLength(exName):
-    ExLength = 0
-    while True:
-        ExLength += 1
-        if exName.cell(ExLength, 2).value is None:
-            break
-    return ExLength
-
-
-def getUaNum():
-    with open("./etc/useragent/useragent_all.txt", "r") as f:
-        fArr = f.readlines()
-        fCount = len(fArr)
-        uaSet = random.randrange(0, fCount)
-    return uaSet
-
-def mainToCafe(driver):
-    shs_item = searchElement('.shs_item',driver)
-    for item in shs_item:
-        chkCafe = item.find_element(
-            by=By.CSS_SELECTOR, value='a').get_attribute('href')
-        if 'cafe' in chkCafe:
-            untilEleGone(item, '.shs_list')
-            break
-    
-    myCafeGo = searchElement('.mycafe .btn_cafe_more')
-    untilEleGone(myCafeGo[0], '.mycafe',driver)
-
-
-
-    myCafeList = searchElement('.list_cafe__favorites li',driver)
-    with open("./etc/cafe_info.txt", "r") as f:
-        getCafeNameList = f.readlines()
-        getCafeName = getCafeNameList[0]
-        getCafeName = getCafeName.replace(" ", "")
-    
-    for onCafe in myCafeList:
-        chkCafeTitle = onCafe.find_element(by=By.CSS_SELECTOR, value='.title').text
-        chkCafeTitle = chkCafeTitle.replace(" ", "")
-
-        if chkCafeTitle in getCafeName:
-            untilEleGone(onCafe, '.list_cafe__favorites')
-            break
-        
-    # 카페 진입 끝
-
-# 
-
-
-# subjectArr
-def list_chunk(lst, n):
-    return [lst[i:i+n] for i in range(0, len(lst), n)]
