@@ -60,7 +60,7 @@ def goScript(getDict):
     requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
     r = requests.post(webhook_url, data=json.dumps(data), headers={'Content-Type' : 'application/json'}, verify=False)
     wh_result = r.json()
-    
+
     if wh_result['get_status'] == 'no':
         pg.alert('인증에 실패하였습니다. 관리자에게 문의해주세요')
         sys.exit(0)
