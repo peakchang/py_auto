@@ -34,7 +34,8 @@ import requests
 import winsound as ws
 import glob
 import asyncio
-import socket
+
+import getmac
 import getpass
 
 import shutil
@@ -43,13 +44,34 @@ import winsound as sd
 
 import httpimport
 
-# url = "https://gist.githubusercontent.com/operatorequals/ee5049677e7bbc97af2941d1d3f04ace/raw/e55fa867d3fb350f70b2897bb415f410027dd7e4"
-url = "https://gist.githubusercontent.com/peakchang/3a555e969bc1608cb63e99bb6b5f7452/raw/c604530f293396e8fa1f3d8ac925eaa1b5cfb53f"
-
-
-
 def goScript(getDict):
-    with httpimport.remote_repo(url):
+    
+    try:
+        with open(f'./auth.txt', 'r', encoding='UTF8') as r:
+            get_auth = re.sub(r'[/s]', '', r.read())
+    except:
+        with open(f'./auth.txt', 'r') as r:
+            get_auth = re.sub(r'[/s]', '', r.read())
+    
+    get_mac = getmac.get_mac_address()
+    
+    webhook_url = "http://localhost:3060/telework/gethook"
+    data = {'get_auth' : get_auth, 'get_mac' : get_mac}
+    requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+    r = requests.post(webhook_url, data=json.dumps(data), headers={'Content-Type' : 'application/json'}, verify=False)
+    wh_result = r.json()
+    
+    if wh_result['get_status'] == 'no':
+        pg.alert('인증에 실패하였습니다. 관리자에게 문의해주세요')
+        sys.exit(0)
+    elif wh_result['get_status'] == 'retry':
+        pg.alert('다시 시도 해주세요')
+        sys.exit(0)
+    elif wh_result['get_status'] == 'ok':
+        func_url = wh_result['hidden_link']
+        
+        
+    with httpimport.remote_repo(func_url):
         import chk_tele
         
     # chk_tele.searchAndClick
@@ -850,7 +872,31 @@ def goScript(getDict):
     
 def authListChk():
     
-    with httpimport.remote_repo(url):
+    try:
+        with open(f'./auth.txt', 'r', encoding='UTF8') as r:
+            get_auth = re.sub(r'[/s]', '', r.read())
+    except:
+        with open(f'./auth.txt', 'r') as r:
+            get_auth = re.sub(r'[/s]', '', r.read())
+    
+    get_mac = getmac.get_mac_address()
+    
+    webhook_url = "http://localhost:3060/telework/gethook"
+    data = {'get_auth' : get_auth, 'get_mac' : get_mac}
+    requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+    r = requests.post(webhook_url, data=json.dumps(data), headers={'Content-Type' : 'application/json'}, verify=False)
+    wh_result = r.json()
+    
+    if wh_result['get_status'] == 'no':
+        pg.alert('인증에 실패하였습니다. 관리자에게 문의해주세요')
+        sys.exit(0)
+    elif wh_result['get_status'] == 'retry':
+        pg.alert('다시 시도 해주세요')
+        sys.exit(0)
+    elif wh_result['get_status'] == 'ok':
+        func_url = wh_result['hidden_link']
+        
+    with httpimport.remote_repo(func_url):
         import chk_tele
     
     pcUser = getpass.getuser()
