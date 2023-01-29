@@ -55,7 +55,7 @@ def goScript(getDict):
     
     get_mac = getmac.get_mac_address()
     
-    webhook_url = "http://localhost:3060/telework/gethook"
+    webhook_url = "https://adpeak.kr/telework/gethook"
     data = {'get_auth' : get_auth, 'get_mac' : get_mac}
     requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
     r = requests.post(webhook_url, data=json.dumps(data), headers={'Content-Type' : 'application/json'}, verify=False)
@@ -69,6 +69,9 @@ def goScript(getDict):
         sys.exit(0)
     elif wh_result['get_status'] == 'ok':
         func_url = wh_result['hidden_link']
+
+        
+    
         
         
     with httpimport.remote_repo(func_url):
@@ -171,18 +174,8 @@ def goScript(getDict):
                 
                 # 만약 현재 영어 버전일경우 한글 버전으로 변경!!
                 chk_tele.changeToKorean(driver, fore)
-                
-                
-                
-                
-                pg.alert('그룹 열고 대기!!! 그룹 툴 열면 성공!!!')
-                
-                print('그룹 툴 열기')
-                chk_tele.searchAndClick('.AvatarEditable', '.tools button', driver)
-                
-                pg.alert('어케 되었니?!?!?!?!?!')
-                
-                
+
+
                 if getDict['add_addr_val']:
                     # DB 카운트 ID값 미 기재된 라인 count 찾기!!
                     dbCount = 0
