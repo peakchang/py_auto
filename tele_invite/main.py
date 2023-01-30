@@ -42,7 +42,7 @@ frame0 = LabelFrame(root, text='연락처 추가 개수 / 접속 기간', padx=6
 frame0.pack(padx=10, pady=5)  # padx / pady 외부여백
 
 addAddrCount = ttk.Entry(frame0, width=20, textvariable=str)
-addAddrCount.insert(0, 17)
+addAddrCount.insert(0, 10)
 addAddrCount.pack()
 
 serchDay = ttk.Entry(frame0, width=20, textvariable=str)

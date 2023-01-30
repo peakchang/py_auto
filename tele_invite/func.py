@@ -97,7 +97,7 @@ def searchTextAndClick(compareText, clickEle, driver):
 
 def addAddr(driver,fore,addPhAddr,getPhNum):
     while True:
-        print('연락처 추가하기! 모달창 키고 번호 입력!')
+        # print('연락처 추가하기! 모달창 키고 번호 입력!')
         focus_window('Telegram')
         
         try:
@@ -193,7 +193,7 @@ def compareDate(getDateText,minus_date):
 def goToMain(driver,fore):
     setCount = 0
     while True:
-        print('메인으로!!!!!!')
+        # print('메인으로!!!!!!')
         wait_float(0.5,1.2)
         setCount += 1
         if setCount > 3:
@@ -243,7 +243,7 @@ def showTeleMenu(driver):
 def searchWaitElement(ele,driver):
     focus_window('Telegram')
     while True:
-        print(ele + ' 찾는중임!!!')
+        # print(ele + ' 찾는중임!!!')
         try:
             element = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, ele)))
             if element:
@@ -300,11 +300,11 @@ def wrongUserWork(driver,fore,setUserName):
         except:
             pass
         
-    print("연락처 삭제 준비, 삭제 아이콘 나오게")
+    # print("연락처 삭제 준비, 삭제 아이콘 나오게")
     searchAndClick('.icon-delete', '.tools button', driver)
 
     # 연락처 삭제 모달창 띄우기
-    print("연락처 삭제 모달창 띄우기")
+    # print("연락처 삭제 모달창 띄우기")
     searchAndClick('.Modal', '.destructive', driver)
         
     # 연락처 삭제 완료
