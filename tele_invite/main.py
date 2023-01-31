@@ -3,7 +3,7 @@ from ongo import *
 
 
 def th():
-    getDict = {'add_addr_val': addAddr.get(), 'join_group_val': joinGroup.get(),'add_addr_count': addAddrCount.get(),'serch_day': serchDay.get()}
+    getDict = {'add_addr_val': addAddr.get(), 'join_group_val': joinGroup.get(),'add_addr_count': addAddrCount.get(),'search_day': searchDay.get(),'max_addr_count': maxAddrCount.get(),'add_addr_only': addAddrOnly.get()}
     onth = threading.Thread(target=lambda: goScript(getDict))
     
     onth.daemon = True
@@ -23,34 +23,44 @@ def th3():
     onth.daemon = True
     onth.start()
 
-def th4():
-    getDict = {}
-    onth = threading.Thread(target=lambda: inviteManager())
+# def th4():
+#     getDict = {}
+#     onth = threading.Thread(target=lambda: inviteManager())
     
-    onth.daemon = True
-    onth.start()
+#     onth.daemon = True
+#     onth.start()
     
 
 
 # 윈도우 창 생성 및 버튼 화면 조절
 root = Tk()
 root.title("텔레그램 자동화")
-root.geometry("300x400+500+300")
+root.geometry("300x430+500+300")
 root.resizable(False, FALSE)
 
-frame0 = LabelFrame(root, text='연락처 추가 개수 / 접속 기간', padx=60, pady=10)  # padx / pady 내부여백
+frame0 = LabelFrame(root, text='연락처 추가 개수 / 접속 기간 / 최대 연락처', padx=60, pady=10)  # padx / pady 내부여백
 frame0.pack(padx=10, pady=5)  # padx / pady 외부여백
 
 addAddrCount = ttk.Entry(frame0, width=20, textvariable=str)
 addAddrCount.insert(0, 10)
 addAddrCount.pack()
 
-serchDay = ttk.Entry(frame0, width=20, textvariable=str)
-serchDay.insert(0, 4)
-serchDay.pack()
+searchDay = ttk.Entry(frame0, width=20, textvariable=str)
+searchDay.insert(0, 4)
+searchDay.pack()
+
+maxAddrCount = ttk.Entry(frame0, width=20, textvariable=str)
+maxAddrCount.insert(0, 6)
+maxAddrCount.pack()
 
 frame1 = LabelFrame(root, text='프로그램 시작', padx=60, pady=10)  # padx / pady 내부여백
 frame1.pack(padx=10, pady=5)  # padx / pady 외부여백
+
+
+addAddrOnly = IntVar()
+addAddrOnlyVal = Checkbutton(frame1,text="연락처 추가 ONLY",variable=addAddrOnly)
+addAddrOnlyVal.pack()
+
 
 addAddr = IntVar()
 addAddrVal = Checkbutton(frame1,text="연락처 추가",variable=addAddr)
@@ -77,8 +87,8 @@ authBtn.pack()
 delAuthBtn = Button(frame2, text='인증삭제', command=th3, padx=50)
 delAuthBtn.pack()
 
-invite = Button(frame2, text='관리자추가', command=th4, padx=50)
-invite.pack()
+# invite = Button(frame2, text='관리자추가', command=th4, padx=50)
+# invite.pack()
 
 # ********************************
 

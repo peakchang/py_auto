@@ -47,8 +47,16 @@ def changeToKorean(driver, fore):
     while True:
         menuList = showTeleMenu(driver)
         if '메시지' in menuList[0].text:
-            goToMain(driver, fore)
-            break
+            menuList[2].click()
+            wait_float(0.9,1.2)
+            try:
+                chatListWrap = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR, '#LeftColumn-main > .Transition > div')))
+                chatList = WebDriverWait(chatListWrap, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.chat-list')))
+                if chatList:
+                    goToMain(driver, fore)
+                    break
+            except:
+                return 'onerror'
         else:
             menuList[3].click()
             wait_float(0.5,0.9)
@@ -95,12 +103,13 @@ def searchTextAndClick(compareText, clickEle, driver):
         except:
             pass
 
-def addAddr(driver,fore,addPhAddr,getPhNum):
+def addAddr(driver,fore,getPhNum,maxCount):
     while True:
         # print('연락처 추가하기! 모달창 키고 번호 입력!')
         focus_window('Telegram')
         
         try:
+            # print('메뉴 열기')
             wait_float(1.2,1.9)
             menuList = showTeleMenu(driver)
             menuList[2].click()
@@ -111,10 +120,11 @@ def addAddr(driver,fore,addPhAddr,getPhNum):
             continue
         
         try:
+            # print(f'최대 {maxCount} 연락처 갯수 찾기')
             wait_float(0.9,1.2)
             addrWrapList = driver.find_elements(by=By.CSS_SELECTOR, value='#LeftColumn-main .Transition.zoom-fade>div')
             addrList = addrWrapList[1].find_elements(by=By.CSS_SELECTOR, value='.ListItem')
-            if len(addrList) >= 6:
+            if len(addrList) >= int(maxCount):
                 maxAddrFull = 'on'
                 return maxAddrFull
         except:
@@ -122,6 +132,7 @@ def addAddr(driver,fore,addPhAddr,getPhNum):
             
         
         try:
+            # print('초대 버튼 클릭')
             wait_float(0.9,1.5)
             addAddressBtn = driver.find_element(by=By.CSS_SELECTOR, value='.FloatingActionButton.revealed')
             wait_float(0.5,1.2)
@@ -133,10 +144,13 @@ def addAddr(driver,fore,addPhAddr,getPhNum):
             continue
         
         try:
+            # print('전화번호 입력 시작')
             wait_float(1.2,1.9)
             inputList = driver.find_elements(by=By.CSS_SELECTOR, value='.NewContactModal__new-contact-fieldset .form-control')
             inputList[0].click()
-            inputList[0].send_keys(addPhAddr)
+            inputList[0].send_keys('82')
+            wait_float(0.5,0.9)
+            inputList[0].send_keys(getPhNum[1:])
             wait_float(1.2,1.9)
             inputList[1].send_keys(getPhNum)
             wait_float(0.5,1.2)
@@ -149,10 +163,16 @@ def addAddr(driver,fore,addPhAddr,getPhNum):
 
 def changePhNum(getPhNum):
     getPhNum = re.sub(r'[^0-9]', '', str(getPhNum))
-    if getPhNum[0:1] != '0':
+    if getPhNum[0] != '0':
         getPhNum = f"0{getPhNum}"
-    addPhAddr = f"+82{getPhNum[1:]}"
-    return addPhAddr
+        
+    tempPhNum = ''
+    for idn, ph in enumerate(getPhNum):
+        tempPhNum = tempPhNum + ph
+        if idn == 2 or idn == 6:
+            tempPhNum = tempPhNum + '-'
+    getPhNum = tempPhNum
+    return getPhNum
 
 def searchAndClick(searchEle, clickEle, driver, addCode=0, addEle=''):
     while True:
@@ -257,7 +277,7 @@ def searchWaitElement(ele,driver):
 
 
 
-def wrongUserWork(driver,fore,setUserName):
+def wrongUserWork(driver,fore,setUserName,wrong=0):
     goToMain(driver,fore)
     while True:
         try:
@@ -299,17 +319,18 @@ def wrongUserWork(driver,fore,setUserName):
                     break
         except:
             pass
-        
-    # print("연락처 삭제 준비, 삭제 아이콘 나오게")
-    searchAndClick('.icon-delete', '.tools button', driver)
+    
+    if wrong == 0:
+        # print("연락처 삭제 준비, 삭제 아이콘 나오게")
+        searchAndClick('.icon-delete', '.tools button', driver)
 
-    # 연락처 삭제 모달창 띄우기
-    # print("연락처 삭제 모달창 띄우기")
-    searchAndClick('.Modal', '.destructive', driver)
-        
-    # 연락처 삭제 완료
-    searchTextAndClick('회원 정보', '.Modal .confirm-dialog-button.default.danger.text', driver)
-    goToMain(driver,fore)
+        # 연락처 삭제 모달창 띄우기
+        # print("연락처 삭제 모달창 띄우기")
+        searchAndClick('.Modal', '.destructive', driver)
+            
+        # 연락처 삭제 완료
+        searchTextAndClick('회원 정보', '.Modal .confirm-dialog-button.default.danger.text', driver)
+        goToMain(driver,fore)
 
 
 
