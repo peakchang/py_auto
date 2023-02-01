@@ -43,11 +43,11 @@ import winsound as sd
 import httpimport
 
 
-# from func import *
+from func import *
 
 def goScript(getDict):
     
-    
+    showLog = 1
     
     try:
         with open(f'./auth.txt', 'r', encoding='UTF8') as r:
@@ -63,7 +63,7 @@ def goScript(getDict):
     requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
     r = requests.post(webhook_url, data=json.dumps(data), headers={'Content-Type' : 'application/json'}, verify=False)
     wh_result = r.json()
-
+    
     if wh_result['get_status'] == 'no':
         pg.alert('인증에 실패하였습니다. 관리자에게 문의해주세요')
         sys.exit(0)
@@ -113,6 +113,9 @@ def goScript(getDict):
                 if authChk is None:
                     break
             
+            if showLog:
+                print(f'{authCount}번째 아이디 작업 시작')
+                
             endChk = authSheet.cell(authCount, 1).value
             if endChk is None:
                 pg.alert('작업이 완료 되었습니다.')
@@ -189,12 +192,15 @@ def goScript(getDict):
                 # 만약 현재 영어 버전일경우 한글 버전으로 변경!!
                 chkError = chk_tele.changeToKorean(driver, fore)
                 if chkError == 'onerror':
+                    authCount = authCount - 1
                     continue
                 
                 if getDict['add_addr_val'] or getDict['add_addr_only']:
                     
                     if getDict['add_addr_only']:
-                        chk_tele.goToMain(driver, fore)
+                        goToMain(driver, fore)
+                        if showLog:
+                            print('메인 가기 완료')
                         tempPhNum = '010-2190-2197'
                         notMb = ''
                         finChk = ''
@@ -231,6 +237,8 @@ def goScript(getDict):
                             while True:
                                 refreshCount += 1
                                 chk_tele.wait_float(1.2,1.9)
+                                if showLog:
+                                    print(refreshCount)
                                 if refreshCount // 3 == 0:
                                     if refreshCount // 6 == 0:
                                         chk_tele.wrongUserWork(driver,fore,setPhNum,1)
@@ -245,11 +253,12 @@ def goScript(getDict):
                             # 연락처 삭제 준비, 삭제 아이콘 나오게
                             chk_tele.searchAndClick('.icon-delete', '.tools button', driver, 1, '.MiddleHeader .fullName')
                             
-                            # 연락처 삭제 모달창 띄우기
-                            chk_tele.searchAndClick('.Modal', '.destructive', driver)
+                            chk_tele.openModalAndDelete('회원 정보',driver)
+                            # # 연락처 삭제 모달창 띄우기
+                            # chk_tele.searchAndClick('.Modal', '.destructive', driver)
                                 
-                            # 연락처 삭제 완료
-                            chk_tele.searchTextAndClick('회원 정보', '.Modal .confirm-dialog-button.default.danger.text', driver)
+                            # # 연락처 삭제 완료
+                            # chk_tele.searchTextAndClick('회원 정보', '.Modal .confirm-dialog-button.default.danger.text', driver)
                         
                     # DB 카운트 ID값 미 기재된 라인 count 찾기!!
                     dbCount = 0
@@ -260,7 +269,9 @@ def goScript(getDict):
                             break
                     # 준비 완료!! 사람 추가 반복하자!!
                     for i in range(int(getDict['add_addr_count'])):
-                        chk_tele.goToMain(driver, fore)
+                        goToMain(driver, fore)
+                        if showLog:
+                            print('메인 가기 완료')
                         notMb = ''
                         finChk = ''
                         dbLine = dbCount + i
@@ -273,8 +284,9 @@ def goScript(getDict):
 
                         dbSheet.cell(dbLine,1).value = profileNum
                         dbList.save('./db_list.xlsx')
-                        
-                        # 연락처 추가하기! 모달창 키고 번호 입력!
+                        if showLog:
+                            print('연락처 추가하기! 모달창 키고 번호 입력!')
+                            
                         maxAddrFull = ''
                         maxAddrFull = chk_tele.addAddr(driver,fore,getPhNum,getDict['max_addr_count'])
                         
@@ -286,7 +298,8 @@ def goScript(getDict):
                         
                         while True:
                             chk_tele.wait_float(2.7,3.5)
-                            # print('친추 완료! 모달창 떠있으면 가입한 회원 아님 / 안떠있으면 체크!')
+                            if showLog:
+                                print('친추 완료! 모달창 떠있으면 가입한 회원 아님 / 안떠있으면 체크!')
                             try:
                                 notMb = driver.find_element(by=By.CSS_SELECTOR, value='.NewContactModal__new-contact')
                                 if notMb:
@@ -308,12 +321,16 @@ def goScript(getDict):
                             pg.click(fore.left+500,fore.top+300)
                             continue
                         
+                        if showLog:
+                            print('아이디 문제 없음')
                         
                         refreshCount = 0
                         setPhNum = re.sub(r'[^0-9]', '', str(getPhNum))
                         while True:
                             refreshCount += 1
                             chk_tele.wait_float(1.2,1.9)
+                            if showLog:
+                                print(refreshCount)
                             if refreshCount // 3 == 0:
                                 if refreshCount // 6 == 0:
                                     chk_tele.wrongUserWork(driver,fore,setPhNum,1)
@@ -334,13 +351,15 @@ def goScript(getDict):
                                 if getDict['add_addr_only']:
                                     # 연락처 삭제 준비, 삭제 아이콘 나오게
                                     chk_tele.searchAndClick('.icon-delete', '.tools button', driver, 1, '.MiddleHeader .fullName')
-                                
-                                    # 연락처 삭제 모달창 띄우기
-                                    chk_tele.searchAndClick('.Modal', '.destructive', driver)
                                     
-                                    # 연락처 삭제 완료
-                                    chk_tele.searchTextAndClick('회원 정보', '.Modal .confirm-dialog-button.default.danger.text', driver)
-                                continue
+                                    chk_tele.openModalAndDelete('회원 정보',driver)
+                                
+                                    # # 연락처 삭제 모달창 띄우기
+                                    # chk_tele.searchAndClick('.Modal', '.destructive', driver)
+                                    
+                                    # # 연락처 삭제 완료
+                                    # chk_tele.searchTextAndClick('회원 정보', '.Modal .confirm-dialog-button.default.danger.text', driver)
+                                    continue
                         
                         oldUser = ''
                         if finChk == '':
@@ -364,12 +383,13 @@ def goScript(getDict):
                                 if getDict['add_addr_only']:
                                     # 연락처 삭제 준비, 삭제 아이콘 나오게
                                     chk_tele.searchAndClick('.icon-delete', '.tools button', driver, 1, '.MiddleHeader .fullName')
-                                
-                                    # 연락처 삭제 모달창 띄우기
-                                    chk_tele.searchAndClick('.Modal', '.destructive', driver)
+
+                                    chk_tele.openModalAndDelete('회원 정보',driver)
+                                    # # 연락처 삭제 모달창 띄우기
+                                    # chk_tele.searchAndClick('.Modal', '.destructive', driver)
                                     
-                                    # 연락처 삭제 완료
-                                    chk_tele.searchTextAndClick('회원 정보', '.Modal .confirm-dialog-button.default.danger.text', driver)
+                                    # # 연락처 삭제 완료
+                                    # chk_tele.searchTextAndClick('회원 정보', '.Modal .confirm-dialog-button.default.danger.text', driver)
                             else:
                                 dbSheet.cell(dbLine,6).value = 'V'
                                 dbList.save('./db_list.xlsx')
@@ -377,11 +397,13 @@ def goScript(getDict):
                                 # 연락처 삭제 준비, 삭제 아이콘 나오게
                                 chk_tele.searchAndClick('.icon-delete', '.tools button', driver, 1, '.MiddleHeader .fullName')
                                 
-                                # 연락처 삭제 모달창 띄우기
-                                chk_tele.searchAndClick('.Modal', '.destructive', driver)
+                                chk_tele.openModalAndDelete('회원 정보',driver)
+                                
+                                # # 연락처 삭제 모달창 띄우기
+                                # chk_tele.searchAndClick('.Modal', '.destructive', driver)
                                     
-                                # 연락처 삭제 완료
-                                chk_tele.searchTextAndClick('회원 정보', '.Modal .confirm-dialog-button.default.danger.text', driver)
+                                # # 연락처 삭제 완료
+                                # chk_tele.searchTextAndClick('회원 정보', '.Modal .confirm-dialog-button.default.danger.text', driver)
                                     
                 if not getDict['join_group_val'] or getDict['add_addr_only']:
                     authSheet.cell(authCount, 6).value = f"{todayStr} 작업 완료"
@@ -389,91 +411,11 @@ def goScript(getDict):
                     driver.quit()
                     continue
                 
-                # if getDict['add_addr_only']:
-                #     chkCount = 0
-                #     normalId = ''
-                #     while True:
-                #         chkCount += 1
-                #         chkDbNotTeleId = dbSheet.cell(chkCount,1).value
-                #         try:
-                #             if chkDbNotTeleId is None:
-                #                 break
-                #             if int(chkDbNotTeleId) == int(profileNum):
-                #                 if dbSheet.cell(chkCount,6).value is not None or dbSheet.cell(chkCount,7).value is not None:
-                #                     normalId = 'on'
-                #                     break
-                #         except:
-                #             pass
-                            
-                            
-                #     if normalId == '':
-                #         tempPhNum = '010-2190-2197'
-                #         chk_tele.addAddr(driver,fore,tempPhNum,999999)
-                #         while True:
-                #             chk_tele.wait_float(2.7,3.5)
-                #             # print('친추 완료! 모달창 떠있으면 가입한 회원 아님 / 안떠있으면 체크!')
-                #             try:
-                #                 notMb = driver.find_element(by=By.CSS_SELECTOR, value='.NewContactModal__new-contact')
-                #                 if notMb:
-                #                     break
-                #             except:
-                #                 pass
-                            
-                #             try:
-                #                 findMb = driver.find_element(by=By.CSS_SELECTOR, value='.MiddleHeader')
-                #                 if findMb:
-                #                     break
-                #             except:
-                #                 pass
-                            
-                #         if notMb:
-                #             chk_tele.wait_float(1.2,1.9)
-                #             authSheet.cell(authCount, 6).value = f"연락처 추가 기능 짤림"
-                #             authList.save('./auth_list.xlsx')
-                #             driver.quit()
-                #             pg.click(fore.left+500,fore.top+300)
-                #             continue
-                        
-                #         else:
-                #             refreshCount = 0
-                #             setPhNum = re.sub(r'[^0-9]', '', str(tempPhNum))
-                #             while True:
-                #                 refreshCount += 1
-                #                 chk_tele.wait_float(1.2,1.9)
-                #                 if refreshCount // 3 == 0:
-                #                     if refreshCount // 6 == 0:
-                #                         chk_tele.wrongUserWork(driver,fore,setPhNum,1)
-                #                     else:
-                #                         pg.press('F5')
-                                        
-                #                 userStatus = chk_tele.searchWaitElement('.MiddleHeader .user-status', driver)
-                #                 userStatusText = re.sub(r'[\s]', '', userStatus[0].text)
-                #                 if userStatusText:
-                #                     break
-                                
-                #             # 연락처 삭제 준비, 삭제 아이콘 나오게
-                #             chk_tele.searchAndClick('.icon-delete', '.tools button', driver, 1, '.MiddleHeader .fullName')
-                            
-                #             # 연락처 삭제 모달창 띄우기
-                #             chk_tele.searchAndClick('.Modal', '.destructive', driver)
-                                
-                #             # 연락처 삭제 완료
-                #             chk_tele.searchTextAndClick('회원 정보', '.Modal .confirm-dialog-button.default.danger.text', driver)
-                #             authSheet.cell(authCount, 6).value = f"{todayStr} 작업 완료"
-                #             authList.save('./auth_list.xlsx')
-                #             driver.quit()
-                #             continue
-                        
-                        
-                            
-                        
-                    
-                    
-                                
+                   
                 ################## 아이디 추가 작업 끝 그룹에 추가 시작!!
                 
                 if getDict['join_group_val'] and not getDict['add_addr_only']:
-                    chk_tele.goToMain(driver, fore)
+                    goToMain(driver, fore)
                     getChatRoomName = authSheet.cell(authCount,4).value.strip()
                     saveGroupType = ""
                     
@@ -488,7 +430,8 @@ def goScript(getDict):
                         noMatchCount = 0
                         while True:
                             noMatchCount += 1
-                            # print("그룹 클릭 (그룹명 찾아서 클릭 / 채팅방 클릭)")
+                            if showLog:
+                                print("그룹 클릭 (그룹명 찾아서 클릭 / 채팅방 클릭)")
                             chk_tele.wait_float(1.5,2.2)
                             try:
                                 nowChatRoom = driver.find_element(by=By.CSS_SELECTOR, value='.MiddleHeader .ChatInfo .fullName')
@@ -518,13 +461,14 @@ def goScript(getDict):
                         
                         # 상단 그룹이름 클릭(우측 그룹 정보 나올때까지)
                         while True:
-                            # print('그룹 관리 열기')
+                            if showLog:
+                                print('그룹 관리 열기')
                             try:
                                 chk_tele.wait_float(0.9,1.2)
-                                ChatInfo = driver.find_element(by=By.CSS_SELECTOR, value='.chat-info-wrapper .ChatInfo')
-                                ChatInfo.click()
-
-                                
+                                groupInfo = driver.find_element(by=By.CSS_SELECTOR, value='.chat-info-wrapper .ChatInfo')
+                                groupStatus = groupInfo.find_element(by=By.CSS_SELECTOR, value='.group-status')
+                                preGroupCount = re.sub(r'[^0-9]', '', groupStatus.text)
+                                groupInfo.click()
                             except:
                                 pass
                             
@@ -549,7 +493,6 @@ def goScript(getDict):
                             # 그룹 > 수정 > 관리자 클릭
                             while True:
                                 # print("그룹 > 수정 > 관리자 클릭")
-                                
                                 try:
                                     chk_tele.wait_float(0.9,1.2)
                                     tools = driver.find_elements(by=By.CSS_SELECTOR, value='.tools button')
@@ -715,7 +658,6 @@ def goScript(getDict):
                             # 관리자 권한 삭제 모달창 띄우기
                             chk_tele.searchAndClick('.Modal','.destructive',driver)
                             
-                            
                             # 모달창에서 관리자 권한 삭제 완료
                             chk_tele.searchTextAndClick('관리자', '.Modal .confirm-dialog-button.default.danger.text', driver)
                             
@@ -725,37 +667,37 @@ def goScript(getDict):
                             # 그룹 > 수정 > 관리자 클릭
                             chk_tele.searchAndClick('.AddChatMembers-inner .form-control', '#RightColumn .FloatingActionButton.revealed', driver)
                             
-                            
                             findUser = ''
                             wrongUser = ''
                             while True:
-                                
-                                # print("그룹초대 > 010 검색 > 010 번호 가진사람 클릭")
+                                if showLog:
+                                    print("그룹 초대하기")
                                 chk_tele.wait_float(0.9,1.2)
-                                # 회원 없으면 걍 종료
-                                try:
-                                    nothingFound = driver.find_element(by=By.CSS_SELECTOR, value='.AddChatMembers-inner .no-results')
-                                    if nothingFound:
-                                        findUser = ''
-                                        break
-                                except:
-                                    pass
-                                
                                 
                                 # 초대 거절 설정해놓은 회원 거르기
                                 try:
                                     refuseUserChkModal = driver.find_element(by=By.CSS_SELECTOR, value='.modal-title')
-                                    if refuseUserChkModal or 'wrong' in refuseUserChkModal.text:
+                                    if refuseUserChkModal and 'wrong' in refuseUserChkModal.text:
                                         chk_tele.wait_float(0.3,0.9)
                                         while True:
                                             wrongUser = 'on'
                                             try:
                                                 chk_tele.wait_float(0.3,0.9)
                                                 pg.click(fore.left+500,fore.top+300)
+                                                chk_tele.wait_float(0.5,0.9)
                                                 refuseUserChkModal = driver.find_element(by=By.CSS_SELECTOR, value='.modal-title')
                                                 refuseUserChkModal.click()
                                             except:
                                                 break
+                                except:
+                                    pass
+                                
+                                # 회원 없으면 걍 종료
+                                try:
+                                    nothingFound = driver.find_element(by=By.CSS_SELECTOR, value='.AddChatMembers-inner .no-results')
+                                    if nothingFound:
+                                        findUser = ''
+                                        break
                                 except:
                                     pass
                                 
@@ -767,27 +709,18 @@ def goScript(getDict):
                                 except:
                                     pass
                                 
+                                
+                                
                                 try:
                                     chk_tele.wait_float(0.9,1.2)
-                                    
-                                    for i in range(5):
-                                        searchUserNameList = driver.find_elements(by=By.CSS_SELECTOR, value='.AddChatMembers-inner .ListItem')
-                                        for userItem in searchUserNameList:
-                                            userName = userItem.find_element(by=By.CSS_SELECTOR, value='.fullName')
-                                            if userName.text[0:3] == '010' or userName.text[0:2] == '10':
-                                                userItem.click()
-                                                setUserName = re.sub(r'[^0-9]', '', userName.text)
-                                                findUser = 'on'
-                                                break
-                                        if findUser == 'on':
+                                    searchUserNameList = driver.find_elements(by=By.CSS_SELECTOR, value='.AddChatMembers-inner .ListItem')
+                                    for userItem in searchUserNameList:
+                                        userName = userItem.find_element(by=By.CSS_SELECTOR, value='.fullName')
+                                        if userName.text[0:3] == '010' or userName.text[0:2] == '10':
+                                            userItem.click()
+                                            setUserName = re.sub(r'[^0-9]', '', userName.text)
+                                            findUser = 'on'
                                             break
-                                        else:
-                                            pg.moveTo(fore.right - 150, fore.bottom - 300)
-                                            pg.scroll(-1000)
-                                    
-                                    # 이미 초대된 멤버일 경우, 검색해도 안나옴~ 걍 멈추고 continue
-                                    if findUser == '':
-                                        break
                                 except:
                                     pass
                                 
@@ -801,9 +734,11 @@ def goScript(getDict):
                                     pass
                             
                             if findUser == '':
-                                print('더이상 찾을 회원이 없음')
+                                if showLog:
+                                    print('더이상 찾을 회원이 없음')
                                 while True:
-                                    # print("그룹 설정 메인 갈때까지 뒤로가기 클릭")
+                                    if showLog:
+                                        print("그룹 설정 메인 갈때까지 뒤로가기 클릭")
                                     chk_tele.wait_float(0.5,0.9)
                                     try:
                                         closeBtn = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.close-button')))
@@ -818,6 +753,8 @@ def goScript(getDict):
                                         pass
                                     
                                 while True:
+                                    if showLog:
+                                        print('연락처로 이동')
                                     try:
                                         chk_tele.wait_float(1.2,1.9)
                                         chatListWrap = driver.find_elements(by=By.CSS_SELECTOR, value='#LeftColumn-main > .Transition > div')
@@ -836,6 +773,8 @@ def goScript(getDict):
                                         chk_tele.wait_float(0.5,1.2)
                                 
                                 while True:
+                                    if showLog:
+                                        print('연락처에 있는 유저 전부 삭제')
                                     try:
                                         chk_tele.wait_float(1.2,1.9)
                                         chatListWrap = driver.find_elements(by=By.CSS_SELECTOR, value='#LeftColumn-main > .Transition > div')
@@ -871,11 +810,12 @@ def goScript(getDict):
                                             # 연락처 삭제 준비, 삭제 아이콘 나오게
                                             chk_tele.searchAndClick('.icon-delete', '.tools button', driver, 1, '.MiddleHeader .fullName')
                                             
-                                            # 연락처 삭제 모달창 띄우기
-                                            chk_tele.searchAndClick('.Modal', '.destructive', driver)
+                                            chk_tele.openModalAndDelete('회원 정보',driver)
+                                            # # 연락처 삭제 모달창 띄우기
+                                            # chk_tele.searchAndClick('.Modal', '.destructive', driver)
                                                 
-                                            # 연락처 삭제 완료
-                                            chk_tele.searchTextAndClick('회원 정보', '.Modal .confirm-dialog-button.default.danger.text', driver)
+                                            # # 연락처 삭제 완료
+                                            # chk_tele.searchTextAndClick('회원 정보', '.Modal .confirm-dialog-button.default.danger.text', driver)
                                         
                                     except:
                                         pass
@@ -896,25 +836,67 @@ def goScript(getDict):
                                 dbList.save('./db_list.xlsx')
                                 continue
                             
+                        # while True:
+                        #     if showLog:
+                        #         print("그룹 설정 메인 갈때까지 뒤로가기 클릭")
+                        #     chk_tele.wait_float(0.5,0.9)
+                        #     try:
+                        #         closeBtn = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.close-button')))
+                        #         getBtnText = closeBtn.get_attribute('title')
+                        #         if getBtnText == '닫기':
+                        #             memberList = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.content.members-list')))
+                        #             if memberList:
+                        #                 break
+                        #         else:
+                        #             closeBtn.click()
+                        #     except:
+                        #         pass
+                        
+                        chkGroupCount = 0
                         while True:
-                            # print("그룹 설정 메인 갈때까지 뒤로가기 클릭")
-                            chk_tele.wait_float(0.5,0.9)
+                            pg.press('F5')
+                            chkGroupCount += 1
+                            if chkGroupCount > 6:
+                                if showLog:
+                                    print('초대 짤림 유력')
+                                    authSheet.cell(authCount, 7).value = f"초대 짤림 체크"
+                                    authList.save('./auth_list.xlsx')
+                                break
+                            if showLog:
+                                print("카운트가 올라갔으면 정상적으로 처리됨")
+                            
+                            
                             try:
-                                closeBtn = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.close-button')))
-                                getBtnText = closeBtn.get_attribute('title')
-                                if getBtnText == '닫기':
-                                    memberList = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.content.members-list')))
-                                    if memberList:
-                                        break
-                                else:
-                                    closeBtn.click()
+                                chk_tele.wait_float(1.2,1.9)
+                                groupInfo = driver.find_element(by=By.CSS_SELECTOR, value='.chat-info-wrapper .ChatInfo')
+                                groupStatus = groupInfo.find_element(by=By.CSS_SELECTOR, value='.group-status')
+                                nowGroupCount = re.sub(r'[^0-9]', '', groupStatus.text)
+                                if nowGroupCount:
+                                    groupStatus.click()
+                                break
                             except:
                                 pass
+                            
+                            if nowGroupCount == preGroupCount:
+                                continue
+                            
                         
-                        # 연락처 삭제 준비, 회원 클릭 (헤더에 "회원" 이라고 나타나게)
+                        if nowGroupCount == preGroupCount:
+                            doNotInvite = 'on'
+                            if showLog:
+                                print('카운트 변화 없음')
+                        else:
+                            if showLog:
+                                print('카운트 정상적으로 올라감')
+                            
+                            
+                        
                         getSearchMember = ''
                         while True:
-                            # print("연락처 삭제 준비, 회원 클릭 (헤더에 회원 이라고 나타나게)")
+                            if showLog:
+                                print("연락처 삭제 준비, 회원 클릭 (헤더에 회원 이라고 나타나게)")
+                            
+                            pg.press('F5')
                             
                             try:
                                 chk_tele.wait_float(1.2,1.9)
@@ -957,8 +939,7 @@ def goScript(getDict):
                                     break
                             except:
                                 pass
-                        
-                        
+
                         # 여기가 난제!!!!!!!!!!!!! ★★★★★★★★★★★★★★★★★
                         # if getSearchMember == '':
                         #     authSheet.cell(authCount, 6).value = f"초대 기능 짤림"
@@ -968,11 +949,7 @@ def goScript(getDict):
                         # 연락처 삭제 준비, 삭제 아이콘 나오게
                         chk_tele.searchAndClick('.icon-delete', '.tools button', driver)
                         
-                        # 연락처 삭제 모달창 띄우기
-                        chk_tele.searchAndClick('.Modal', '.destructive', driver)
-                            
-                        # 연락처 삭제 완료
-                        chk_tele.searchTextAndClick('회원 정보', '.Modal .confirm-dialog-button.default.danger.text', driver)
+                        chk_tele.openModalAndDelete('회원 정보',driver)
                         
                         
                         # 엑셀에 삭제된 연락처 진짜 이름 추가
@@ -1007,12 +984,10 @@ def goScript(getDict):
                                     dbList.save('./db_list.xlsx')
                                     break
                             except Exception as e:
-                                print(e)
-                                pg.alert('삭제중 에러발생! 현재 화면 캡쳐해서 관리자에게 문의 주세요!')
+                                if showLog:
+                                    print(e)
+                                # pg.alert('삭제중 에러발생! 현재 화면 캡쳐해서 관리자에게 문의 주세요!')
                                 pass
-                            
-                            
-                    pg.alert('일단 정상인지 체크 한번 하자!!!!!!!!!!!!')    
                         
                 
                 

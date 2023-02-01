@@ -43,6 +43,8 @@ import winsound as sd
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>함수 시작염
 
 
+showLog = 1
+
 def changeToKorean(driver, fore):
     while True:
         menuList = showTeleMenu(driver)
@@ -109,7 +111,8 @@ def addAddr(driver,fore,getPhNum,maxCount):
         focus_window('Telegram')
         
         try:
-            # print('메뉴 열기')
+            if showLog:
+                print('메뉴 열기')
             wait_float(1.2,1.9)
             menuList = showTeleMenu(driver)
             menuList[2].click()
@@ -120,7 +123,8 @@ def addAddr(driver,fore,getPhNum,maxCount):
             continue
         
         try:
-            # print(f'최대 {maxCount} 연락처 갯수 찾기')
+            if showLog:
+                print(f'최대 {maxCount} 연락처 갯수 찾기')
             wait_float(0.9,1.2)
             addrWrapList = driver.find_elements(by=By.CSS_SELECTOR, value='#LeftColumn-main .Transition.zoom-fade>div')
             addrList = addrWrapList[1].find_elements(by=By.CSS_SELECTOR, value='.ListItem')
@@ -132,7 +136,8 @@ def addAddr(driver,fore,getPhNum,maxCount):
             
         
         try:
-            # print('초대 버튼 클릭')
+            if showLog:
+                print('초대 버튼 클릭')
             wait_float(0.9,1.5)
             addAddressBtn = driver.find_element(by=By.CSS_SELECTOR, value='.FloatingActionButton.revealed')
             wait_float(0.5,1.2)
@@ -144,7 +149,8 @@ def addAddr(driver,fore,getPhNum,maxCount):
             continue
         
         try:
-            # print('전화번호 입력 시작')
+            if showLog:
+                print('전화번호 입력 시작')
             wait_float(1.2,1.9)
             inputList = driver.find_elements(by=By.CSS_SELECTOR, value='.NewContactModal__new-contact-fieldset .form-control')
             inputList[0].click()
@@ -174,7 +180,54 @@ def changePhNum(getPhNum):
     getPhNum = tempPhNum
     return getPhNum
 
+
+def openModalAndDelete(compareText,driver):
+    while True:
+        if showLog:
+            print('삭제중.......')
+        
+        try:
+            wait_float(0.9,1.5)
+            click_ele = driver.find_elements(by=By.CSS_SELECTOR, value='.destructive')
+            click_ele[0].click()
+            if showLog:
+                print('연락처 삭제 클릭 완료')
+        except:
+            pass
+        
+        try:
+            wait_float(0.9,1.5)
+            click_ele = driver.find_elements(by=By.CSS_SELECTOR, value='.confirm-dialog-button.danger')
+            click_ele[0].click()
+            
+            if showLog:
+                print('모달 내 연락처 삭제 클릭 완료')
+        except:
+            pass
+        
+        try:
+            wait_float(0.9,1.5)
+            click_ele = driver.find_elements(by=By.CSS_SELECTOR, value='.back-button')
+            click_ele[0].click()
+            
+            if showLog:
+                print('백버튼이 생기면 클릭')
+        except:
+            pass
+        
+        try:
+            wait_float(0.9,1.5)
+            manageText = driver.find_element(by=By.CSS_SELECTOR, value='.RightHeader .Transition__slide--active')
+            if manageText.text == compareText:
+                if showLog:
+                    print('텍스트 검증 완료 삭제 끝')
+                break
+        except:
+            pass
+
 def searchAndClick(searchEle, clickEle, driver, addCode=0, addEle=''):
+    if showLog:
+        print(f'{clickEle}를 클릭해서 {searchEle}가 나오면 끝')
     while True:
         try:
             wait_float(0.9,1.5)
@@ -213,20 +266,24 @@ def compareDate(getDateText,minus_date):
 def goToMain(driver,fore):
     setCount = 0
     while True:
-        # print('메인으로!!!!!!')
-        wait_float(0.5,1.2)
+        if showLog:
+            print('메인으로!!!!!!')
+        
         setCount += 1
         if setCount > 3:
-            pg.click(fore.left+500,fore.top+300)
-            wait_float(1.2,2.2)
+            if showLog:
+                print('아직 못찾음 새로고침!!')
+            focus_window('Telegram')
+            pg.press('F5')
+            
             
         try:
+            wait_float(1.2,2.2)
             chkSuccessMain = driver.find_element(by=By.CSS_SELECTOR, value='.LeftMainHeader .Button.translucent')
             chkAttr = chkSuccessMain.get_attribute('title')
-            
             if "메뉴" in chkAttr:
-                focus_window('Telegram')
-                pg.press('F5')
+                if showLog:
+                    print('찾았다~~~~')
                 return
         except:
             pass
@@ -263,7 +320,8 @@ def showTeleMenu(driver):
 def searchWaitElement(ele,driver):
     focus_window('Telegram')
     while True:
-        # print(ele + ' 찾는중임!!!')
+        if showLog:
+            print(ele + ' 찾는중임!!!')
         try:
             element = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CSS_SELECTOR, ele)))
             if element:
@@ -323,13 +381,15 @@ def wrongUserWork(driver,fore,setUserName,wrong=0):
     if wrong == 0:
         # print("연락처 삭제 준비, 삭제 아이콘 나오게")
         searchAndClick('.icon-delete', '.tools button', driver)
+        
+        openModalAndDelete('회원 정보',driver)
 
         # 연락처 삭제 모달창 띄우기
         # print("연락처 삭제 모달창 띄우기")
-        searchAndClick('.Modal', '.destructive', driver)
+        # searchAndClick('.Modal', '.destructive', driver)
             
-        # 연락처 삭제 완료
-        searchTextAndClick('회원 정보', '.Modal .confirm-dialog-button.default.danger.text', driver)
+        # # 연락처 삭제 완료
+        # searchTextAndClick('회원 정보', '.Modal .confirm-dialog-button.default.danger.text', driver)
         goToMain(driver,fore)
 
 

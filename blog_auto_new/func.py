@@ -253,6 +253,8 @@ def writeBlog(driver,goChk):
                 getUrl = searchElement('._transPosition',driver)
                 getUrl[0].click()
                 wait_float(1.5,2.5)
+                pg.press('enter')
+                wait_float(0.9,1.2)
             except:
                 pass
             
