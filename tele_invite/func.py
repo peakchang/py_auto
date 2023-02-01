@@ -106,23 +106,36 @@ def searchTextAndClick(compareText, clickEle, driver):
             pass
 
 def addAddr(driver,fore,getPhNum,maxCount):
+    
+    loopLoadingCount = 0
     while True:
         # print('연락처 추가하기! 모달창 키고 번호 입력!')
         focus_window('Telegram')
         
+        loopLoadingCount += 1
+        if loopLoadingCount > 3:
+            while True:
+                wait_float(0.9,1.5)
+                pg.press('F12')
+                wait_float(0.9,1.5)
+                onBody = driver.find_element(by=By.CSS_SELECTOR, value='.is-pointer-env')
+                getWindowSize = onBody.size
+                if int(getWindowSize['width']) > 1500:
+                    loopLoadingCount = 1
+                    break
+        
         try:
+            wait_float(0.5,0.9)
             if showLog:
                 print('메뉴 열기')
             wait_float(1.2,1.9)
             menuList = showTeleMenu(driver)
             menuList[2].click()
         except:
-            wait_float(0.5,1.2)
-            pg.click(fore.left+500,fore.top+300)
-            wait_float(0.5,1.2)
-            continue
+            pass
         
         try:
+            wait_float(0.5,0.9)
             if showLog:
                 print(f'최대 {maxCount} 연락처 갯수 찾기')
             wait_float(0.9,1.2)
@@ -136,6 +149,7 @@ def addAddr(driver,fore,getPhNum,maxCount):
             
         
         try:
+            wait_float(0.5,0.9)
             if showLog:
                 print('초대 버튼 클릭')
             wait_float(0.9,1.5)
@@ -149,6 +163,7 @@ def addAddr(driver,fore,getPhNum,maxCount):
             continue
         
         try:
+            wait_float(0.5,0.9)
             if showLog:
                 print('전화번호 입력 시작')
             wait_float(1.2,1.9)
@@ -182,21 +197,35 @@ def changePhNum(getPhNum):
 
 
 def openModalAndDelete(compareText,driver):
+    
+    errCount = 0
     while True:
+        errCount += 1
+        if errCount > 5:
+            errCount = 1
+            try:
+                wait_float(0.9,1.5)
+                click_ele = driver.find_elements(by=By.CSS_SELECTOR, value='.back-button')
+                click_ele[0].click()
+                if showLog:
+                    print('백버튼이 생기면 클릭')
+            except:
+                pass
+            
         if showLog:
             print('삭제중.......')
         
         try:
-            wait_float(0.9,1.5)
+            wait_float(1.2,1.9)
             click_ele = driver.find_elements(by=By.CSS_SELECTOR, value='.destructive')
             click_ele[0].click()
             if showLog:
-                print('연락처 삭제 클릭 완료')
+                print('연락처 삭제 버튼 클릭 (모달 띄우기)')
         except:
             pass
         
         try:
-            wait_float(0.9,1.5)
+            wait_float(1.2,1.9)
             click_ele = driver.find_elements(by=By.CSS_SELECTOR, value='.confirm-dialog-button.danger')
             click_ele[0].click()
             
@@ -206,17 +235,7 @@ def openModalAndDelete(compareText,driver):
             pass
         
         try:
-            wait_float(0.9,1.5)
-            click_ele = driver.find_elements(by=By.CSS_SELECTOR, value='.back-button')
-            click_ele[0].click()
-            
-            if showLog:
-                print('백버튼이 생기면 클릭')
-        except:
-            pass
-        
-        try:
-            wait_float(0.9,1.5)
+            wait_float(1.5,2.2)
             manageText = driver.find_element(by=By.CSS_SELECTOR, value='.RightHeader .Transition__slide--active')
             if manageText.text == compareText:
                 if showLog:
@@ -283,12 +302,14 @@ def goToMain(driver,fore):
             chkAttr = chkSuccessMain.get_attribute('title')
             if "메뉴" in chkAttr:
                 if showLog:
-                    print('찾았다~~~~')
+                    print('햄버거 찾았다~~~~ 끝내기')
                 return
         except:
             pass
         
         try:
+            if showLog:
+                print('뒤로가기 클릭')
             backBtn = driver.find_element(by=By.CSS_SELECTOR, value='.LeftMainHeader .Button.translucent')
             backBtn.click()
         except:

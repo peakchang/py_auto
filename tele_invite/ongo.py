@@ -1,4 +1,3 @@
-
 import random
 import threading
 import time
@@ -43,11 +42,17 @@ import winsound as sd
 import httpimport
 
 
-from func import *
 
 def goScript(getDict):
     
     showLog = 1
+    showAlert = 0
+    
+    if showAlert:
+        pg.alert('보자보자')
+
+    
+    
     
     try:
         with open(f'./auth.txt', 'r', encoding='UTF8') as r:
@@ -75,12 +80,7 @@ def goScript(getDict):
 
     with httpimport.remote_repo(func_url):
         import chk_tele
-        
-    # chk_tele.searchAndClick
     
-    # # 
-    # a = FourCal()
-    # a.setdata(2,4))
     
     pg.FAILSAFE = False
     pg.alert('시작합니당')
@@ -96,7 +96,6 @@ def goScript(getDict):
         
     noMoreDb = ''
     authCount = 0
-    
     allCount = 0
     while True:
         allCount += 1
@@ -152,6 +151,9 @@ def goScript(getDict):
                 driver.set_window_size(1600, 800)
                 driver.set_window_position(0,0)
                 
+                if showLog:
+                    print('텔레그램 접속')
+                
                 
                 
                 fore = pg.getActiveWindow()
@@ -162,10 +164,19 @@ def goScript(getDict):
                 
                 chk_tele.wait_float(2.5,3.2)
                 
-                # 아이디가 짤렸는지 안짤렸는디 최초 검증!!
+                
+                    
                 notAuth = ''
                 okAuth = ''
+                
+                errCount = 0
                 while True:
+                    errCount += 1
+                    if errCount > 5:
+                        errCount = 0
+                        pg.press('F5')
+                    if showLog:
+                        print('아이디가 짤렸는지 안짤렸는디 최초 검증!!')
                     try:
                         okAuth = driver.find_element(by=By.CSS_SELECTOR, value='#MiddleColumn')
                         if okAuth:
@@ -179,7 +190,9 @@ def goScript(getDict):
                             break
                     except:
                         pass
-                    
+                
+                if showLog:
+                    print(f'okAuth : {okAuth} 인증 정상!! // notAuth : {notAuth} 인증 실패!!')
                     
                 if notAuth != '':
                     pg.alert('인증이 안되어있옹')
@@ -195,17 +208,25 @@ def goScript(getDict):
                     authCount = authCount - 1
                     continue
                 
+                if showLog:
+                    print(f'한글 버전 체크 완료!! 준비 끝!!')
+                
                 if getDict['add_addr_val'] or getDict['add_addr_only']:
                     
                     if getDict['add_addr_only']:
-                        goToMain(driver, fore)
+                        chk_tele.goToMain(driver, fore)
                         if showLog:
                             print('메인 가기 완료')
                         tempPhNum = '010-2190-2197'
                         notMb = ''
                         finChk = ''
                         
+                        if showAlert:
+                            pg.alert('연락처 추가 대기!!!!')
                         chk_tele.addAddr(driver,fore,tempPhNum,getDict['max_addr_count'])
+                        if showAlert:
+                            pg.alert('연락처 추가 완료!!!!')
+                        
                         while True:
                             chk_tele.wait_float(2.7,3.5)
                             # print('친추 완료! 모달창 떠있으면 가입한 회원 아님 / 안떠있으면 체크!')
@@ -222,6 +243,8 @@ def goScript(getDict):
                                     break
                             except:
                                 pass
+                        if showAlert:
+                            pg.alert('연락처 추가 확인')
                             
                         if notMb:
                             chk_tele.wait_float(1.2,1.9)
@@ -239,10 +262,14 @@ def goScript(getDict):
                                 chk_tele.wait_float(1.2,1.9)
                                 if showLog:
                                     print(refreshCount)
-                                if refreshCount // 3 == 0:
-                                    if refreshCount // 6 == 0:
+                                if refreshCount % 3 == 0:
+                                    if refreshCount % 6 == 0:
+                                        if showAlert:
+                                            pg.alert('user-status가 안뜰경우 회원 클릭')
                                         chk_tele.wrongUserWork(driver,fore,setPhNum,1)
                                     else:
+                                        if showAlert:
+                                            pg.alert('user-status가 안떠서 새로고침')
                                         pg.press('F5')
                                         
                                 userStatus = chk_tele.searchWaitElement('.MiddleHeader .user-status', driver)
@@ -269,7 +296,7 @@ def goScript(getDict):
                             break
                     # 준비 완료!! 사람 추가 반복하자!!
                     for i in range(int(getDict['add_addr_count'])):
-                        goToMain(driver, fore)
+                        chk_tele.goToMain(driver, fore)
                         if showLog:
                             print('메인 가기 완료')
                         notMb = ''
@@ -291,6 +318,8 @@ def goScript(getDict):
                         maxAddrFull = chk_tele.addAddr(driver,fore,getPhNum,getDict['max_addr_count'])
                         
                         if maxAddrFull == 'on':
+                            if showAlert:
+                                pg.alert('연락처 꽉참 다음으로')
                             break
                             
                         #친추 완료! 모달창 떠있으면 가입한 회원 아님 / 안떠있으면 체크!
@@ -321,8 +350,11 @@ def goScript(getDict):
                             pg.click(fore.left+500,fore.top+300)
                             continue
                         
+                        if showAlert:
+                            pg.alert('일단 가입된 아이디임')
+                        
                         if showLog:
-                            print('아이디 문제 없음')
+                            print('일단 가입된 아이디임')
                         
                         refreshCount = 0
                         setPhNum = re.sub(r'[^0-9]', '', str(getPhNum))
@@ -331,16 +363,29 @@ def goScript(getDict):
                             chk_tele.wait_float(1.2,1.9)
                             if showLog:
                                 print(refreshCount)
-                            if refreshCount // 3 == 0:
-                                if refreshCount // 6 == 0:
+                            if refreshCount % 3 == 0:
+                                if refreshCount % 6 == 0:
+                                    refreshCount = 0
+                                    if showAlert:
+                                        pg.alert('user-status가 안뜰경우 회원 클릭')
+                                    if showLog:
+                                        print('user-status가 안뜰경우 회원 클릭')
                                     chk_tele.wrongUserWork(driver,fore,setPhNum,1)
                                 else:
+                                    if showAlert:
+                                        pg.alert('새로고침 하기~')
+                                    if showLog:
+                                        print('새로고침 하기~')
                                     pg.press('F5')
                                     
                             userStatus = chk_tele.searchWaitElement('.MiddleHeader .user-status', driver)
                             userStatusText = re.sub(r'[\s]', '', userStatus[0].text)
                             if userStatusText:
                                 break
+                        
+                        if showAlert:
+                            pg.alert(f'상단 텍스트 {userStatus[0].text} 확인하기')
+                        
                         
                         for chkText in chkInnerUserText:
                             if chkText in userStatusText:
@@ -349,6 +394,10 @@ def goScript(getDict):
                                 dbList.save('./db_list.xlsx')
                                 finChk = 'ok'
                                 if getDict['add_addr_only']:
+                                    
+                                    if showAlert:
+                                        pg.alert(f'전부 정상인거 확인! 삭제 시작')
+                                        
                                     # 연락처 삭제 준비, 삭제 아이콘 나오게
                                     chk_tele.searchAndClick('.icon-delete', '.tools button', driver, 1, '.MiddleHeader .fullName')
                                     
@@ -415,24 +464,23 @@ def goScript(getDict):
                 ################## 아이디 추가 작업 끝 그룹에 추가 시작!!
                 
                 if getDict['join_group_val'] and not getDict['add_addr_only']:
-                    goToMain(driver, fore)
+                    
                     getChatRoomName = authSheet.cell(authCount,4).value.strip()
                     saveGroupType = ""
-                    
-                    # 그룹 유형 체크 (최초 1회만)
-                    
-                        
+                    exceptUserList = []
                     
                     while True:
-                        # 그룹 클릭 (그룹명 찾아서 클릭 / 채팅방 클릭)
-                        noMatchGroup = ''
                         
+                         
+                        
+                        # 그룹 클릭 (그룹명 찾아서 클릭 / 채팅방 클릭)
                         noMatchCount = 0
                         while True:
                             noMatchCount += 1
+                            chk_tele.goToMain(driver, fore)
                             if showLog:
                                 print("그룹 클릭 (그룹명 찾아서 클릭 / 채팅방 클릭)")
-                            chk_tele.wait_float(1.5,2.2)
+                            chk_tele.wait_float(0.9,1.5)
                             try:
                                 nowChatRoom = driver.find_element(by=By.CSS_SELECTOR, value='.MiddleHeader .ChatInfo .fullName')
                                 if getChatRoomName in nowChatRoom.text:
@@ -445,8 +493,7 @@ def goScript(getDict):
                                     pass
                             
                             try:
-                                chk_tele.wait_float(0.9,1.2)
-
+                                chk_tele.wait_float(0.5,0.9)
                                 chatList = chk_tele.searchWaitElement('.chat-list .ListItem', driver)
                                 for chatRoom in chatList:
                                     chk_tele.wait_float(0.2,0.5)
@@ -456,6 +503,8 @@ def goScript(getDict):
                                         break
                             except:
                                 pass
+                        if showAlert:
+                            pg.alert('그룹 클릭 완료~')
                             
                         chk_tele.wait_float(0.5,0.9)
                         
@@ -480,6 +529,8 @@ def goScript(getDict):
                             except:
                                 pg.press('F5')
                                 pass
+                        if showAlert:
+                            pg.alert('그룹 상단 클릭 완료~ 우측에 프로필 나오면 성공')
                             
                         if workType == '관리자추가':
                             
@@ -648,7 +699,7 @@ def goScript(getDict):
                                     if getSearchManager == 'on':
                                         break
                                     else:
-                                        chk_tele.focus_window('Telegram')
+                                        chk_tele.wait_float('Telegram')
                                         pg.moveTo(fore.right - 150, fore.bottom - 300)
                                         pg.scroll(-1000)
                                                 
@@ -664,8 +715,13 @@ def goScript(getDict):
                         
                         # ★★★★★★★★★★★
                         else:
-                            # 그룹 > 수정 > 관리자 클릭
+                            
+                            if showLog:
+                                print('그룹 참여 버튼 클릭')
                             chk_tele.searchAndClick('.AddChatMembers-inner .form-control', '#RightColumn .FloatingActionButton.revealed', driver)
+                            
+                            if showAlert:
+                                pg.alert('그룹 참여 버튼 클릭 완료')
                             
                             findUser = ''
                             wrongUser = ''
@@ -714,11 +770,17 @@ def goScript(getDict):
                                 try:
                                     chk_tele.wait_float(0.9,1.2)
                                     searchUserNameList = driver.find_elements(by=By.CSS_SELECTOR, value='.AddChatMembers-inner .ListItem')
+                                    if len(searchUserNameList) == len(exceptUserList):
+                                        findUser = ''
+                                        break
                                     for userItem in searchUserNameList:
                                         userName = userItem.find_element(by=By.CSS_SELECTOR, value='.fullName')
                                         if userName.text[0:3] == '010' or userName.text[0:2] == '10':
-                                            userItem.click()
+                                            
                                             setUserName = re.sub(r'[^0-9]', '', userName.text)
+                                            if setUserName in exceptUserList:
+                                                continue
+                                            userItem.click()
                                             findUser = 'on'
                                             break
                                 except:
@@ -732,6 +794,9 @@ def goScript(getDict):
                                     addUserBtn.click()
                                 except:
                                     pass
+                            
+                            if showAlert:
+                                pg.alert(f'그룹 초대 완료 / 초대 거절 유저일 경우 : {wrongUser} // 유저를 찾음 여부 : {findUser} // ')
                             
                             if findUser == '':
                                 if showLog:
@@ -751,6 +816,8 @@ def goScript(getDict):
                                             closeBtn.click()
                                     except:
                                         pass
+                                if showAlert:
+                                    pg.alert(f'우측 그룹 설정 메인으로 이동 완료')
                                     
                                 while True:
                                     if showLog:
@@ -759,8 +826,8 @@ def goScript(getDict):
                                         chk_tele.wait_float(1.2,1.9)
                                         chatListWrap = driver.find_elements(by=By.CSS_SELECTOR, value='#LeftColumn-main > .Transition > div')
                                         chatList = chatListWrap[1].find_element(by=By.CSS_SELECTOR, value='.chat-list')
-                                        if chatList:
-                                            break
+                                        chatList.click()
+                                        break
                                     except:
                                         pass
                                     
@@ -771,6 +838,9 @@ def goScript(getDict):
                                         chk_tele.wait_float(0.5,1.2)
                                         pg.click(fore.left+500,fore.top+300)
                                         chk_tele.wait_float(0.5,1.2)
+                                
+                                if showAlert:
+                                    pg.alert(f'좌측 연락처로 이동 완료')
                                 
                                 while True:
                                     if showLog:
@@ -819,6 +889,10 @@ def goScript(getDict):
                                         
                                     except:
                                         pass
+                                
+                                if showAlert:
+                                    pg.alert('연락처 전부 삭제 완료')
+                                
                                 authSheet.cell(authCount, 6).value = f"{todayStr} 작업 완료"
                                 authList.save('./auth_list.xlsx')
                                 break
@@ -834,6 +908,9 @@ def goScript(getDict):
                                         break
                                 dbSheet.cell(chkDbCount,8).value = 'V'
                                 dbList.save('./db_list.xlsx')
+                                
+                                if showAlert:
+                                    pg.alert('초대 거절 유저 삭제 완료')
                                 continue
                             
                         # while True:
@@ -852,51 +929,9 @@ def goScript(getDict):
                         #     except:
                         #         pass
                         
-                        chkGroupCount = 0
-                        while True:
-                            pg.press('F5')
-                            chkGroupCount += 1
-                            if chkGroupCount > 6:
-                                if showLog:
-                                    print('초대 짤림 유력')
-                                    authSheet.cell(authCount, 7).value = f"초대 짤림 체크"
-                                    authList.save('./auth_list.xlsx')
-                                break
-                            if showLog:
-                                print("카운트가 올라갔으면 정상적으로 처리됨")
-                            
-                            
-                            try:
-                                chk_tele.wait_float(1.2,1.9)
-                                groupInfo = driver.find_element(by=By.CSS_SELECTOR, value='.chat-info-wrapper .ChatInfo')
-                                groupStatus = groupInfo.find_element(by=By.CSS_SELECTOR, value='.group-status')
-                                nowGroupCount = re.sub(r'[^0-9]', '', groupStatus.text)
-                                if nowGroupCount:
-                                    groupStatus.click()
-                                break
-                            except:
-                                pass
-                            
-                            if nowGroupCount == preGroupCount:
-                                continue
-                            
-                        
-                        if nowGroupCount == preGroupCount:
-                            doNotInvite = 'on'
-                            if showLog:
-                                print('카운트 변화 없음')
-                        else:
-                            if showLog:
-                                print('카운트 정상적으로 올라감')
-                            
-                            
-                        
-                        getSearchMember = ''
                         while True:
                             if showLog:
                                 print("연락처 삭제 준비, 회원 클릭 (헤더에 회원 이라고 나타나게)")
-                            
-                            pg.press('F5')
                             
                             try:
                                 chk_tele.wait_float(1.2,1.9)
@@ -910,14 +945,18 @@ def goScript(getDict):
                                 chk_tele.wait_float(1.2,1.9)
                                 groupStatus = driver.find_element(by=By.CSS_SELECTOR, value='.group-status')
                                 groupCount = re.sub(r'[^0-9]', '', groupStatus.text)
-                                forCountTemp = int(groupCount) // 20
+                                forCountTemp = int(groupCount) // 10
                                 if forCountTemp < 2:
                                     forCount = 2
                                 else:
                                     forCount = forCountTemp
-                                    
+                                
+                                getSearchMember = ''
+                                chk_tele.wait_float(0.9,1.5)
                                 for i in range(forCount):
+                                    
                                     # print('멤버 목록 찾아서 클릭 에러 구간')
+                                    
                                     memberList = chk_tele.searchWaitElement('.content.members-list .ListItem', driver)
                                     for member in memberList:
                                         memberText = member.find_element(by=By.CSS_SELECTOR, value='.ChatInfo .Avatar').get_attribute('aria-label')
@@ -930,16 +969,41 @@ def goScript(getDict):
                                             getSearchMember = 'on'
                                             break
                                     if getSearchMember == 'on':
+                                        if showAlert:
+                                            pg.alert('멤버를 찾았다.')
                                         break
                                     else:
+                                        if showAlert:
+                                            pg.alert('멤버 못찾음 스크롤 내려보자')
                                         pg.moveTo(fore.right - 150, fore.bottom - 300)
                                         pg.scroll(-1000)
+                                        chk_tele.wait_float(1.2,1.9)
                                 
                                 if getSearchMember == '':
+                                    chkDbCount = 0
+                                    while True:
+                                        chkDbCount += 1
+                                        if dbSheet.cell(chkDbCount,4).value is not None:
+                                            chkDb = re.sub(r'[^0-9]', '', str(dbSheet.cell(chkDbCount,4).value))
+                                        if chkDb and chkDb in str(setUserName):
+                                            break
+                                    chk_tele.wait_float(0.3,0.9)
+                                    if showLog:
+                                        print('초대 불가 유저 체크')
+                                    dbSheet.cell(chkDbCount,8).value = 'V'
+                                    dbList.save('./db_list.xlsx')
+                                    
+                                    if showLog:
+                                        print('초대 안되는 유저 예외 배열 추가')
+                                    exceptUserList.append(setUserName)
                                     break
-                            except:
+                            except Exception as e:
+                                pg.alert(e)
                                 pass
-
+                        if getSearchMember == '':
+                            authSheet.cell(authCount, 8).value = f"초대 기능 짤렸는지 확인"
+                            authList.save('./auth_list.xlsx')
+                            continue
                         # 여기가 난제!!!!!!!!!!!!! ★★★★★★★★★★★★★★★★★
                         # if getSearchMember == '':
                         #     authSheet.cell(authCount, 6).value = f"초대 기능 짤림"
@@ -960,7 +1024,7 @@ def goScript(getDict):
                             chk_tele.wait_float(0.9,1.5)
                             if reCount > 3:
                                 reCount = 0
-                                chk_tele.focus_window('Telegram')
+                                chk_tele.wait_float('Telegram')
                                 # print('새로고침!!!')
                                 pg.press('F5')
                                 chk_tele.wait_float(0.5,1.2)
@@ -988,16 +1052,17 @@ def goScript(getDict):
                                     print(e)
                                 # pg.alert('삭제중 에러발생! 현재 화면 캡쳐해서 관리자에게 문의 주세요!')
                                 pass
-                        
-                
-                
-
                 chk_tele.wait_float(0.5,1.2)
                 driver.quit()
                 chk_tele.wait_float(0.5,1.2)
                 
         except Exception as e:
             print(e)
+            if showAlert:
+                if 'Windows' in e:
+                    pg.alert('윈도우 관련 에서!! 이 에러 나면 그냥 패스하자!!!')
+                    pg.alert(e)
+                
             pg.alert('알수없는 에러발생! 현재 화면 캡쳐해서 관리자에게 문의 주세요!')
             
     sys.exit(0)
