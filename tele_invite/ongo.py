@@ -171,10 +171,20 @@ def goScript(getDict):
                 
                 errCount = 0
                 while True:
-                    errCount += 1
-                    if errCount > 5:
+                    errCount += 1  
+                    if errCount > 3:
                         errCount = 0
                         pg.press('F5')
+                        chk_tele.wait_float(2.7,3.5)
+                        while True:
+                            chk_tele.wait_float(0.9,1.5)
+                            pg.press('F12')
+                            chk_tele.wait_float(0.9,1.5)
+                            onBody = driver.find_element(by=By.CSS_SELECTOR, value='.is-pointer-env')
+                            getWindowSize = onBody.size
+                            if int(getWindowSize['width']) > 1500:
+                                break
+                        
                     if showLog:
                         print('아이디가 짤렸는지 안짤렸는디 최초 검증!!')
                     try:
@@ -200,7 +210,6 @@ def goScript(getDict):
                     authList.save('./auth_list.xlsx')
                     driver.quit()
                     continue
-                
                 
                 # 만약 현재 영어 버전일경우 한글 버전으로 변경!!
                 chkError = chk_tele.changeToKorean(driver, fore)
@@ -295,7 +304,13 @@ def goScript(getDict):
                         if dbId is None:
                             break
                     # 준비 완료!! 사람 추가 반복하자!!
-                    for i in range(int(getDict['add_addr_count'])):
+                    prepareExcepctaddAddrCount = 0
+                    
+                    loopCount = int(getDict['add_addr_count']) - prepareExcepctaddAddrCount
+                    
+                    
+                    for i in range(loopCount):
+                        prepareExcepctaddAddrCount += 1
                         chk_tele.goToMain(driver, fore)
                         if showLog:
                             print('메인 가기 완료')
@@ -453,7 +468,8 @@ def goScript(getDict):
                                     
                                 # # 연락처 삭제 완료
                                 # chk_tele.searchTextAndClick('회원 정보', '.Modal .confirm-dialog-button.default.danger.text', driver)
-                                    
+                                
+                    prepareExcepctaddAddrCount = 0
                 if not getDict['join_group_val'] or getDict['add_addr_only']:
                     authSheet.cell(authCount, 6).value = f"{todayStr} 작업 완료"
                     authList.save('./auth_list.xlsx')
@@ -470,9 +486,6 @@ def goScript(getDict):
                     exceptUserList = []
                     
                     while True:
-                        
-                         
-                        
                         # 그룹 클릭 (그룹명 찾아서 클릭 / 채팅방 클릭)
                         noMatchCount = 0
                         while True:
@@ -1062,8 +1075,12 @@ def goScript(getDict):
                 if 'Windows' in e:
                     pg.alert('윈도우 관련 에서!! 이 에러 나면 그냥 패스하자!!!')
                     pg.alert(e)
-                
-            pg.alert('알수없는 에러발생! 현재 화면 캡쳐해서 관리자에게 문의 주세요!')
+                    
+            # pg.alert('알수없는 에러발생! 현재 화면 캡쳐해서 관리자에게 문의 주세요!')
+            # pg.alert(f'뺄 카운트 값은? {prepareExcepctaddAddrCount} 입니다.')
+            driver.quit()
+            continue
+            
             
     sys.exit(0)
             
