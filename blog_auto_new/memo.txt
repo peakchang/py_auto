@@ -1,1 +1,0 @@
-pyinstaller.exe -F -n=BlogAuto --icon=Blog_icon-icons.com_53707.ico main.py

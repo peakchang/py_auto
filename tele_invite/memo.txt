@@ -1,2 +1,0 @@
-pyinstaller.exe -F -n=TeleAuto --icon=telegram_icon_191768.ico main.py
-pyinstaller.exe -F -n=TeleAuto-re --icon=telegram_icon_191768.ico main.py
