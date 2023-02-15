@@ -651,222 +651,6 @@ def blogReplyReady(getValList):
     blogReplyWork()
 
 
-
-
-def blogReplyWork(driver):
-    navItem = searchElement('.nav_item',driver)
-    for mitem in navItem:
-        if mitem.text == '카페':
-            mitem.click()
-            break
-    
-    cafeList = searchElement('.user_mycafe_info',driver)
-    getInCafe = ""
-    for cafeOn in cafeList:
-        if "소셜공간" in cafeOn.text:
-            cafeOn.click()
-            getInCafe = "on"
-            break
-    
-    if getInCafe == "":
-        driver.get('https://cafe.naver.com/sens3')
-    else:
-        driver.switch_to.window(driver.window_handles[0])
-        driver.close()
-        driver.switch_to.window(driver.window_handles[0])
-        
-    cafeWriteBtn = searchElement('.cafe-write-btn',driver)
-    
-    if "가입" in cafeWriteBtn[0].text:
-        pg.alert('카페 가입하기~~')
-    
-    workBoardLink = searchElement('#menuLink226',driver)
-    workBoardLink[0].click()
-    
-    driver.switch_to.frame('cafe_main')
-    
-    
-    
-    # 카페에 글 작성하기
-    
-    workBoardWriteBtn = searchElement('#writeFormBtn',driver)
-    workBoardWriteBtn[0].click()
-    
-    wait_float(1.5,2.5)
-    driver.switch_to.window(driver.window_handles[1])
-    
-    
-    subjectArea = searchElement('.FlexableTextArea',driver)
-    subjectArea[0].click()
-    
-    with open('./etc/social_cafe_content.txt', 'r') as r:
-        cafeContent = r.readlines()
-    
-    keyboard.write(text=cafeContent[0], delay=0.05)
-    wait_float(0.3,0.9)
-    
-    contentArea = searchElement('.se-content',driver)
-    contentArea[0].click()
-    wait_float(0.3,0.9)
-    pg.hotkey('ctrl', 'a')
-    
-    for i,conLine in enumerate(cafeContent):
-        if i == 0:
-            continue
-        keyboard.write(text=conLine, delay=0.03)
-        wait_float(0.5,1.5)
-    pg.press('enter')
-    pg.hotkey('ctrl', 'v')
-    wait_float(1.5,2.5)
-    
-    BaseButton = searchElement('.BaseButton',driver)
-    BaseButton[0].click()
-    
-    
-    
-    
-    wait_float(1.5,2.5)
-    driver.switch_to.frame('cafe_main')
-    
-    wait_float(0.5,0.9)
-    driver.close()
-    
-    driver.switch_to.window(driver.window_handles[0])
-    
-    
-    
-    workCafeLink = pyperclip.paste()
-    workCafeNum = workCafeLink.split('/')[-1]
-    preNick = ""
-    
-    # 카페에 글 작성하기 끝~
-    
-    
-    
-    print(workCafeLink)
-    
-    forVal = random.randrange(6,8)
-    
-    ici = 0
-    while True:
-        
-        
-        ici += 1
-        driver.switch_to.default_content()
-        
-        wait_float(0.3,0.9)
-        workBoardLink = searchElement('#menuLink226',driver)
-        workBoardLink[0].click()
-        
-        wait_float(0.3,0.9)
-        
-        driver.switch_to.frame('cafe_main')
-        
-        wait_float(0.3,0.9)
-        
-        articleDiff = searchElement('.article-board',driver)
-        articleList = articleDiff[1].find_elements(by=By.CSS_SELECTOR, value=".td_article")
-        
-        
-        
-        if str(workCafeNum) in articleList[ici].find_element(by=By.CSS_SELECTOR, value=".board-number").text:
-            forVal = forVal + 1
-            continue
-        
-        wait_float(0.3,0.9)
-        clickArticleTarget = articleList[ici].find_element(by=By.CSS_SELECTOR, value=".article")
-        wait_float(0.3,0.9)
-        # clickArticleTarget.click()
-        untilEleShow(clickArticleTarget, '.nickname')
-        
-        
-        nickname = searchElement('.nickname',driver)
-        if preNick == nickname[0].text:
-            driver.back()
-            wait_float(2.1,3.7)
-            continue
-        else:
-            preNick = nickname[0].text
-        
-        chkLinkTag = driver.find_elements("xpath", "//*[contains(@class, 'se-fs-')]")
-
-        for chkLink in chkLinkTag:
-            try:
-                getOtherBlogLink = chkLink.find_element(by=By.CSS_SELECTOR, value="a").get_attribute('href')
-                if 'blog' in str(getOtherBlogLink):
-                    chkOtherBlogLink = getOtherBlogLink.split('/')
-                    if len(chkOtherBlogLink) < 5:
-                        forVal = forVal + 1
-                        driver.back()
-                        wait_float(2.1,3.7)
-                        break
-                    else:
-                        
-                        chkLink.click()
-                        
-                        if 'm.' in getOtherBlogLink:
-                            wait_float(0.3,0.9)
-                            driver.switch_to.window(driver.window_handles[1])
-                            driver.switch_to.default_content()
-                            gongamBtn = searchElement('.u_ico',driver)
-                            wait_float(0.3,0.9)
-                            gongamBtn[-1].click()
-                            wait_float(2.2,2.9)
-                            driver.close()
-                            wait_float(0.3,0.9)
-                            driver.switch_to.window(driver.window_handles[0])
-                            wait_float(0.3,0.9)
-                            
-                        else:
-                            wait_float(0.3,0.9)
-                            driver.switch_to.window(driver.window_handles[1])
-                            driver.switch_to.default_content()
-                            wait_float(0.3,0.9)
-                            driver.switch_to.frame('mainFrame')
-                            wait_float(0.3,0.9)
-                            gongamBtn = searchElement('.u_ico',driver)
-                            gongamBtn[1].click()
-                            wait_float(2.2,2.9)
-                            driver.switch_to.default_content()
-                            wait_float(0.3,0.9)
-                            driver.close()
-                            wait_float(0.3,0.9)
-                            driver.switch_to.window(driver.window_handles[0])
-                            wait_float(0.3,0.9)
-                        
-                        driver.switch_to.frame('cafe_main')
-                        replyArea = searchElement('.comment_inbox_text',driver)
-                        replyArea[0].click()
-                        
-                        for i,conLine in enumerate(cafeContent):
-                            if i == 0:
-                                continue
-                            keyboard.write(text=conLine, delay=0.03)
-                            wait_float(0.5,1.5)
-                        pg.press('enter')
-                        pg.hotkey('ctrl', 'v')
-                        wait_float(1.5,2.5)
-                        
-                        replySuccessBtn = searchElement('.btn_register',driver)
-                        driver.execute_script("arguments[0].scrollIntoView();", replySuccessBtn[0])
-                        replySuccessBtn[0].click()
-                        wait_float(5.5,7.5)
-                        
-                        driver.back()
-                        break
-            except:
-                pass
-        if ici >= forVal:
-            break
-
-
-
-
-
-
-
-
-
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>함수 시작염
 
 # 상품 들어가서 스크롤 내리고 나오기
@@ -1239,3 +1023,213 @@ def mainToCafe():
 # subjectArr
 def list_chunk(lst, n):
     return [lst[i:i+n] for i in range(0, len(lst), n)]
+
+
+
+
+
+def blogReplyWork(driver):
+    navItem = searchElement('.nav_item',driver)
+    for mitem in navItem:
+        if mitem.text == '카페':
+            mitem.click()
+            break
+    
+    cafeList = searchElement('.user_mycafe_info',driver)
+    getInCafe = ""
+    for cafeOn in cafeList:
+        if "소셜공간" in cafeOn.text:
+            cafeOn.click()
+            getInCafe = "on"
+            break
+    
+    if getInCafe == "":
+        driver.get('https://cafe.naver.com/sens3')
+    else:
+        driver.switch_to.window(driver.window_handles[0])
+        driver.close()
+        driver.switch_to.window(driver.window_handles[0])
+        
+    cafeWriteBtn = searchElement('.cafe-write-btn',driver)
+    
+    if "가입" in cafeWriteBtn[0].text:
+        pg.alert('카페 가입하기~~')
+    
+    workBoardLink = searchElement('#menuLink226',driver)
+    workBoardLink[0].click()
+    
+    driver.switch_to.frame('cafe_main')
+    
+    
+    
+    # 카페에 글 작성하기
+    
+    workBoardWriteBtn = searchElement('#writeFormBtn',driver)
+    workBoardWriteBtn[0].click()
+    
+    wait_float(1.5,2.5)
+    driver.switch_to.window(driver.window_handles[1])
+    
+    
+    subjectArea = searchElement('.FlexableTextArea',driver)
+    subjectArea[0].click()
+    
+    with open('./etc/social_cafe_content.txt', 'r') as r:
+        cafeContent = r.readlines()
+    
+    keyboard.write(text=cafeContent[0], delay=0.05)
+    wait_float(0.3,0.9)
+    
+    contentArea = searchElement('.se-content',driver)
+    contentArea[0].click()
+    wait_float(0.3,0.9)
+    pg.hotkey('ctrl', 'a')
+    
+    for i,conLine in enumerate(cafeContent):
+        if i == 0:
+            continue
+        keyboard.write(text=conLine, delay=0.03)
+        wait_float(0.5,1.5)
+    pg.press('enter')
+    pg.hotkey('ctrl', 'v')
+    wait_float(1.5,2.5)
+    
+    BaseButton = searchElement('.BaseButton',driver)
+    BaseButton[0].click()
+    
+    
+    
+    
+    wait_float(1.5,2.5)
+    driver.switch_to.frame('cafe_main')
+    
+    wait_float(0.5,0.9)
+    driver.close()
+    
+    driver.switch_to.window(driver.window_handles[0])
+    
+    
+    
+    workCafeLink = pyperclip.paste()
+    workCafeNum = workCafeLink.split('/')[-1]
+    preNick = ""
+    
+    # 카페에 글 작성하기 끝~
+    
+    
+    
+    print(workCafeLink)
+    
+    forVal = random.randrange(6,8)
+    
+    ici = 0
+    while True:
+        
+        
+        ici += 1
+        driver.switch_to.default_content()
+        
+        wait_float(0.3,0.9)
+        workBoardLink = searchElement('#menuLink226',driver)
+        workBoardLink[0].click()
+        
+        wait_float(0.3,0.9)
+        
+        driver.switch_to.frame('cafe_main')
+        
+        wait_float(0.3,0.9)
+        
+        articleDiff = searchElement('.article-board',driver)
+        articleList = articleDiff[1].find_elements(by=By.CSS_SELECTOR, value=".td_article")
+        
+        
+        
+        if str(workCafeNum) in articleList[ici].find_element(by=By.CSS_SELECTOR, value=".board-number").text:
+            forVal = forVal + 1
+            continue
+        
+        wait_float(0.3,0.9)
+        clickArticleTarget = articleList[ici].find_element(by=By.CSS_SELECTOR, value=".article")
+        wait_float(0.3,0.9)
+        # clickArticleTarget.click()
+        untilEleShow(clickArticleTarget, '.nickname')
+        
+        
+        nickname = searchElement('.nickname',driver)
+        if preNick == nickname[0].text:
+            driver.back()
+            wait_float(2.1,3.7)
+            continue
+        else:
+            preNick = nickname[0].text
+        
+        chkLinkTag = driver.find_elements("xpath", "//*[contains(@class, 'se-fs-')]")
+
+        for chkLink in chkLinkTag:
+            try:
+                getOtherBlogLink = chkLink.find_element(by=By.CSS_SELECTOR, value="a").get_attribute('href')
+                if 'blog' in str(getOtherBlogLink):
+                    chkOtherBlogLink = getOtherBlogLink.split('/')
+                    if len(chkOtherBlogLink) < 5:
+                        forVal = forVal + 1
+                        driver.back()
+                        wait_float(2.1,3.7)
+                        break
+                    else:
+                        
+                        chkLink.click()
+                        
+                        if 'm.' in getOtherBlogLink:
+                            wait_float(0.3,0.9)
+                            driver.switch_to.window(driver.window_handles[1])
+                            driver.switch_to.default_content()
+                            gongamBtn = searchElement('.u_ico',driver)
+                            wait_float(0.3,0.9)
+                            gongamBtn[-1].click()
+                            wait_float(2.2,2.9)
+                            driver.close()
+                            wait_float(0.3,0.9)
+                            driver.switch_to.window(driver.window_handles[0])
+                            wait_float(0.3,0.9)
+                            
+                        else:
+                            wait_float(0.3,0.9)
+                            driver.switch_to.window(driver.window_handles[1])
+                            driver.switch_to.default_content()
+                            wait_float(0.3,0.9)
+                            driver.switch_to.frame('mainFrame')
+                            wait_float(0.3,0.9)
+                            gongamBtn = searchElement('.u_ico',driver)
+                            gongamBtn[1].click()
+                            wait_float(2.2,2.9)
+                            driver.switch_to.default_content()
+                            wait_float(0.3,0.9)
+                            driver.close()
+                            wait_float(0.3,0.9)
+                            driver.switch_to.window(driver.window_handles[0])
+                            wait_float(0.3,0.9)
+                        
+                        driver.switch_to.frame('cafe_main')
+                        replyArea = searchElement('.comment_inbox_text',driver)
+                        replyArea[0].click()
+                        
+                        for i,conLine in enumerate(cafeContent):
+                            if i == 0:
+                                continue
+                            keyboard.write(text=conLine, delay=0.03)
+                            wait_float(0.5,1.5)
+                        pg.press('enter')
+                        pg.hotkey('ctrl', 'v')
+                        wait_float(1.5,2.5)
+                        
+                        replySuccessBtn = searchElement('.btn_register',driver)
+                        driver.execute_script("arguments[0].scrollIntoView();", replySuccessBtn[0])
+                        replySuccessBtn[0].click()
+                        wait_float(5.5,7.5)
+                        
+                        driver.back()
+                        break
+            except:
+                pass
+        if ici >= forVal:
+            break
